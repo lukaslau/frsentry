@@ -39,11 +39,11 @@ class FrSentry
     public static function getClient()
     {
         if (self::$type === 2) {
-            return (new FrSentryClient(\Context::getContext()->tw_sentry['backend_key']));
+            return (new FrSentryClient(\Context::getContext()->fr_sentry['backend_key']));
         }
 
         \Sentry\init([
-            'dsn' => \Context::getContext()->tw_sentry['backend_key'],
+            'dsn' => \Context::getContext()->fr_sentry['backend_key'],
             'traces_sample_rate' => 1.0,
             'profiles_sample_rate' => 1.0,
             // 'before_send' => function (\Sentry\Event $event, ?\Sentry\EventHint $hint): ?\Sentry\Event {
@@ -88,10 +88,10 @@ class FrSentry
     {
         // checking if the same error was already sent for prevent duplication
         $error_hash = md5($e->getMessage().$e->getCode());
-        if (isset(\Context::getContext()->tw_sentry['sent_errors'][$error_hash]))
+        if (isset(\Context::getContext()->fr_sentry['sent_errors'][$error_hash]))
             return;
         else
-            \Context::getContext()->tw_sentry['sent_errors'][$error_hash] = 1;
+            \Context::getContext()->fr_sentry['sent_errors'][$error_hash] = 1;
 
         // assigning type if message has sqlstate substring
         if (stripos($e->getMessage(), 'SQLSTATE[') !== false)
@@ -181,15 +181,15 @@ class FrSentry
 
     public static function checkEnabled($errno)
     {
-        if (defined('_PS_ADMIN_DIR_') && !\Context::getContext()->tw_sentry['backend']['use_backoffice']) {
+        if (defined('_PS_ADMIN_DIR_') && !\Context::getContext()->fr_sentry['backend']['use_backoffice']) {
             return false;
         }
 
         $typestr = true;
-        $php_ignore_user = \Context::getContext()->tw_sentry['backend']['php_ignore_user'];
-        $php_ignore_deprecated = \Context::getContext()->tw_sentry['backend']['php_ignore_deprecated'];
-        $php_ignore_warning = \Context::getContext()->tw_sentry['backend']['php_ignore_warning'];
-        $php_ignore_noticed = \Context::getContext()->tw_sentry['backend']['php_ignore_noticed'];
+        $php_ignore_user = \Context::getContext()->fr_sentry['backend']['php_ignore_user'];
+        $php_ignore_deprecated = \Context::getContext()->fr_sentry['backend']['php_ignore_deprecated'];
+        $php_ignore_warning = \Context::getContext()->fr_sentry['backend']['php_ignore_warning'];
+        $php_ignore_noticed = \Context::getContext()->fr_sentry['backend']['php_ignore_noticed'];
 
         switch ($errno) {
             case E_ERROR: // 1 //

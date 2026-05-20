@@ -22,7 +22,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use Frento\FrSentry\src\Prestashop\TwConfiguration;
+use Frento\FrSentry\src\Prestashop\FrConfiguration;
 
 abstract class Db extends DbCore
 {
@@ -51,16 +51,16 @@ abstract class Db extends DbCore
     public function logErrorByMonitor($message = false, $code = 0, $sql = null)
     {
         try {
-            if (empty(Context::getContext()->tw_sentry)) {
-                if (!class_exists(TwConfiguration::class)) {
+            if (empty(Context::getContext()->fr_sentry)) {
+                if (!class_exists(FrConfiguration::class)) {
                     return false;
                 } else {
-                    Context::getContext()->tw_sentry = TwConfiguration::getConfiguration();
+                    Context::getContext()->fr_sentry = FrConfiguration::getConfiguration();
                 }
             }
         } catch (Throwable $e) {
         }
-        if (!empty(Context::getContext()->tw_sentry) && Context::getContext()->tw_sentry['backend_key']) {
+        if (!empty(Context::getContext()->fr_sentry) && Context::getContext()->fr_sentry['backend_key']) {
             $errno = $code ? $code : $this->getNumberError();
             if ($errno) {
                 try {

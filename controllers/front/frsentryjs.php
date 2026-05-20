@@ -22,7 +22,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use Frento\FrSentry\src\Prestashop\TwConfiguration;
+use Frento\FrSentry\src\Prestashop\FrConfiguration;
 
 class frsentryfrsentryjsModuleFrontController extends ModuleFrontController
 {
@@ -30,11 +30,11 @@ class frsentryfrsentryjsModuleFrontController extends ModuleFrontController
     {
         $context = \Context::getContext();
 
-        if (empty($context->tw_sentry)) {
-            Context::getContext()->tw_sentry = TwConfiguration::getConfiguration();
+        if (empty($context->fr_sentry)) {
+            Context::getContext()->fr_sentry = FrConfiguration::getConfiguration();
         }
 
-        if (empty($context->tw_sentry['frontend_key'])) {
+        if (empty($context->fr_sentry['frontend_key'])) {
             return;
         }
 
@@ -49,9 +49,9 @@ class frsentryfrsentryjsModuleFrontController extends ModuleFrontController
 
         header('Content-Type: application/javascript');
         $this->context->smarty->assign([
-            'frsentry_apikey' => $context->tw_sentry['frontend_key'],
-            'insights_frontend' => (int)$context->tw_sentry['backend']['insights_frontend'],
-            'profiling_frontend' => (int)$context->tw_sentry['backend']['profiling_frontend'],
+            'frsentry_apikey' => $context->fr_sentry['frontend_key'],
+            'insights_frontend' => (int)$context->fr_sentry['backend']['insights_frontend'],
+            'profiling_frontend' => (int)$context->fr_sentry['backend']['profiling_frontend'],
             'ip_address' => \Tools::getRemoteAddr(),
             'shop_url' => str_replace('.', '\.', $context->shop->domain)
         ]);

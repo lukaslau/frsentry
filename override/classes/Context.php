@@ -24,5 +24,5 @@ if (!defined('_PS_VERSION_')) {
 
 class Context extends ContextCore
 {
-    public $tw_sentry = [];
+    public $fr_sentry = [];
 }

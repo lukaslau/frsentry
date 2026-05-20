@@ -26,7 +26,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use Frento\FrSentry\src\Libs\FrSentry;
-use Frento\FrSentry\src\Prestashop\TwConfiguration;
+use Frento\FrSentry\src\Prestashop\FrConfiguration;
 
 trait FrontHook
 {
@@ -44,11 +44,11 @@ trait FrontHook
     public function hookActionFrontControllerSetMedia()
     {
         // set values
-        if (empty(\Context::getContext()->tw_sentry)) {
-            \Context::getContext()->tw_sentry = TwConfiguration::getConfiguration();
+        if (empty(\Context::getContext()->fr_sentry)) {
+            \Context::getContext()->fr_sentry = FrConfiguration::getConfiguration();
         }
 
-        if (!empty(\Context::getContext()->tw_sentry) && \Context::getContext()->tw_sentry['frontend_key']) {
+        if (!empty(\Context::getContext()->fr_sentry) && \Context::getContext()->fr_sentry['frontend_key']) {
             $js = $this->context->link->getModuleLink(
                 'frsentry',
                 'frsentryjs',
@@ -71,11 +71,11 @@ trait FrontHook
     public function hookModuleRoutes()
     {
         // set values
-        if (empty(\Context::getContext()->tw_sentry)) {
-            \Context::getContext()->tw_sentry = TwConfiguration::getConfiguration();
+        if (empty(\Context::getContext()->fr_sentry)) {
+            \Context::getContext()->fr_sentry = FrConfiguration::getConfiguration();
         }
 
-        if (!empty(\Context::getContext()->tw_sentry) && \Context::getContext()->tw_sentry['backend_key']) {
+        if (!empty(\Context::getContext()->fr_sentry) && \Context::getContext()->fr_sentry['backend_key']) {
             self::registerHandlers();
         }
     }
@@ -86,11 +86,11 @@ trait FrontHook
             return;
 
         // set values
-        if (empty(\Context::getContext()->tw_sentry)) {
-            \Context::getContext()->tw_sentry = TwConfiguration::getConfiguration();
+        if (empty(\Context::getContext()->fr_sentry)) {
+            \Context::getContext()->fr_sentry = FrConfiguration::getConfiguration();
         }
 
-        if (!empty(\Context::getContext()->tw_sentry) && \Context::getContext()->tw_sentry['backend']['profiling_frontend']) {
+        if (!empty(\Context::getContext()->fr_sentry) && \Context::getContext()->fr_sentry['backend']['profiling_frontend']) {
             if (!headers_sent())
                 header('Document-Policy: js-profiling');
         }

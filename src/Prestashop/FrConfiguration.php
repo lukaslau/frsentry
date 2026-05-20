@@ -27,7 +27,7 @@ if (!defined('_PS_VERSION_')) {
 
 use Frento\FrSentry\src\Types\CustomBoolean;
 
-class TwConfiguration
+class FrConfiguration
 {
     public static $configPrefix = 'FRSENTRY_';
 

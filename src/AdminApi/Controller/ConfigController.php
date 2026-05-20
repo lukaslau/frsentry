@@ -28,7 +28,7 @@ if (!defined('_PS_VERSION_')) {
 use Frento\FrSentry\src\AdminApi\Exception\NoPermissionException;
 use Frento\FrSentry\src\AdminApi\Request;
 use Frento\FrSentry\src\AdminApi\Validator\Validator;
-use Frento\FrSentry\src\Prestashop\TwConfiguration;
+use Frento\FrSentry\src\Prestashop\FrConfiguration;
 
 class ConfigController extends Controllers
 {
@@ -60,12 +60,12 @@ class ConfigController extends Controllers
 
         $data = Request::getRequestData();
 
-        \Configuration::updateValue(TwConfiguration::$configPrefix . 'backend_key', Request::input($data, 'backend_key', ''));
-        \Configuration::updateValue(TwConfiguration::$configPrefix . 'frontend_key', Request::input($data, 'frontend_key', ''));
+        \Configuration::updateValue(FrConfiguration::$configPrefix . 'backend_key', Request::input($data, 'backend_key', ''));
+        \Configuration::updateValue(FrConfiguration::$configPrefix . 'frontend_key', Request::input($data, 'frontend_key', ''));
 
         if (Request::input($data, 'backend', '')) {
             foreach (Request::input($data, 'backend', '') as $key => $value) {
-                \Configuration::updateValue(TwConfiguration::$configPrefix . 'backend--' . $key . '', $value);
+                \Configuration::updateValue(FrConfiguration::$configPrefix . 'backend--' . $key . '', $value);
             }
         }
 
@@ -86,7 +86,7 @@ class ConfigController extends Controllers
         $shop = new \Shop(Request::getShopIdInBO(false));
 
         $this->render([
-            'form' => TwConfiguration::getConfiguration(),
+            'form' => FrConfiguration::getConfiguration(),
             'shop' => $shop->name,
             'error' => null,
         ]);
