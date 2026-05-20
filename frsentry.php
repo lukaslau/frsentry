@@ -2,7 +2,7 @@
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
- * Copyright (c) 2023. Mateusz Szymański Frento
+ * Copyright (c) 2023. Mateusz Szymański Frento IT
  * https://frentoit.com
  *
  * NOTICE OF LICENSE
@@ -12,11 +12,11 @@
  * It is also available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
  *
- * @author    Frento <info@frentoit.com>
- * @copyright Copyright 2016-2025 © Frento Mateusz Szymański All right reserved
+ * @author    Frento IT <info@frentoit.com>
+ * @copyright Copyright 2016-2025 © Frento IT Mateusz Szymański All right reserved
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *
- * @category  Frento
+ * @category  Frento IT
  */
 use Frento\FrSentry\src\AdminApi\Loader;
 
@@ -46,7 +46,7 @@ class FrSentry extends Module
         $this->name = 'frsentry';
         $this->tab = 'front_office_features';
         $this->version = '2.1.2';
-        $this->author = 'Mateusz Szymanski Frento';
+        $this->author = 'Mateusz Szymanski Frento IT';
         $this->need_instance = 0;
         $this->bootstrap = true;
 

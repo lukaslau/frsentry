@@ -2,7 +2,7 @@
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
- * Copyright (c) 2023. Mateusz Szymański Frento
+ * Copyright (c) 2023. Mateusz Szymański Frento IT
  * https://frentoit.com
  *
  * NOTICE OF LICENSE
@@ -12,11 +12,11 @@
  * It is also available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
  *
- * @author    Frento <info@frentoit.com>
- * @copyright Copyright 2016-2025 © Frento Mateusz Szymański All right reserved
+ * @author    Frento IT <info@frentoit.com>
+ * @copyright Copyright 2016-2025 © Frento IT Mateusz Szymański All right reserved
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *
- * @category  Frento
+ * @category  Frento IT
  */
 global $_MODULE;
 $_MODULE = [];
