@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -19,17 +19,17 @@
  * @category  Teamwant
  */
 
-namespace Teamwant\TeamwantSentry\src\Prestashop;
+namespace Frento\FrSentry\src\Prestashop;
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use Teamwant\TeamwantSentry\src\Types\CustomBoolean;
+use Frento\FrSentry\src\Types\CustomBoolean;
 
 class TwConfiguration
 {
-    public static $configPrefix = 'TEAMWANT_SENTRY_';
+    public static $configPrefix = 'FRSENTRY_';
 
     public static function getConfiguration()
     {

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -19,14 +19,14 @@
  * @category  Teamwant
  */
 
-namespace Teamwant\TeamwantSentry\src\AdminApi\Controller;
+namespace Frento\FrSentry\src\AdminApi\Controller;
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use Teamwant\TeamwantSentry\src\AdminApi\JsonRender;
-use Teamwant\TeamwantSentry\src\AdminApi\Routes;
+use Frento\FrSentry\src\AdminApi\JsonRender;
+use Frento\FrSentry\src\AdminApi\Routes;
 
 class Controllers
 {
@@ -76,7 +76,7 @@ class Controllers
         $jsonRender->render($data, $code);
     }
 
-    protected function checkPrivileges(string $slug, string $prefix = 'ROLE_MOD_MODULE_TEAMWANT_SENTRY_'): bool
+    protected function checkPrivileges(string $slug, string $prefix = 'ROLE_MOD_MODULE_FRSENTRY_'): bool
     {
         $employeId = \Context::getContext()->employee->id_profile;
 

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -19,14 +19,14 @@
  * @category  Teamwant
  */
 
-namespace Teamwant\TeamwantSentry\src\Prestashop\Hooks;
+namespace Frento\FrSentry\src\Prestashop\Hooks;
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use Teamwant\TeamwantSentry\src\Libs\TeamwantSentry;
-use Teamwant\TeamwantSentry\src\Prestashop\TwConfiguration;
+use Frento\FrSentry\src\Libs\FrSentry;
+use Frento\FrSentry\src\Prestashop\TwConfiguration;
 
 trait FrontHook
 {
@@ -50,14 +50,14 @@ trait FrontHook
 
         if (!empty(\Context::getContext()->tw_sentry) && \Context::getContext()->tw_sentry['frontend_key']) {
             $js = $this->context->link->getModuleLink(
-                'teamwantsentry',
-                'teamwantsentryjs',
+                'frsentry',
+                'frsentryjs',
                 ['js' => 1, 'shop' => $this->context->shop->id],
                 \Configuration::get('PS_SSL_ENABLED')
             );
 
             $this->context->controller->registerJavascript(
-                'teamwantsentry-js',
+                'frsentry-js',
                 $js,
                 [
                     'priority' => -9,
@@ -98,14 +98,14 @@ trait FrontHook
 
     private static function registerHandlers()
     {
-        register_shutdown_function([TeamwantSentry::class, 'enableTeamwantErrorMonitorShut']);
-        set_error_handler([TeamwantSentry::class, 'enableTeamwantErrorMonitorShutHandler']);
+        register_shutdown_function([FrSentry::class, 'enableFrSentryErrorMonitorShut']);
+        set_error_handler([FrSentry::class, 'enableFrSentryErrorMonitorShutHandler']);
 
         // EXCEPTION HANDLERS
-        $sentry_exception_handler = [TeamwantSentry::class, 'enableTeamwantException'];
+        $sentry_exception_handler = [FrSentry::class, 'enableFrSentryException'];
         $previous_exception_handler = set_exception_handler(null);
         //if ($previous_exception_handler === null)
-        //    $previous_exception_handler = [TeamwantSentry::class, 'prestashopFrontExceptionHandler'];
+        //    $previous_exception_handler = [FrSentry::class, 'prestashopFrontExceptionHandler'];
 
         if ($previous_exception_handler !== null)
             $handlers = [$sentry_exception_handler, $previous_exception_handler];

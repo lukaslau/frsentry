@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -19,7 +19,7 @@
  * @category  Teamwant
  */
 
-namespace Teamwant\TeamwantSentry\src\Libs;
+namespace Frento\FrSentry\src\Libs;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -29,17 +29,17 @@ use Sentry\ClientInterface;
 use Sentry\SentrySdk;
 use Sentry\State\Scope;
 
-class TeamwantSentry
+class FrSentry
 {
     public static $type = 1;
 
     /**
-     * @return TeamwantSentryClient|ClientInterface
+     * @return FrSentryClient|ClientInterface
      */
     public static function getClient()
     {
         if (self::$type === 2) {
-            return (new TeamwantSentryClient(\Context::getContext()->tw_sentry['backend_key']));
+            return (new FrSentryClient(\Context::getContext()->tw_sentry['backend_key']));
         }
 
         \Sentry\init([
@@ -63,7 +63,7 @@ class TeamwantSentry
         return $client;
     }
 
-    public static function enableTeamwantErrorMonitorShut()
+    public static function enableFrSentryErrorMonitorShut()
     {
         $error = error_get_last();
 
@@ -74,7 +74,7 @@ class TeamwantSentry
         }
 
         if ($error && ($error['type'])) {
-            self::enableTeamwantErrorMonitorShutHandler($error['type'], $error['message'], $error['file'], $error['line']);
+            self::enableFrSentryErrorMonitorShutHandler($error['type'], $error['message'], $error['file'], $error['line']);
         }
     }
 
@@ -99,7 +99,7 @@ class TeamwantSentry
 
         $client = self::getClient();
 
-        if ($client instanceof TeamwantSentryClient) {
+        if ($client instanceof FrSentryClient) {
             unset($tags['sql_query']);
             $client->captureException($e, $tags);
         } else {
@@ -144,7 +144,7 @@ class TeamwantSentry
      * @param \Exception $e
      * @return void
      */
-    public static function enableTeamwantException($e)
+    public static function enableFrSentryException($e)
     {
         $typestr = self::checkEnabled(0);
 
@@ -157,7 +157,7 @@ class TeamwantSentry
         self::innerExceptionHandler($e);
     }
 
-    public static function enableTeamwantErrorMonitorShutHandler($errno, $errstr, $errfile, $errline)
+    public static function enableFrSentryErrorMonitorShutHandler($errno, $errstr, $errfile, $errline)
     {
         $typestr = self::checkEnabled($errno);
 

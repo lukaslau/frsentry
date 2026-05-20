@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -22,9 +22,9 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use Teamwant\TeamwantSentry\src\Prestashop\TwConfiguration;
+use Frento\FrSentry\src\Prestashop\TwConfiguration;
 
-class teamwantsentryteamwantsentryjsModuleFrontController extends ModuleFrontController
+class frsentryfrsentryjsModuleFrontController extends ModuleFrontController
 {
     public function initContent()
     {
@@ -49,7 +49,7 @@ class teamwantsentryteamwantsentryjsModuleFrontController extends ModuleFrontCon
 
         header('Content-Type: application/javascript');
         $this->context->smarty->assign([
-            'teamwantsentry_apikey' => $context->tw_sentry['frontend_key'],
+            'frsentry_apikey' => $context->tw_sentry['frontend_key'],
             'insights_frontend' => (int)$context->tw_sentry['backend']['insights_frontend'],
             'profiling_frontend' => (int)$context->tw_sentry['backend']['profiling_frontend'],
             'ip_address' => \Tools::getRemoteAddr(),
@@ -58,7 +58,7 @@ class teamwantsentryteamwantsentryjsModuleFrontController extends ModuleFrontCon
 
         ob_clean();
         ob_start();
-        echo $this->context->smarty->fetch(_PS_MODULE_DIR_ . '/teamwantsentry/views/templates/front/js_apikey.tpl');
+        echo $this->context->smarty->fetch(_PS_MODULE_DIR_ . '/frsentry/views/templates/front/js_apikey.tpl');
         $content = ob_get_contents();
         $content = preg_replace('/<!--(.|\s)*?-->/', '', $content);
         ob_end_clean();

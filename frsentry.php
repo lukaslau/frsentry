@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -18,7 +18,7 @@
  *
  * @category  Teamwant
  */
-use Teamwant\TeamwantSentry\src\AdminApi\Loader;
+use Frento\FrSentry\src\AdminApi\Loader;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -34,16 +34,16 @@ if (!function_exists('get_debug_type')) {
 // prestashop autoloader was bugged with that module
 require_once __DIR__ . '/vendor/autoload.php';
 
-class TeamwantSentry extends Module
+class FrSentry extends Module
 {
-    use Teamwant\TeamwantSentry\src\Prestashop\Hooks\AdminHook;
-    use Teamwant\TeamwantSentry\src\Prestashop\Hooks\FrontHook;
+    use Frento\FrSentry\src\Prestashop\Hooks\AdminHook;
+    use Frento\FrSentry\src\Prestashop\Hooks\FrontHook;
 
     protected $config_form = false;
 
     public function __construct()
     {
-        $this->name = 'teamwantsentry';
+        $this->name = 'frsentry';
         $this->tab = 'front_office_features';
         $this->version = '2.1.2';
         $this->author = 'Mateusz Szymanski Teamwant';
@@ -61,13 +61,13 @@ class TeamwantSentry extends Module
 
     /**
      * for example:
-     * Module::getInstanceByName('teamwantsentry')->captureException(new Exception('MESSAGE'), ['type' => 'PHP'])
+     * Module::getInstanceByName('frsentry')->captureException(new Exception('MESSAGE'), ['type' => 'PHP'])
      *
      * @param [type] $exception
      * @return void
      */
     public function captureException($exception, $tags = []) {
-        Teamwant\TeamwantSentry\src\Libs\TeamwantSentry::customCaptureException($exception, $tags);
+        Frento\FrSentry\src\Libs\FrSentry::customCaptureException($exception, $tags);
     }
 
     /**
@@ -103,7 +103,7 @@ class TeamwantSentry extends Module
             'iso_code' => $this->context->language->iso_code,
         ]);
 
-        return $this->context->smarty->fetch('module:teamwantsentry/views/templates/admin/configuration.tpl');
+        return $this->context->smarty->fetch('module:frsentry/views/templates/admin/configuration.tpl');
     }
 
     private function renderTranslation()
@@ -128,7 +128,7 @@ class TeamwantSentry extends Module
 
     private function loadAdminApiControllerRoutes()
     {
-        if (Tools::getIsset('TeamwantSentryAdminApiController')) {
+        if (Tools::getIsset('FrSentryAdminApiController')) {
             if (defined('_PS_ADMIN_DIR_')) {
                 $loader = new Loader($this);
                 $loader->run();

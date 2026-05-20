@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -19,19 +19,19 @@
  * @category  Teamwant
  */
 
-namespace Teamwant\TeamwantSentry\src\Libs;
+namespace Frento\FrSentry\src\Libs;
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-class TeamwantSentryClient
+class FrSentryClient
 {
     public $dsn;
 
     public function __construct(string $dsn)
     {
-        $this->dsn = TeamwantSentryDsn::createFromString($dsn);
+        $this->dsn = FrSentryDsn::createFromString($dsn);
     }
 
     public function captureException(\Throwable $exception, $tags = [])

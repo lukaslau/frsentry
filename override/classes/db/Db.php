@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -22,7 +22,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use Teamwant\TeamwantSentry\src\Prestashop\TwConfiguration;
+use Frento\FrSentry\src\Prestashop\TwConfiguration;
 
 abstract class Db extends DbCore
 {
@@ -64,7 +64,7 @@ abstract class Db extends DbCore
             $errno = $code ? $code : $this->getNumberError();
             if ($errno) {
                 try {
-                    /*Teamwant\TeamwantSentry\src\Libs\TeamwantSentry::customCaptureException(new Exception(sprintf(
+                    /*Frento\FrSentry\src\Libs\FrSentry::customCaptureException(new Exception(sprintf(
                         '[SQL Error] %s',
                         $this->getMsgError()
                     )), ['type' => 'MySQL']);*/
@@ -72,7 +72,7 @@ abstract class Db extends DbCore
                     if (!empty($sql))
                         $tags['sql_query'] = $sql;
 
-                    Teamwant\TeamwantSentry\src\Libs\TeamwantSentry::customCaptureException(new Exception($message, $code), $tags);
+                    Frento\FrSentry\src\Libs\FrSentry::customCaptureException(new Exception($message, $code), $tags);
                 } catch (Throwable $e) {
                 }
             }

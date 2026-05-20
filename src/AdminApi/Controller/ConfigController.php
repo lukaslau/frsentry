@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -19,16 +19,16 @@
  * @category  Teamwant
  */
 
-namespace Teamwant\TeamwantSentry\src\AdminApi\Controller;
+namespace Frento\FrSentry\src\AdminApi\Controller;
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use Teamwant\TeamwantSentry\src\AdminApi\Exception\NoPermissionException;
-use Teamwant\TeamwantSentry\src\AdminApi\Request;
-use Teamwant\TeamwantSentry\src\AdminApi\Validator\Validator;
-use Teamwant\TeamwantSentry\src\Prestashop\TwConfiguration;
+use Frento\FrSentry\src\AdminApi\Exception\NoPermissionException;
+use Frento\FrSentry\src\AdminApi\Request;
+use Frento\FrSentry\src\AdminApi\Validator\Validator;
+use Frento\FrSentry\src\Prestashop\TwConfiguration;
 
 class ConfigController extends Controllers
 {
@@ -44,7 +44,7 @@ class ConfigController extends Controllers
 
     /**
      * curl
-     * 'http://localhost/admin/index.php?controller=AdminTeamwantTokenConfiguration&token=d743724649534bcb7d5f44bd84476a53&TeamwantSentryAdminApiController=config/index/save'
+     * 'http://localhost/admin/index.php?controller=AdminTeamwantTokenConfiguration&token=d743724649534bcb7d5f44bd84476a53&FrSentryAdminApiController=config/index/save'
      * -X PATCH
      * -H 'Accept: application/json'
      * -H 'Content-Type: application/json'
@@ -74,7 +74,7 @@ class ConfigController extends Controllers
 
     /**
      * curl
-     * 'http://localhost/admin/index.php?controller=AdminTeamwantTokenConfiguration&token=d743724649534bcb7d5f44bd84476a53&TeamwantSentryAdminApiController=config/index'
+     * 'http://localhost/admin/index.php?controller=AdminTeamwantTokenConfiguration&token=d743724649534bcb7d5f44bd84476a53&FrSentryAdminApiController=config/index'
      * GET
      */
     public function actionIndex()

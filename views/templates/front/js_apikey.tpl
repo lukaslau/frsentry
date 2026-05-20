@@ -1,4 +1,4 @@
-{**
+﻿{**
  * Sentry module for Prestashop
  * Version: 1.0.0
  * Copyright (c) 2023. Mateusz Szymański Teamwant
@@ -33,7 +33,7 @@
 {literal}
     Sentry.init(
     {
-        dsn: '{/literal}{$teamwantsentry_apikey}{literal}',
+        dsn: '{/literal}{$frsentry_apikey}{literal}',
         integrations: [
         {/literal}
             {if $insights_frontend}

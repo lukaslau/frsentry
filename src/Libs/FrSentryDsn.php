@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -19,13 +19,13 @@
  * @category  Teamwant
  */
 
-namespace Teamwant\TeamwantSentry\src\Libs;
+namespace Frento\FrSentry\src\Libs;
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-class TeamwantSentryDsn
+class FrSentryDsn
 {
     public static function createFromString(string $value)
     {

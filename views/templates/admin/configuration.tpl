@@ -1,4 +1,4 @@
-{**
+﻿{**
  * Sentry module for Prestashop
  * Version: 1.2.0
  * Copyright (c) 2024. Mateusz Szymański Teamwant
@@ -18,7 +18,7 @@
  * @package   Teamwant
  *}
 <noscript>You need to enable JavaScript to run this app.</noscript>
-<div id="teamwantsentry"
+<div id="frsentry"
     data-baseurl="{$moduleAdminLink|escape:'html':'UTF-8'}"
     data-isocode="{$iso_code|escape:'html':'UTF-8'}"
 ></div>

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -24,9 +24,9 @@ if (!defined('_PS_VERSION_')) {
 
 $sql = [];
 
-// $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'teamwantsentry` (
-//     `id_teamwantsentry` int(11) NOT NULL AUTO_INCREMENT,
-//     PRIMARY KEY  (`id_teamwantsentry`)
+// $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'frsentry` (
+//     `id_frsentry` int(11) NOT NULL AUTO_INCREMENT,
+//     PRIMARY KEY  (`id_frsentry`)
 // ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
 // foreach ($sql as $query) {

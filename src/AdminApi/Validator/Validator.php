@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -19,16 +19,16 @@
  * @category  Teamwant
  */
 
-namespace Teamwant\TeamwantSentry\src\AdminApi\Validator;
+namespace Frento\FrSentry\src\AdminApi\Validator;
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use PrestashopModuleTeamwantSentry\Rakit\Validation\ErrorBag;
-use Teamwant\TeamwantSentry\src\AdminApi\Exception\QueryValidationException;
+use PrestashopModuleFrSentry\Rakit\Validation\ErrorBag;
+use Frento\FrSentry\src\AdminApi\Exception\QueryValidationException;
 
-class Validator extends \PrestashopModuleTeamwantSentry\Rakit\Validation\Validator
+class Validator extends \PrestashopModuleFrSentry\Rakit\Validation\Validator
 {
     /**
      * @var ErrorBag
@@ -55,7 +55,7 @@ class Validator extends \PrestashopModuleTeamwantSentry\Rakit\Validation\Validat
         return \Context::getContext()->getTranslator()->trans(
             $value,
             $parameters,
-            'Modules.TeamwantSentry'
+            'Modules.FrSentry'
         );
     }
 
@@ -113,7 +113,7 @@ class Validator extends \PrestashopModuleTeamwantSentry\Rakit\Validation\Validat
      *
      * @return Validation
      */
-    public function make(array $inputs, array $rules, array $messages = []): \PrestashopModuleTeamwantSentry\Rakit\Validation\Validation
+    public function make(array $inputs, array $rules, array $messages = []): \PrestashopModuleFrSentry\Rakit\Validation\Validation
     {
         $messages = array_merge($this->messages, $messages);
         $validation = new Validation($this, $inputs, $rules, $messages, $this->errors);

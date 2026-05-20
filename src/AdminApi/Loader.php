@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -19,13 +19,13 @@
  * @category  Teamwant
  */
 
-namespace Teamwant\TeamwantSentry\src\AdminApi;
+namespace Frento\FrSentry\src\AdminApi;
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use Teamwant\TeamwantSentry\src\AdminApi\Exception\QueryValidationException;
+use Frento\FrSentry\src\AdminApi\Exception\QueryValidationException;
 
 class Loader
 {
@@ -53,7 +53,7 @@ class Loader
                 throw new \Exception('Only admin api avaliable');
             }
 
-            if (empty(\Tools::getValue('TeamwantSentryAdminApiController'))) {
+            if (empty(\Tools::getValue('FrSentryAdminApiController'))) {
                 throw new \Exception('Route is empty');
             }
 
@@ -64,7 +64,7 @@ class Loader
             $this->renderException(get_class($t), $t);
         }
 
-        $this->route = (string) \Tools::getValue('TeamwantSentryAdminApiController');
+        $this->route = (string) \Tools::getValue('FrSentryAdminApiController');
         $this->routes = new Routes();
     }
 
@@ -117,7 +117,7 @@ class Loader
         return \Context::getContext()->getTranslator()->trans(
             $value,
             $parameters,
-            'Modules.TeamwantToken.Exceptions'
+            'Modules.FrSentry.Exceptions'
         );
     }
 }

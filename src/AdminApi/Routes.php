@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -19,19 +19,19 @@
  * @category  Teamwant
  */
 
-namespace Teamwant\TeamwantSentry\src\AdminApi;
+namespace Frento\FrSentry\src\AdminApi;
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use Teamwant\TeamwantSentry\src\AdminApi\Controller\ConfigController;
-use Teamwant\TeamwantSentry\src\AdminApi\Controller\Controllers;
-use Teamwant\TeamwantSentry\src\AdminApi\Exception\ControllerActionNotExistsException;
-use Teamwant\TeamwantSentry\src\AdminApi\Exception\ControllerNotExistsException;
-use Teamwant\TeamwantSentry\src\AdminApi\Exception\ControllerNotUseControllerClassException;
-use Teamwant\TeamwantSentry\src\AdminApi\Exception\HTTPMethodIsInvalidException;
-use Teamwant\TeamwantSentry\src\AdminApi\Exception\RouteNotFoundException;
+use Frento\FrSentry\src\AdminApi\Controller\ConfigController;
+use Frento\FrSentry\src\AdminApi\Controller\Controllers;
+use Frento\FrSentry\src\AdminApi\Exception\ControllerActionNotExistsException;
+use Frento\FrSentry\src\AdminApi\Exception\ControllerNotExistsException;
+use Frento\FrSentry\src\AdminApi\Exception\ControllerNotUseControllerClassException;
+use Frento\FrSentry\src\AdminApi\Exception\HTTPMethodIsInvalidException;
+use Frento\FrSentry\src\AdminApi\Exception\RouteNotFoundException;
 
 class Routes
 {

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -19,7 +19,7 @@
  * @category  Teamwant
  */
 
-namespace Teamwant\TeamwantSentry\src\Prestashop\Hooks;
+namespace Frento\FrSentry\src\Prestashop\Hooks;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -49,19 +49,19 @@ trait AdminHook
         // Media::addJsDef([
         // ]);
 
-        if (in_array(\Tools::getValue('configure'), ['teamwantsentry'])) {
-            if (defined('IS_TEAMWANT_DEV_ENVIROMENT') && IS_TEAMWANT_DEV_ENVIROMENT === true) {
+        if (in_array(\Tools::getValue('configure'), ['frsentry'])) {
+            if (defined('IS_FRSENTRY_DEV_ENVIROMENT') && IS_FRSENTRY_DEV_ENVIROMENT === true) {
                 $this->context->controller->addJS(
-                    TEAMWANT_SENTRY . '/static/js/bundle.js'
+                    FRSENTRY . '/static/js/bundle.js'
                 );
             } else {
-                $this->context->controller->addJS($this->_path . 'views/js/teamwantsentry.js');
-                $this->context->controller->addCss($this->_path . 'views/css/teamwantsentry.css');
+                $this->context->controller->addJS($this->_path . 'views/js/frsentry.js');
+                $this->context->controller->addCss($this->_path . 'views/css/frsentry.css');
             }
         }
     }
 
-    public function installAdminPrivilages($class_name = 'ROLE_MOD_MODULE_TEAMWANT_SENTRY')
+    public function installAdminPrivilages($class_name = 'ROLE_MOD_MODULE_FRSENTRY')
     {
         $loopData = ['_READ', '_CREATE', '_UPDATE', '_DELETE'];
 

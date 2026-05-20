@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -19,13 +19,13 @@
  * @category  Teamwant
  */
 
-namespace Teamwant\TeamwantSentry\src\AdminApi\Exception;
+namespace Frento\FrSentry\src\AdminApi\Exception;
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use Teamwant\TeamwantSentry\src\AdminApi\JsonRender;
+use Frento\FrSentry\src\AdminApi\JsonRender;
 
 class ControllerNotExistsException extends \Exception
 {

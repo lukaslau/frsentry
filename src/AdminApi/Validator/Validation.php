@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -19,15 +19,15 @@
  * @category  Teamwant
  */
 
-namespace Teamwant\TeamwantSentry\src\AdminApi\Validator;
+namespace Frento\FrSentry\src\AdminApi\Validator;
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use PrestashopModuleTeamwantSentry\Rakit\Validation\Rules\Interfaces\BeforeValidate;
+use PrestashopModuleFrSentry\Rakit\Validation\Rules\Interfaces\BeforeValidate;
 
-class Validation extends \PrestashopModuleTeamwantSentry\Rakit\Validation\Validation
+class Validation extends \PrestashopModuleFrSentry\Rakit\Validation\Validation
 {
     /**
      * Constructor

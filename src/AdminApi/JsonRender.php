@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
@@ -19,7 +19,7 @@
  * @category  Teamwant
  */
 
-namespace Teamwant\TeamwantSentry\src\AdminApi;
+namespace Frento\FrSentry\src\AdminApi;
 
 if (!defined('_PS_VERSION_')) {
     exit;
