@@ -27,21 +27,10 @@ if (!defined('_PS_VERSION_')) {
 
 use Frento\FrSentry\src\AdminApi\Exception\NoPermissionException;
 use Frento\FrSentry\src\AdminApi\Request;
-use Frento\FrSentry\src\AdminApi\Validator\Validator;
 use Frento\FrSentry\src\Prestashop\FrConfiguration;
 
 class ConfigController extends Controllers
 {
-    /**
-     * @var Validator
-     */
-    private $validator;
-
-    public function __construct()
-    {
-        $this->validator = new Validator();
-    }
-
     /**
      * curl
      * 'http://localhost/admin/index.php?controller=AdminFrSentryConfiguration&token=d743724649534bcb7d5f44bd84476a53&FrSentryAdminApiController=config/index/save'

@@ -3,8 +3,7 @@
   "version": "1.1.0",
   "require": {
     "php": ">=7.2.0",
-    "rakit/validation": "^1.4",
-    "sentry/sentry": "^4.8"
+"sentry/sentry": "^4.8"
   },
   "license": "PAY",
   "autoload": {

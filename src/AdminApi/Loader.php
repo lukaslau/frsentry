@@ -25,8 +25,6 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use Frento\FrSentry\src\AdminApi\Exception\QueryValidationException;
-
 class Loader
 {
     /**
@@ -93,20 +91,6 @@ class Loader
 
         if (isset($throwable->showFile) && $throwable->showFile === false) {
             unset($data['file']);
-        }
-
-        switch ($className) {
-            case QueryValidationException::class:
-                $data['message'] = null;
-                $data['messages'] = $throwable->getMessages();
-
-                if (count($data['messages'])) {
-                    foreach ($data['messages'] as $k => $v) {
-                        $data['messages'][$k] = $this->trans($v);
-                    }
-                }
-
-                break;
         }
 
         $response->render($data, $code);
