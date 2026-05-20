@@ -1,0 +1,86 @@
+<?php
+/**
+ * Sentry module for Prestashop
+ * Version: 2.1.1
+ * Copyright (c) 2023. Mateusz Szymański Teamwant
+ * https://teamwant.pl
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @author    Teamwant <kontakt@teamwant.pl>
+ * @copyright Copyright 2016-2025 © Teamwant Mateusz Szymański All right reserved
+ * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ *
+ * @category  Teamwant
+ */
+
+namespace Teamwant\TeamwantSentry\src\AdminApi\Exception;
+
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
+use PrestashopModuleTeamwantSentry\Rakit\Validation\ErrorBag;
+use Teamwant\TeamwantSentry\src\AdminApi\JsonRender;
+
+class QueryValidationException extends \Exception
+{
+    /**
+     * @var array
+     */
+    private $messages;
+
+    public $showFile = false;
+
+    /**
+     * @param array|ErrorBag|string $errors
+     * @param int $code
+     */
+    public function __construct($errors, $code = JsonRender::HTTP_BAD_REQUEST)
+    {
+        if ($errors instanceof ErrorBag) {
+            if (!$errorsArray = $errors->toArray()) {
+                $this->messages = $errors->all();
+            }
+        } elseif (is_array($errors)) {
+            $errorsArray = $errors;
+        } elseif (is_string($errors)) {
+            $this->messages = $errors;
+        }
+
+        if (!empty($errorsArray)) {
+            $rtn = [];
+
+            foreach ($errorsArray as $key => $value) {
+                if (is_array($value)) {
+                    foreach ($value as $v2) {
+                        if (empty($rtn[$key])) {
+                            $rtn[$key] = $v2;
+                        } else {
+                            $rtn[$key] .= PHP_EOL . $v2;
+                        }
+                    }
+                } else {
+                    if (empty($rtn[$key])) {
+                        $rtn[$key] = $value;
+                    } else {
+                        $rtn[$key] .= PHP_EOL . $value;
+                    }
+                }
+            }
+            $this->messages = $rtn;
+        }
+
+        $this->code = $code;
+    }
+
+    public function getMessages()
+    {
+        return $this->messages;
+    }
+}
