@@ -2,8 +2,8 @@
 /**
  * Sentry module for Prestashop
  * Version: 2.1.1
- * Copyright (c) 2023. Mateusz Szymański Teamwant
- * https://teamwant.pl
+ * Copyright (c) 2023. Mateusz Szymański Frento
+ * https://frentoit.com
  *
  * NOTICE OF LICENSE
  *
@@ -12,11 +12,11 @@
  * It is also available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
  *
- * @author    Teamwant <kontakt@teamwant.pl>
- * @copyright Copyright 2016-2025 © Teamwant Mateusz Szymański All right reserved
+ * @author    Frento <info@frentoit.com>
+ * @copyright Copyright 2016-2025 © Frento Mateusz Szymański All right reserved
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *
- * @category  Teamwant
+ * @category  Frento
  */
 
 namespace Frento\FrSentry\src\AdminApi\Controller;
@@ -44,7 +44,7 @@ class ConfigController extends Controllers
 
     /**
      * curl
-     * 'http://localhost/admin/index.php?controller=AdminTeamwantTokenConfiguration&token=d743724649534bcb7d5f44bd84476a53&FrSentryAdminApiController=config/index/save'
+     * 'http://localhost/admin/index.php?controller=AdminFrSentryConfiguration&token=d743724649534bcb7d5f44bd84476a53&FrSentryAdminApiController=config/index/save'
      * -X PATCH
      * -H 'Accept: application/json'
      * -H 'Content-Type: application/json'
@@ -74,7 +74,7 @@ class ConfigController extends Controllers
 
     /**
      * curl
-     * 'http://localhost/admin/index.php?controller=AdminTeamwantTokenConfiguration&token=d743724649534bcb7d5f44bd84476a53&FrSentryAdminApiController=config/index'
+     * 'http://localhost/admin/index.php?controller=AdminFrSentryConfiguration&token=d743724649534bcb7d5f44bd84476a53&FrSentryAdminApiController=config/index'
      * GET
      */
     public function actionIndex()

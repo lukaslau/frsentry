@@ -4,7 +4,7 @@
     <displayName><![CDATA[Sentry Integration]]></displayName>
     <version><![CDATA[2.1.2]]></version>
     <description><![CDATA[Monitor bugs and check the availability of your store with sentry integration]]></description>
-    <author><![CDATA[Mateusz Szymanski Teamwant]]></author>
+    <author><![CDATA[Mateusz Szymanski Frento]]></author>
     <tab><![CDATA[front_office_features]]></tab>
     <is_configurable>1</is_configurable>
     <need_instance>0</need_instance>
