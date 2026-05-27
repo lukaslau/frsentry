@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry;
 
 final class MonitorConfig
@@ -45,7 +29,6 @@ final class MonitorConfig
      * @var int|null The number of consecutive OK check-ins it takes before an issue is resolved
      */
     private $recoveryThreshold;
-
     public function __construct(MonitorSchedule $schedule, ?int $checkinMargin = null, ?int $maxRuntime = null, ?string $timezone = null, ?int $failureIssueThreshold = null, ?int $recoveryThreshold = null)
     {
         $this->schedule = $schedule;
@@ -55,79 +38,60 @@ final class MonitorConfig
         $this->failureIssueThreshold = $failureIssueThreshold;
         $this->recoveryThreshold = $recoveryThreshold;
     }
-
     public function getSchedule(): MonitorSchedule
     {
         return $this->schedule;
     }
-
     public function setSchedule(MonitorSchedule $schedule): self
     {
         $this->schedule = $schedule;
-
         return $this;
     }
-
     public function getCheckinMargin(): ?int
     {
         return $this->checkinMargin;
     }
-
     public function setCheckinMargin(?int $checkinMargin): self
     {
         $this->checkinMargin = $checkinMargin;
-
         return $this;
     }
-
     public function getMaxRuntime(): ?int
     {
         return $this->maxRuntime;
     }
-
     public function setMaxRuntime(?int $maxRuntime): self
     {
         $this->maxRuntime = $maxRuntime;
-
         return $this;
     }
-
     public function getTimezone(): ?string
     {
         return $this->timezone;
     }
-
     public function setTimezone(?string $timezone): self
     {
         $this->timezone = $timezone;
-
         return $this;
     }
-
     public function getFailureRecoveryThreshold(): ?int
     {
         return $this->failureIssueThreshold;
     }
-
     public function setFailureRecoveryThreshold(?int $failureIssueThreshold): self
     {
         $this->failureIssueThreshold = $failureIssueThreshold;
-
         return $this;
     }
-
     public function getRecoveryThreshold(): ?int
     {
         return $this->recoveryThreshold;
     }
-
     public function setRecoveryThreshold(?int $recoveryThreshold): self
     {
         $this->recoveryThreshold = $recoveryThreshold;
-
         return $this;
     }
-
     /**
      * @return array<string, mixed>
      */

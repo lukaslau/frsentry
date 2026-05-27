@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\Context;
 
 /**
@@ -38,13 +22,12 @@ final class RuntimeContext
      * @var string|null The SAPI (Server API) name
      */
     private $sapi;
-
     /**
      * Constructor.
      *
-     * @param string $name The name of the runtime
+     * @param string      $name    The name of the runtime
      * @param string|null $version The version of the runtime
-     * @param string|null $sapi The SAPI name of the runtime
+     * @param string|null $sapi    The SAPI name of the runtime
      */
     public function __construct(string $name, ?string $version = null, ?string $sapi = null)
     {
@@ -55,7 +38,6 @@ final class RuntimeContext
         $this->version = $version;
         $this->sapi = $sapi;
     }
-
     /**
      * Gets the name of the runtime.
      */
@@ -63,7 +45,6 @@ final class RuntimeContext
     {
         return $this->name;
     }
-
     /**
      * Sets the name of the runtime.
      *
@@ -76,7 +57,6 @@ final class RuntimeContext
         }
         $this->name = $name;
     }
-
     /**
      * Gets the version of the runtime.
      */
@@ -84,7 +64,6 @@ final class RuntimeContext
     {
         return $this->version;
     }
-
     /**
      * Sets the version of the runtime.
      *
@@ -94,7 +73,6 @@ final class RuntimeContext
     {
         $this->version = $version;
     }
-
     /**
      * Gets the SAPI of the runtime.
      */
@@ -102,7 +80,6 @@ final class RuntimeContext
     {
         return $this->sapi;
     }
-
     /**
      * Sets the SAPI of the runtime.
      *

@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry;
 
 /**
@@ -67,7 +51,6 @@ final class Severity implements \Stringable
      * @var string The value of this enum instance
      */
     private $value;
-
     /**
      * Constructor.
      *
@@ -80,7 +63,6 @@ final class Severity implements \Stringable
         }
         $this->value = $value;
     }
-
     /**
      * Translate a PHP Error constant into a Sentry log level group.
      *
@@ -113,7 +95,6 @@ final class Severity implements \Stringable
                 return self::error();
         }
     }
-
     /**
      * Creates a new instance of this enum for the "debug" value.
      */
@@ -121,7 +102,6 @@ final class Severity implements \Stringable
     {
         return new self(self::DEBUG);
     }
-
     /**
      * Creates a new instance of this enum for the "info" value.
      */
@@ -129,7 +109,6 @@ final class Severity implements \Stringable
     {
         return new self(self::INFO);
     }
-
     /**
      * Creates a new instance of this enum for the "warning" value.
      */
@@ -137,7 +116,6 @@ final class Severity implements \Stringable
     {
         return new self(self::WARNING);
     }
-
     /**
      * Creates a new instance of this enum for the "error" value.
      */
@@ -145,7 +123,6 @@ final class Severity implements \Stringable
     {
         return new self(self::ERROR);
     }
-
     /**
      * Creates a new instance of this enum for the "fatal" value.
      */
@@ -153,7 +130,6 @@ final class Severity implements \Stringable
     {
         return new self(self::FATAL);
     }
-
     /**
      * Returns whether two object instances of this class are equal.
      *
@@ -163,7 +139,6 @@ final class Severity implements \Stringable
     {
         return $this->value === (string) $other;
     }
-
     /**
      * @see https://www.php.net/manual/en/language.oop5.magic.php#object.tostring
      */

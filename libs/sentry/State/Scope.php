@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\State;
 
 use FrSentry\Sentry\Breadcrumb;
@@ -29,7 +13,6 @@ use FrSentry\Sentry\Tracing\PropagationContext;
 use FrSentry\Sentry\Tracing\Span;
 use FrSentry\Sentry\Tracing\Transaction;
 use FrSentry\Sentry\UserDataBag;
-
 /**
  * The scope holds data that should implicitly be sent with Sentry events. It
  * can hold context data, extra parameters, level overrides, fingerprints etc.
@@ -100,16 +83,14 @@ class Scope
      * @var callable|null
      */
     private static $externalPropagationContextCallback;
-
     public function __construct(?PropagationContext $propagationContext = null)
     {
         $this->propagationContext = $propagationContext ?? PropagationContext::fromDefaults();
     }
-
     /**
      * Sets a new tag in the tags context.
      *
-     * @param string $key The key that uniquely identifies the tag
+     * @param string $key   The key that uniquely identifies the tag
      * @param string $value The value
      *
      * @return $this
@@ -117,10 +98,8 @@ class Scope
     public function setTag(string $key, string $value): self
     {
         $this->tags[$key] = $value;
-
         return $this;
     }
-
     /**
      * Merges the given tags into the current tags context.
      *
@@ -131,10 +110,8 @@ class Scope
     public function setTags(array $tags): self
     {
         $this->tags = array_merge($this->tags, $tags);
-
         return $this;
     }
-
     /**
      * Removes a given tag from the tags context.
      *
@@ -145,10 +122,8 @@ class Scope
     public function removeTag(string $key): self
     {
         unset($this->tags[$key]);
-
         return $this;
     }
-
     /**
      * Adds a feature flag to the scope.
      *
@@ -171,14 +146,12 @@ class Scope
         if ($this->span !== null) {
             $this->span->setFlag($key, $result);
         }
-
         return $this;
     }
-
     /**
      * Sets data to the context by a given name.
      *
-     * @param string $name The name that uniquely identifies the context
+     * @param string               $name  The name that uniquely identifies the context
      * @param array<string, mixed> $value The value
      *
      * @return $this
@@ -188,10 +161,8 @@ class Scope
         if (!empty($value)) {
             $this->contexts[$name] = $value;
         }
-
         return $this;
     }
-
     /**
      * Removes the context from the scope.
      *
@@ -202,25 +173,21 @@ class Scope
     public function removeContext(string $name): self
     {
         unset($this->contexts[$name]);
-
         return $this;
     }
-
     /**
      * Sets a new information in the extra context.
      *
-     * @param string $key The key that uniquely identifies the information
-     * @param mixed $value The value
+     * @param string $key   The key that uniquely identifies the information
+     * @param mixed  $value The value
      *
      * @return $this
      */
     public function setExtra(string $key, $value): self
     {
         $this->extra[$key] = $value;
-
         return $this;
     }
-
     /**
      * Merges the given data into the current extras context.
      *
@@ -231,10 +198,8 @@ class Scope
     public function setExtras(array $extras): self
     {
         $this->extra = array_merge($this->extra, $extras);
-
         return $this;
     }
-
     /**
      * Get the user context.
      */
@@ -242,7 +207,6 @@ class Scope
     {
         return $this->user;
     }
-
     /**
      * Merges the given data in the user context.
      *
@@ -263,10 +227,8 @@ class Scope
         } else {
             $this->user = $this->user->merge($user);
         }
-
         return $this;
     }
-
     /**
      * Removes all data of the user context.
      *
@@ -275,10 +237,8 @@ class Scope
     public function removeUser(): self
     {
         $this->user = null;
-
         return $this;
     }
-
     /**
      * Sets the list of strings used to dictate the deduplication of this event.
      *
@@ -289,10 +249,8 @@ class Scope
     public function setFingerprint(array $fingerprint): self
     {
         $this->fingerprint = $fingerprint;
-
         return $this;
     }
-
     /**
      * Sets the severity to apply to all events captured in this scope.
      *
@@ -303,15 +261,13 @@ class Scope
     public function setLevel(?Severity $level): self
     {
         $this->level = $level;
-
         return $this;
     }
-
     /**
      * Add the given breadcrumb to the scope.
      *
-     * @param Breadcrumb $breadcrumb The breadcrumb to add
-     * @param int $maxBreadcrumbs The maximum number of breadcrumbs to record
+     * @param Breadcrumb $breadcrumb     The breadcrumb to add
+     * @param int        $maxBreadcrumbs The maximum number of breadcrumbs to record
      *
      * @return $this
      */
@@ -319,10 +275,8 @@ class Scope
     {
         $this->breadcrumbs[] = $breadcrumb;
         $this->breadcrumbs = \array_slice($this->breadcrumbs, -$maxBreadcrumbs);
-
         return $this;
     }
-
     /**
      * Clears all the breadcrumbs.
      *
@@ -331,10 +285,8 @@ class Scope
     public function clearBreadcrumbs(): self
     {
         $this->breadcrumbs = [];
-
         return $this;
     }
-
     /**
      * Adds a new event processor that will be called after {@see Scope::applyToEvent}
      * finished its work.
@@ -346,10 +298,8 @@ class Scope
     public function addEventProcessor(callable $eventProcessor): self
     {
         $this->eventProcessors[] = $eventProcessor;
-
         return $this;
     }
-
     /**
      * Adds a new event processor that will be called after {@see Scope::applyToEvent}
      * finished its work.
@@ -360,17 +310,14 @@ class Scope
     {
         self::$globalEventProcessors[] = $eventProcessor;
     }
-
     public static function registerExternalPropagationContext(callable $callback): void
     {
         self::$externalPropagationContextCallback = $callback;
     }
-
     public static function clearExternalPropagationContext(): void
     {
         self::$externalPropagationContextCallback = null;
     }
-
     /**
      * @return array{trace_id: string, span_id: string}|null
      */
@@ -396,10 +343,8 @@ class Scope
         if (!\is_string($spanId) || preg_match('/^[0-9a-f]{16}$/i', $spanId) !== 1) {
             return null;
         }
-
         return ['trace_id' => $traceId, 'span_id' => $spanId];
     }
-
     /**
      * Clears the scope and resets any data it contains.
      *
@@ -416,10 +361,8 @@ class Scope
         $this->flags = [];
         $this->extra = [];
         $this->contexts = [];
-
         return $this;
     }
-
     /**
      * Applies the current context and fingerprint to the event. If the event has
      * already some breadcrumbs on it, the ones from this scope won't get merged.
@@ -498,10 +441,8 @@ class Scope
                 throw new \InvalidArgumentException(\sprintf('The event processor must return null or an instance of the %s class', Event::class));
             }
         }
-
         return $event;
     }
-
     /**
      * Returns the span that is on the scope.
      */
@@ -509,7 +450,6 @@ class Scope
     {
         return $this->span;
     }
-
     /**
      * Sets the span on the scope.
      *
@@ -520,10 +460,8 @@ class Scope
     public function setSpan(?Span $span): self
     {
         $this->span = $span;
-
         return $this;
     }
-
     /**
      * Returns the transaction attached to the scope (if there is one).
      */
@@ -532,15 +470,12 @@ class Scope
         if ($this->span !== null) {
             return $this->span->getTransaction();
         }
-
         return null;
     }
-
     public function hasExternalPropagationContext(): bool
     {
         return $this->span === null && self::getExternalPropagationContext() !== null;
     }
-
     /**
      * @return array{
      *     trace_id: string,
@@ -559,22 +494,17 @@ class Scope
         if ($this->span !== null) {
             return $this->span->getTraceContext();
         }
-
         return self::getExternalPropagationContext() ?? $this->propagationContext->getTraceContext();
     }
-
     public function getPropagationContext(): PropagationContext
     {
         return $this->propagationContext;
     }
-
     public function setPropagationContext(PropagationContext $propagationContext): self
     {
         $this->propagationContext = $propagationContext;
-
         return $this;
     }
-
     public function __clone()
     {
         if ($this->user !== null) {

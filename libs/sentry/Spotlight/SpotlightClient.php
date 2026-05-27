@@ -1,27 +1,10 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\Spotlight;
 
 use FrSentry\Sentry\HttpClient\Request;
 use FrSentry\Sentry\HttpClient\Response;
-
 /**
  * @internal
  */
@@ -54,14 +37,12 @@ class SpotlightClient
                 curl_close($curlHandle);
             }
             $message = 'cURL Error (' . $errorCode . ') ' . $error;
-
             return new Response(0, [], $message);
         }
         $statusCode = curl_getinfo($curlHandle, \CURLINFO_HTTP_CODE);
         if (\PHP_MAJOR_VERSION < 8) {
             curl_close($curlHandle);
         }
-
         return new Response($statusCode, [], '');
     }
 }

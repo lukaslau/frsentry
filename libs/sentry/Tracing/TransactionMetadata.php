@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\Tracing;
 
 final class TransactionMetadata
@@ -41,15 +25,14 @@ final class TransactionMetadata
      * @var float|int|null
      */
     private $sampleRand;
-
     /**
      * Constructor.
      *
-     * @param float|int|null $samplingRate The sampling rate
+     * @param float|int|null              $samplingRate           The sampling rate
      * @param DynamicSamplingContext|null $dynamicSamplingContext The Dynamic Sampling Context
-     * @param TransactionSource|null $source The transaction source
-     * @param float|null $parentSamplingRate The parent sampling rate
-     * @param float|null $sampleRand The trace sample rand
+     * @param TransactionSource|null      $source                 The transaction source
+     * @param float|null                  $parentSamplingRate     The parent sampling rate
+     * @param float|null                  $sampleRand             The trace sample rand
      */
     public function __construct($samplingRate = null, ?DynamicSamplingContext $dynamicSamplingContext = null, ?TransactionSource $source = null, ?float $parentSamplingRate = null, ?float $sampleRand = null)
     {
@@ -59,7 +42,6 @@ final class TransactionMetadata
         $this->parentSamplingRate = $parentSamplingRate;
         $this->sampleRand = $sampleRand ?? round(mt_rand(0, mt_getrandmax() - 1) / mt_getrandmax(), 6);
     }
-
     /**
      * @return float|int|null
      */
@@ -67,62 +49,48 @@ final class TransactionMetadata
     {
         return $this->samplingRate;
     }
-
     /**
      * @param float|int|null $samplingRate
      */
     public function setSamplingRate($samplingRate): self
     {
         $this->samplingRate = $samplingRate;
-
         return $this;
     }
-
     public function getParentSamplingRate(): ?float
     {
         return $this->parentSamplingRate;
     }
-
     public function setParentSamplingRate(?float $parentSamplingRate): self
     {
         $this->parentSamplingRate = $parentSamplingRate;
-
         return $this;
     }
-
     public function getSampleRand(): ?float
     {
         return $this->sampleRand;
     }
-
     public function setSampleRand(?float $sampleRand): self
     {
         $this->sampleRand = $sampleRand;
-
         return $this;
     }
-
     public function getDynamicSamplingContext(): ?DynamicSamplingContext
     {
         return $this->dynamicSamplingContext;
     }
-
     public function setDynamicSamplingContext(?DynamicSamplingContext $dynamicSamplingContext): self
     {
         $this->dynamicSamplingContext = $dynamicSamplingContext;
-
         return $this;
     }
-
     public function getSource(): ?TransactionSource
     {
         return $this->source;
     }
-
     public function setSource(?TransactionSource $source): self
     {
         $this->source = $source;
-
         return $this;
     }
 }

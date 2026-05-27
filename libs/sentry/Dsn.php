@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry;
 
 /**
@@ -60,17 +44,16 @@ final class Dsn implements \Stringable
      * @var int|null
      */
     private $orgId;
-
     /**
      * Class constructor.
      *
-     * @param string $scheme The protocol to be used to access the resource
-     * @param string $host The host that holds the resource
-     * @param int $port The port on which the resource is exposed
+     * @param string $scheme    The protocol to be used to access the resource
+     * @param string $host      The host that holds the resource
+     * @param int    $port      The port on which the resource is exposed
      * @param string $projectId The ID of the resource to access
-     * @param string $path The specific resource that the web client wants to access
+     * @param string $path      The specific resource that the web client wants to access
      * @param string $publicKey The public key to authenticate the SDK
-     * @param ?int $orgId The org ID
+     * @param ?int   $orgId     The org ID
      */
     private function __construct(string $scheme, string $host, int $port, string $projectId, string $path, string $publicKey, ?int $orgId = null)
     {
@@ -82,7 +65,6 @@ final class Dsn implements \Stringable
         $this->publicKey = $publicKey;
         $this->orgId = $orgId;
     }
-
     /**
      * Creates an instance of this class by parsing the given string.
      *
@@ -113,10 +95,8 @@ final class Dsn implements \Stringable
         if (preg_match(self::SENTRY_ORG_ID_REGEX, $parsedDsn['host'], $matches) == 1) {
             $orgId = (int) $matches[1];
         }
-
         return new self($parsedDsn['scheme'], $parsedDsn['host'], $parsedDsn['port'] ?? ($parsedDsn['scheme'] === 'http' ? 80 : 443), $projectId, $path, $parsedDsn['user'], $orgId);
     }
-
     /**
      * Gets the protocol to be used to access the resource.
      */
@@ -124,7 +104,6 @@ final class Dsn implements \Stringable
     {
         return $this->scheme;
     }
-
     /**
      * Gets the host that holds the resource.
      */
@@ -132,7 +111,6 @@ final class Dsn implements \Stringable
     {
         return $this->host;
     }
-
     /**
      * Gets the port on which the resource is exposed.
      */
@@ -140,7 +118,6 @@ final class Dsn implements \Stringable
     {
         return $this->port;
     }
-
     /**
      * Gets the specific resource that the web client wants to access.
      */
@@ -148,7 +125,6 @@ final class Dsn implements \Stringable
     {
         return $this->path;
     }
-
     /**
      * Gets the ID of the resource to access.
      */
@@ -156,7 +132,6 @@ final class Dsn implements \Stringable
     {
         return $this->projectId;
     }
-
     /**
      * Gets the public key to authenticate the SDK.
      */
@@ -164,12 +139,10 @@ final class Dsn implements \Stringable
     {
         return $this->publicKey;
     }
-
     public function getOrgId(): ?int
     {
         return $this->orgId;
     }
-
     /**
      * Returns the URL of the API for the envelope endpoint.
      */
@@ -177,7 +150,6 @@ final class Dsn implements \Stringable
     {
         return $this->getBaseEndpointUrl() . '/envelope/';
     }
-
     /**
      * Returns the URL of the API for the CSP report endpoint.
      */
@@ -185,7 +157,6 @@ final class Dsn implements \Stringable
     {
         return $this->getBaseEndpointUrl() . '/security/?sentry_key=' . $this->publicKey;
     }
-
     /**
      * Returns the URL of the API for the OTLP traces endpoint.
      */
@@ -193,7 +164,6 @@ final class Dsn implements \Stringable
     {
         return $this->getBaseEndpointUrl() . '/integration/otlp/v1/traces/';
     }
-
     /**
      * @see https://www.php.net/manual/en/language.oop5.magic.php#object.tostring
      */
@@ -208,10 +178,8 @@ final class Dsn implements \Stringable
             $url .= $this->path;
         }
         $url .= '/' . $this->projectId;
-
         return $url;
     }
-
     /**
      * Returns the base url to Sentry from the DSN.
      */
@@ -225,7 +193,6 @@ final class Dsn implements \Stringable
             $url .= $this->path;
         }
         $url .= '/api/' . $this->projectId;
-
         return $url;
     }
 }

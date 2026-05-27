@@ -1,21 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
+declare (strict_types=1);
 /*
  * Copyright 2012 Facebook, Inc.
  *
@@ -31,11 +16,9 @@ declare(strict_types=1);
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-
 namespace FrSentry\Sentry\Serializer;
 
 use FrSentry\Sentry\Options;
-
 /**
  * This helper is based on code from Facebook's Phabricator project.
  *
@@ -75,7 +58,6 @@ abstract class AbstractSerializer
      * @var Options The Sentry options
      */
     protected $options;
-
     /**
      * AbstractSerializer constructor.
      *
@@ -89,7 +71,6 @@ abstract class AbstractSerializer
         }
         $this->options = $options;
     }
-
     /**
      * Serialize an object (recursively) into something safe for data
      * sanitization and encoding.
@@ -116,7 +97,6 @@ abstract class AbstractSerializer
                 foreach ($value as $k => $v) {
                     $serializedArray[$k] = $this->serializeRecursively($v, $_depth + 1);
                 }
-
                 return $serializedArray;
             }
             if (\is_object($value)) {
@@ -142,17 +122,14 @@ abstract class AbstractSerializer
                     return $this->serializeObject($value, $_depth);
                 }
             }
-
             return $this->serializeValue($value);
         } catch (\Throwable $error) {
             if (\is_string($value)) {
                 return $value . ' {serialization error}';
             }
-
             return '{serialization error}';
         }
     }
-
     /**
      * Find class serializers for a object.
      *
@@ -176,12 +153,10 @@ abstract class AbstractSerializer
                 return $object->toSentry();
             };
         }
-
         return $serializers;
     }
-
     /**
-     * @param object $object
+     * @param object   $object
      * @param string[] $hashes
      *
      * @return mixed[]|string|bool|float|int|null
@@ -200,10 +175,8 @@ abstract class AbstractSerializer
                 $serializedObject[$key] = $this->serializeRecursively($value, $_depth + 1);
             }
         }
-
         return $serializedObject;
     }
-
     /**
      * Serializes the given value to a string.
      *
@@ -223,10 +196,8 @@ abstract class AbstractSerializer
         if (mb_strlen($encoded) > $this->options->getMaxValueLength()) {
             $encoded = mb_substr($encoded, 0, $this->options->getMaxValueLength() - 10, 'UTF-8') . ' {clipped}';
         }
-
         return $encoded;
     }
-
     /**
      * @param mixed $value
      *
@@ -243,7 +214,6 @@ abstract class AbstractSerializer
             if ($value instanceof \BackedEnum) {
                 return 'Enum ' . $enumValue . '(' . $value->value . ')';
             }
-
             return 'Enum ' . $enumValue;
         }
         if (\is_object($value)) {
@@ -258,7 +228,6 @@ abstract class AbstractSerializer
                     // Do nothing on purpose
                 }
             }
-
             return 'Object ' . $reflection->getName() . (\is_scalar($objectId) ? '(#' . $objectId . ')' : '');
         }
         if (\is_resource($value)) {
@@ -277,10 +246,8 @@ abstract class AbstractSerializer
         if (\is_string($value) || \is_object($value) && method_exists($value, '__toString')) {
             return $this->serializeString((string) $value);
         }
-
         return null;
     }
-
     private function formatDate(\DateTimeInterface $date): string
     {
         $hasMicroseconds = $date->format('u') !== '000000';
@@ -290,10 +257,8 @@ abstract class AbstractSerializer
         if ($timezone && $timezone->getName() !== 'UTC') {
             $formatted .= ' ' . $date->format('eP');
         }
-
         return "{$className}({$formatted})";
     }
-
     /**
      * @param callable|mixed $callable
      */
@@ -329,10 +294,8 @@ abstract class AbstractSerializer
         if ($class) {
             $callableType .= $class->getName() . '::';
         }
-
         return $callableType . $reflection->getName() . ' ' . $this->serializeCallableParameters($reflection);
     }
-
     private function serializeCallableParameters(\ReflectionFunctionAbstract $reflection): string
     {
         $params = [];
@@ -352,30 +315,24 @@ abstract class AbstractSerializer
             }
             $params[] = $paramType . ' ' . $paramName;
         }
-
         return '[' . implode('; ', $params) . ']';
     }
-
     public function getMbDetectOrder(): string
     {
         return $this->mbDetectOrder;
     }
-
     /**
      * @return $this
      */
     public function setMbDetectOrder(string $mbDetectOrder): self
     {
         $this->mbDetectOrder = $mbDetectOrder;
-
         return $this;
     }
-
     public function setSerializeAllObjects(bool $value): void
     {
         $this->serializeAllObjects = $value;
     }
-
     public function getSerializeAllObjects(): bool
     {
         return $this->serializeAllObjects;

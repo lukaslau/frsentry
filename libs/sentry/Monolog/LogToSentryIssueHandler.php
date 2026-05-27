@@ -1,34 +1,17 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\Monolog;
 
 use FrSentry\Monolog\Handler\AbstractProcessingHandler;
 use FrSentry\Monolog\Level;
 use FrSentry\Monolog\Logger;
 use FrSentry\Monolog\LogRecord;
+use Psr\Log\LogLevel;
 use FrSentry\Sentry\Event;
 use FrSentry\Sentry\EventHint;
 use FrSentry\Sentry\State\HubInterface;
 use FrSentry\Sentry\State\Scope;
-use Psr\Log\LogLevel;
-
 /**
  * This Monolog handler captures log messages as Sentry issues.
  */
@@ -44,7 +27,6 @@ class LogToSentryIssueHandler extends AbstractProcessingHandler
      * @var bool
      */
     private $fillExtraContext;
-
     /**
      * @phpstan-param value-of<Level::VALUES>|value-of<Level::NAMES>|Level|LogLevel::* $level
      */
@@ -54,21 +36,18 @@ class LogToSentryIssueHandler extends AbstractProcessingHandler
         $this->fillExtraContext = $fillExtraContext;
         parent::__construct($level, $bubble);
     }
-
     /**
      * @param array<string, mixed>|LogRecord $record
      */
     public function handle($record): bool
     {
-        /* @phpstan-ignore-next-line */
+        /** @phpstan-ignore-next-line */
         if (!$this->isHandling($record) || $this->hasThrowable($record)) {
             return \false;
         }
-
-        /* @phpstan-ignore-next-line */
+        /** @phpstan-ignore-next-line */
         return parent::handle($record);
     }
-
     /**
      * @param array<string, mixed>|LogRecord $record
      */
@@ -95,17 +74,14 @@ class LogToSentryIssueHandler extends AbstractProcessingHandler
             $this->hub->captureEvent($event, $hint);
         });
     }
-
     /**
      * @param array<string, mixed>|LogRecord $record
      */
     private function hasThrowable($record): bool
     {
         $exception = $this->getArrayFieldFromRecord($record, 'context')[self::CONTEXT_EXCEPTION_KEY] ?? null;
-
         return $exception instanceof \Throwable;
     }
-
     /**
      * @param array<string, mixed>|LogRecord $record
      *
@@ -116,7 +92,6 @@ class LogToSentryIssueHandler extends AbstractProcessingHandler
         if (isset($record[$field]) && \is_array($record[$field])) {
             return $record[$field];
         }
-
         return [];
     }
 }

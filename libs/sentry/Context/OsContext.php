@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\Context;
 
 /**
@@ -46,15 +30,14 @@ final class OsContext
      * @var string|null
      */
     private $machineType;
-
     /**
      * Constructor.
      *
-     * @param string $name The name of the operating system
-     * @param string|null $version The version of the operating system
-     * @param string|null $build The internal build revision of the operating system
+     * @param string      $name          The name of the operating system
+     * @param string|null $version       The version of the operating system
+     * @param string|null $build         The internal build revision of the operating system
      * @param string|null $kernelVersion An independent kernel version string
-     * @param string|null $machineType The machine type
+     * @param string|null $machineType   The machine type
      */
     public function __construct(string $name, ?string $version = null, ?string $build = null, ?string $kernelVersion = null, ?string $machineType = null)
     {
@@ -67,7 +50,6 @@ final class OsContext
         $this->kernelVersion = $kernelVersion;
         $this->machineType = $machineType;
     }
-
     /**
      * Gets the name of the operating system.
      */
@@ -75,7 +57,6 @@ final class OsContext
     {
         return $this->name;
     }
-
     /**
      * Sets the name of the operating system.
      *
@@ -88,7 +69,6 @@ final class OsContext
         }
         $this->name = $name;
     }
-
     /**
      * Gets the version of the operating system.
      */
@@ -96,7 +76,6 @@ final class OsContext
     {
         return $this->version;
     }
-
     /**
      * Sets the version of the operating system.
      *
@@ -106,7 +85,6 @@ final class OsContext
     {
         $this->version = $version;
     }
-
     /**
      * Gets the build of the operating system.
      */
@@ -114,7 +92,6 @@ final class OsContext
     {
         return $this->build;
     }
-
     /**
      * Sets the build of the operating system.
      *
@@ -124,7 +101,6 @@ final class OsContext
     {
         $this->build = $build;
     }
-
     /**
      * Gets the version of the kernel of the operating system.
      */
@@ -132,7 +108,6 @@ final class OsContext
     {
         return $this->kernelVersion;
     }
-
     /**
      * Sets the version of the kernel of the operating system.
      *
@@ -142,12 +117,10 @@ final class OsContext
     {
         $this->kernelVersion = $kernelVersion;
     }
-
     public function getMachineType(): ?string
     {
         return $this->machineType;
     }
-
     /**
      * @param string|null $machineType The machine type
      */

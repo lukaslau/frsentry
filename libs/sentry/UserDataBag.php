@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry;
 
 /**
@@ -50,7 +34,6 @@ final class UserDataBag
      * @var array<string, mixed> Additional data
      */
     private $metadata = [];
-
     /**
      * UserDataBag constructor.
      *
@@ -64,7 +47,6 @@ final class UserDataBag
         $this->setUsername($username);
         $this->setSegment($segment);
     }
-
     /**
      * Creates an instance of this object from a user ID.
      *
@@ -74,7 +56,6 @@ final class UserDataBag
     {
         return new self($id);
     }
-
     /**
      * Creates an instance of this object from an IP address.
      *
@@ -84,7 +65,6 @@ final class UserDataBag
     {
         return new self(null, null, $ipAddress);
     }
-
     /**
      * Creates an instance of this object from the given data.
      *
@@ -115,10 +95,8 @@ final class UserDataBag
                     break;
             }
         }
-
         return $instance;
     }
-
     /**
      * Gets the ID of the user.
      *
@@ -128,7 +106,6 @@ final class UserDataBag
     {
         return $this->id;
     }
-
     /**
      * Sets the ID of the user.
      *
@@ -140,10 +117,8 @@ final class UserDataBag
             throw new \UnexpectedValueException(\sprintf('Expected an integer or string value for the $id argument. Got: "%s".', get_debug_type($id)));
         }
         $this->id = $id;
-
         return $this;
     }
-
     /**
      * Gets the username of the user.
      */
@@ -151,7 +126,6 @@ final class UserDataBag
     {
         return $this->username;
     }
-
     /**
      * Sets the username of the user.
      *
@@ -160,10 +134,8 @@ final class UserDataBag
     public function setUsername(?string $username): self
     {
         $this->username = $username;
-
         return $this;
     }
-
     /**
      * Gets the email of the user.
      */
@@ -171,7 +143,6 @@ final class UserDataBag
     {
         return $this->email;
     }
-
     /**
      * Sets the email of the user.
      *
@@ -180,10 +151,8 @@ final class UserDataBag
     public function setEmail(?string $email): self
     {
         $this->email = $email;
-
         return $this;
     }
-
     /**
      * Gets the segement of the user.
      *
@@ -193,7 +162,6 @@ final class UserDataBag
     {
         return $this->segment;
     }
-
     /**
      * Sets the segment of the user.
      *
@@ -204,10 +172,8 @@ final class UserDataBag
     public function setSegment(?string $segment): self
     {
         $this->segment = $segment;
-
         return $this;
     }
-
     /**
      * Gets the ip address of the user.
      */
@@ -215,7 +181,6 @@ final class UserDataBag
     {
         return $this->ipAddress;
     }
-
     /**
      * Sets the ip address of the user.
      *
@@ -233,15 +198,12 @@ final class UserDataBag
                 if ($client !== null) {
                     $client->getOptions()->getLoggerOrNullLogger()->debug(\sprintf('The "%s" value is not a valid IP address.', $ipAddress));
                 }
-
                 return $this;
             }
         }
         $this->ipAddress = $ipAddress;
-
         return $this;
     }
-
     /**
      * Gets additional metadata.
      *
@@ -251,20 +213,17 @@ final class UserDataBag
     {
         return $this->metadata;
     }
-
     /**
      * Sets the given field in the additional metadata.
      *
-     * @param string $name The name of the field
-     * @param mixed $value The value
+     * @param string $name  The name of the field
+     * @param mixed  $value The value
      */
     public function setMetadata(string $name, $value): self
     {
         $this->metadata[$name] = $value;
-
         return $this;
     }
-
     /**
      * Removes the given field from the additional metadata.
      *
@@ -273,10 +232,8 @@ final class UserDataBag
     public function removeMetadata(string $name): self
     {
         unset($this->metadata[$name]);
-
         return $this;
     }
-
     /**
      * Merges the given context with this one.
      *
@@ -292,7 +249,6 @@ final class UserDataBag
         $this->username = $other->username;
         $this->segment = $other->segment;
         $this->metadata = array_merge($this->metadata, $other->metadata);
-
         return $this;
     }
 }

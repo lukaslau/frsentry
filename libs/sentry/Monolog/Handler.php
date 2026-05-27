@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\Monolog;
 
 use FrSentry\Monolog\Handler\AbstractProcessingHandler;
@@ -26,7 +10,6 @@ use FrSentry\Sentry\Event;
 use FrSentry\Sentry\EventHint;
 use FrSentry\Sentry\State\HubInterface;
 use FrSentry\Sentry\State\Scope;
-
 /**
  * This Monolog handler logs every message to a Sentry's server using the given
  * hub instance.
@@ -50,7 +33,6 @@ final class Handler extends AbstractProcessingHandler
      * @var bool
      */
     private $fillExtraContext;
-
     /**
      * {@inheritdoc}
      *
@@ -62,7 +44,6 @@ final class Handler extends AbstractProcessingHandler
         $this->hub = $hub;
         $this->fillExtraContext = $fillExtraContext;
     }
-
     /**
      * @param array<string, mixed>|LogRecord $record
      */
@@ -90,7 +71,6 @@ final class Handler extends AbstractProcessingHandler
             $this->hub->captureEvent($event, $hint);
         });
     }
-
     /**
      * @param mixed[] $context
      *
@@ -109,10 +89,8 @@ final class Handler extends AbstractProcessingHandler
             }
             $contextData[$key] = $value;
         }
-
         return $contextData;
     }
-
     /**
      * @param mixed[] $context
      *
@@ -127,7 +105,6 @@ final class Handler extends AbstractProcessingHandler
         foreach ($context as $key => $value) {
             $extraData[$key] = $value;
         }
-
         return $extraData;
     }
 }

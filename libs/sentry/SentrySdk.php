@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry;
 
 use FrSentry\Sentry\Logs\Logs;
@@ -25,7 +9,6 @@ use FrSentry\Sentry\State\Hub;
 use FrSentry\Sentry\State\HubInterface;
 use FrSentry\Sentry\State\RuntimeContext;
 use FrSentry\Sentry\State\RuntimeContextManager;
-
 /**
  * This class is the main entry point for all the most common SDK features.
  *
@@ -41,14 +24,12 @@ final class SentrySdk
      * @var RuntimeContextManager|null
      */
     private static $runtimeContextManager;
-
     /**
      * Constructor.
      */
     private function __construct()
     {
     }
-
     /**
      * Initializes the SDK by creating a new hub instance each time this method
      * gets called.
@@ -57,10 +38,8 @@ final class SentrySdk
     {
         self::$currentHub = new Hub();
         self::$runtimeContextManager = new RuntimeContextManager(self::$currentHub);
-
         return self::getCurrentHub();
     }
-
     /**
      * Gets the current hub. If it's not initialized then creates a new instance
      * and sets it as current hub.
@@ -69,7 +48,6 @@ final class SentrySdk
     {
         return self::getRuntimeContextManager()->getCurrentHub();
     }
-
     /**
      * Sets the current hub.
      *
@@ -85,20 +63,16 @@ final class SentrySdk
         if (!$wasSetOnActiveRuntimeContext) {
             self::$currentHub = $hub;
         }
-
         return $hub;
     }
-
     public static function startContext(): void
     {
         self::getRuntimeContextManager()->startContext();
     }
-
     public static function endContext(?int $timeout = null): void
     {
         self::getRuntimeContextManager()->endContext($timeout);
     }
-
     /**
      * Executes the given callback within an isolated context.
      *
@@ -130,7 +104,6 @@ final class SentrySdk
             }
         }
     }
-
     /**
      * Gets the current runtime-local context.
      *
@@ -140,7 +113,6 @@ final class SentrySdk
     {
         return self::getRuntimeContextManager()->getCurrentContext();
     }
-
     /**
      * Flushes all buffered telemetry data.
      *
@@ -160,7 +132,6 @@ final class SentrySdk
             $client->flush();
         }
     }
-
     private static function getRuntimeContextManager(): RuntimeContextManager
     {
         if (self::$currentHub === null) {
@@ -169,7 +140,6 @@ final class SentrySdk
         if (self::$runtimeContextManager === null) {
             self::$runtimeContextManager = new RuntimeContextManager(self::$currentHub);
         }
-
         return self::$runtimeContextManager;
     }
 }

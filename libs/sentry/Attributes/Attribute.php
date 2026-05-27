@@ -1,27 +1,10 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\Attributes;
 
 use FrSentry\Sentry\Serializer\SerializableInterface;
 use FrSentry\Sentry\Util\JSON;
-
 /**
  * @phpstan-type AttributeType 'string'|'boolean'|'integer'|'double'
  * @phpstan-type AttributeValue string|bool|int|float
@@ -36,17 +19,15 @@ class Attribute
      * @var AttributeValue
      */
     private $value;
-
     /**
      * @param AttributeValue $value
-     * @param AttributeType $type
+     * @param AttributeType  $type
      */
     public function __construct($value, string $type)
     {
         $this->value = $value;
         $this->type = $type;
     }
-
     /**
      * @return AttributeType
      */
@@ -54,7 +35,6 @@ class Attribute
     {
         return $this->type;
     }
-
     /**
      * @return AttributeValue
      */
@@ -62,7 +42,6 @@ class Attribute
     {
         return $this->value;
     }
-
     /**
      * @param mixed $value
      *
@@ -74,10 +53,8 @@ class Attribute
         if ($attribute === null) {
             throw new \InvalidArgumentException(\sprintf('Invalid attribute value, %s cannot be serialized', \gettype($value)));
         }
-
         return $attribute;
     }
-
     /**
      * @param mixed $value
      */
@@ -110,10 +87,8 @@ class Attribute
         } catch (\Throwable $e) {
             // Ignore the exception
         }
-
         return null;
     }
-
     public function __toString(): string
     {
         return "{$this->value} ({$this->type})";

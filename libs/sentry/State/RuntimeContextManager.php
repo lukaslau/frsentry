@@ -1,28 +1,11 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\State;
 
-use FrSentry\Sentry\Tracing\PropagationContext;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-
+use FrSentry\Sentry\Tracing\PropagationContext;
 /**
  * Manages runtime-local SDK state across different execution models.
  *
@@ -53,13 +36,11 @@ final class RuntimeContextManager
      * @var array<string, string>
      */
     private $executionContextToRuntimeContext = [];
-
     public function __construct(HubInterface $baseHub)
     {
         $this->baseHub = $baseHub;
         $this->globalContext = null;
     }
-
     /**
      * Sets the current hub with context-aware behavior.
      *
@@ -75,39 +56,31 @@ final class RuntimeContextManager
         if ($this->hasActiveContextForExecutionContextKey($executionContextKey)) {
             $runtimeContextId = $this->executionContextToRuntimeContext[$executionContextKey];
             $this->activeContexts[$runtimeContextId]->setHub($hub);
-
             return \true;
         }
         $this->baseHub = $hub;
         if ($this->globalContext !== null) {
             $this->globalContext->setHub($hub);
         }
-
         return \false;
     }
-
     public function getCurrentHub(): HubInterface
     {
         return $this->getCurrentContext()->getHub();
     }
-
     public function getCurrentContext(): RuntimeContext
     {
         $executionContextKey = $this->getExecutionContextKey();
         if ($this->hasActiveContextForExecutionContextKey($executionContextKey)) {
             $runtimeContextId = $this->executionContextToRuntimeContext[$executionContextKey];
-
             return $this->activeContexts[$runtimeContextId];
         }
-
         return $this->getGlobalContext();
     }
-
     public function hasActiveContext(): bool
     {
         return $this->hasActiveContextForExecutionContextKey($this->getExecutionContextKey());
     }
-
     /**
      * Starts an isolated context for the current execution key.
      */
@@ -120,7 +93,6 @@ final class RuntimeContextManager
         }
         $this->createContextForExecutionContextKey($executionContextKey);
     }
-
     /**
      * Ends and flushes the active context for the current execution key.
      *
@@ -136,7 +108,6 @@ final class RuntimeContextManager
         unset($this->executionContextToRuntimeContext[$executionContextKey]);
         $this->removeContextById($runtimeContextId, $timeout);
     }
-
     private function createContextForExecutionContextKey(string $executionContextKey): void
     {
         $runtimeContextId = $this->generateRuntimeContextId();
@@ -144,7 +115,6 @@ final class RuntimeContextManager
         $this->activeContexts[$runtimeContextId] = $runtimeContext;
         $this->executionContextToRuntimeContext[$executionContextKey] = $runtimeContextId;
     }
-
     private function removeContextById(string $runtimeContextId, ?int $timeout = null): void
     {
         if (!isset($this->activeContexts[$runtimeContextId])) {
@@ -157,7 +127,6 @@ final class RuntimeContextManager
         $logger = $this->getLoggerFromHub($runtimeContext->getHub());
         $this->flushRuntimeContextResources($runtimeContext, $timeout, $logger);
     }
-
     private function flushRuntimeContextResources(RuntimeContext $runtimeContext, ?int $timeout, LoggerInterface $logger): void
     {
         $hub = $runtimeContext->getHub();
@@ -185,7 +154,6 @@ final class RuntimeContextManager
             $logger->error('Failed to flush the client transport while ending a runtime context.', ['exception' => $exception, 'runtime_context_id' => $runtimeContext->getId()]);
         }
     }
-
     private function removeExecutionContextMappingsForRuntimeContext(string $runtimeContextId): void
     {
         foreach ($this->executionContextToRuntimeContext as $executionContextKey => $mappedRuntimeContextId) {
@@ -194,7 +162,6 @@ final class RuntimeContextManager
             }
         }
     }
-
     private function hasActiveContextForExecutionContextKey(string $executionContextKey): bool
     {
         if (!isset($this->executionContextToRuntimeContext[$executionContextKey])) {
@@ -204,13 +171,10 @@ final class RuntimeContextManager
         if (!isset($this->activeContexts[$runtimeContextId])) {
             // Mapping points to a context that was already evicted/ended; drop the stale index entry.
             unset($this->executionContextToRuntimeContext[$executionContextKey]);
-
             return \false;
         }
-
         return \true;
     }
-
     private function createHubFromBaseHub(): HubInterface
     {
         if (!$this->baseHub instanceof Hub) {
@@ -223,38 +187,31 @@ final class RuntimeContextManager
             $clonedScope->setSpan(null);
             $clonedScope->setPropagationContext(PropagationContext::fromDefaults());
         });
-
         return new Hub($this->baseHub->getClient(), $clonedScope ?? new Scope());
     }
-
     private function getLoggerFromHub(HubInterface $hub): LoggerInterface
     {
         $client = $hub->getClient();
         if ($client === null) {
             return new NullLogger();
         }
-
         return $client->getOptions()->getLoggerOrNullLogger();
     }
-
     private function generateRuntimeContextId(): string
     {
         return \sprintf('%s-%d', str_replace('.', '', uniqid('', \true)), mt_rand());
     }
-
     private function getExecutionContextKey(): string
     {
         // All supported runtime modes currently use a process-local execution key.
         return self::PROCESS_EXECUTION_CONTEXT_KEY;
     }
-
     private function getGlobalContext(): RuntimeContext
     {
         if ($this->globalContext === null) {
             // Lazy fallback keeps baseline behavior when users do not opt into explicit context lifecycle.
             $this->globalContext = new RuntimeContext('global', $this->baseHub);
         }
-
         return $this->globalContext;
     }
 }

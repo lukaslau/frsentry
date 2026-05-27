@@ -1,36 +1,18 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\Tracing;
 
 use FrSentry\GuzzleHttp\Exception\RequestException as GuzzleRequestException;
+use GuzzleHttp\Psr7\Uri;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use FrSentry\Sentry\Breadcrumb;
 use FrSentry\Sentry\ClientInterface;
 use FrSentry\Sentry\SentrySdk;
 use FrSentry\Sentry\State\HubInterface;
-use GuzzleHttp\Psr7\Uri;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-
 use function FrSentry\Sentry\getBaggage;
 use function FrSentry\Sentry\getTraceparent;
-
 /**
  * This handler traces each outgoing HTTP request by recording performance data.
  */
@@ -106,22 +88,18 @@ final class GuzzleTracingMiddleware
                     if ($responseOrException instanceof \Throwable) {
                         throw $responseOrException;
                     }
-
                     return $responseOrException;
                 };
-
                 return $handler($request, $options)->then($handlerPromiseCallback, $handlerPromiseCallback);
             };
         };
     }
-
     private static function shouldAttachTracingHeaders(?ClientInterface $client, RequestInterface $request): bool
     {
         if ($client === null) {
             return \false;
         }
         $sdkOptions = $client->getOptions();
-
         // Check if the request destination is allow listed in the trace_propagation_targets option.
         return $sdkOptions->getTracePropagationTargets() === null || \in_array($request->getUri()->getHost(), $sdkOptions->getTracePropagationTargets());
     }

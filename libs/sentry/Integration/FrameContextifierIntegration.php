@@ -1,32 +1,15 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\Integration;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use FrSentry\Sentry\Event;
 use FrSentry\Sentry\Frame;
 use FrSentry\Sentry\SentrySdk;
 use FrSentry\Sentry\Stacktrace;
 use FrSentry\Sentry\State\Scope;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
-
 /**
  * This integration reads excerpts of code around the line that originated an
  * error.
@@ -39,7 +22,6 @@ final class FrameContextifierIntegration implements IntegrationInterface
      * @var LoggerInterface A PSR-3 logger
      */
     private $logger;
-
     /**
      * Creates a new instance of this integration.
      *
@@ -49,7 +31,6 @@ final class FrameContextifierIntegration implements IntegrationInterface
     {
         $this->logger = $logger ?? new NullLogger();
     }
-
     /**
      * {@inheritdoc}
      */
@@ -74,16 +55,14 @@ final class FrameContextifierIntegration implements IntegrationInterface
                     $integration->addContextToStacktraceFrames($maxContextLines, $exception->getStacktrace());
                 }
             }
-
             return $event;
         });
     }
-
     /**
      * Contextifies the frames of the given stacktrace.
      *
-     * @param int $maxContextLines The maximum number of lines of code to read
-     * @param Stacktrace $stacktrace The stacktrace object
+     * @param int        $maxContextLines The maximum number of lines of code to read
+     * @param Stacktrace $stacktrace      The stacktrace object
      */
     private function addContextToStacktraceFrames(int $maxContextLines, Stacktrace $stacktrace): void
     {
@@ -94,7 +73,6 @@ final class FrameContextifierIntegration implements IntegrationInterface
             $this->addContextToStacktraceFrame($maxContextLines, $frame);
         }
     }
-
     /**
      * Contextifies the given frame.
      *
@@ -110,13 +88,12 @@ final class FrameContextifierIntegration implements IntegrationInterface
         $frame->setContextLine($sourceCodeExcerpt['context_line']);
         $frame->setPostContext($sourceCodeExcerpt['post_context']);
     }
-
     /**
      * Gets an excerpt of the source code around a given line.
      *
-     * @param int $maxContextLines The maximum number of lines of code to read
-     * @param string $filePath The file path
-     * @param int $lineNumber The line to centre about
+     * @param int    $maxContextLines The maximum number of lines of code to read
+     * @param string $filePath        The file path
+     * @param int    $lineNumber      The line to centre about
      *
      * @return array<string, mixed>
      *
@@ -154,7 +131,6 @@ final class FrameContextifierIntegration implements IntegrationInterface
         } catch (\Throwable $exception) {
             $this->logger->warning(\sprintf('Failed to get the source code excerpt for the file "%s".', $filePath), ['exception' => $exception]);
         }
-
         return $frame;
     }
 }

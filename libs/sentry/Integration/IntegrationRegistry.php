@@ -1,27 +1,10 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\Integration;
 
-use FrSentry\Sentry\Options;
 use Psr\Log\LoggerInterface;
-
+use FrSentry\Sentry\Options;
 /**
  * @internal
  */
@@ -35,11 +18,9 @@ final class IntegrationRegistry
      * @var array<class-string<IntegrationInterface>, bool> The registered integrations
      */
     private $integrations = [];
-
     private function __construct()
     {
     }
-
     /**
      * Gets the current singleton instance or creates a new one if it didn't
      * exists yet.
@@ -49,10 +30,8 @@ final class IntegrationRegistry
         if (self::$instance === null) {
             self::$instance = new self();
         }
-
         return self::$instance;
     }
-
     /**
      * Setups the integrations according to the given options. For each integration
      * the {@see IntegrationInterface::setupOnce()} method will be called only once
@@ -76,10 +55,8 @@ final class IntegrationRegistry
         if (\count($installed) > 0) {
             $logger->debug(\sprintf('The "%s" integration(s) have been installed.', implode(', ', $installed)));
         }
-
         return $integrations;
     }
-
     private function setupIntegration(IntegrationInterface $integration, Options $options): bool
     {
         $integrationName = \get_class($integration);
@@ -91,10 +68,8 @@ final class IntegrationRegistry
         }
         $integration->setupOnce();
         $this->integrations[$integrationName] = \true;
-
         return \true;
     }
-
     /**
      * @return IntegrationInterface[]
      */
@@ -126,10 +101,8 @@ final class IntegrationRegistry
                 throw new \UnexpectedValueException(\sprintf('Expected the callback set for the "integrations" option to return a list of integrations. Got: "%s".', get_debug_type($integrations)));
             }
         }
-
         return $integrations;
     }
-
     /**
      * @return IntegrationInterface[]
      */
@@ -142,7 +115,6 @@ final class IntegrationRegistry
         if ($options->getDsn() !== null || $options->isSpotlightEnabled()) {
             array_unshift($integrations, new ExceptionListenerIntegration(), new ErrorListenerIntegration(), new FatalErrorListenerIntegration());
         }
-
         return $integrations;
     }
 }

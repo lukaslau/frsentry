@@ -1,24 +1,9 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\State;
 
+use Psr\Log\NullLogger;
 use FrSentry\Sentry\Breadcrumb;
 use FrSentry\Sentry\CheckIn;
 use FrSentry\Sentry\CheckInStatus;
@@ -33,8 +18,6 @@ use FrSentry\Sentry\Tracing\SamplingContext;
 use FrSentry\Sentry\Tracing\Span;
 use FrSentry\Sentry\Tracing\Transaction;
 use FrSentry\Sentry\Tracing\TransactionContext;
-use Psr\Log\NullLogger;
-
 /**
  * This class is a basic implementation of the {@see HubInterface} interface.
  */
@@ -48,18 +31,16 @@ class Hub implements HubInterface
      * @var EventId|null The ID of the last captured event
      */
     private $lastEventId;
-
     /**
      * Hub constructor.
      *
      * @param ClientInterface|null $client The client bound to the hub
-     * @param Scope|null $scope The scope bound to the hub
+     * @param Scope|null           $scope  The scope bound to the hub
      */
     public function __construct(?ClientInterface $client = null, ?Scope $scope = null)
     {
         $this->stack[] = new Layer($client, $scope ?? new Scope());
     }
-
     /**
      * {@inheritdoc}
      */
@@ -67,7 +48,6 @@ class Hub implements HubInterface
     {
         return $this->getStackTop()->getClient();
     }
-
     /**
      * {@inheritdoc}
      */
@@ -75,7 +55,6 @@ class Hub implements HubInterface
     {
         return $this->lastEventId;
     }
-
     /**
      * {@inheritdoc}
      */
@@ -83,10 +62,8 @@ class Hub implements HubInterface
     {
         $clonedScope = clone $this->getScope();
         $this->stack[] = new Layer($this->getClient(), $clonedScope);
-
         return $clonedScope;
     }
-
     /**
      * {@inheritdoc}
      */
@@ -95,10 +72,8 @@ class Hub implements HubInterface
         if (\count($this->stack) === 1) {
             return \false;
         }
-
         return array_pop($this->stack) !== null;
     }
-
     /**
      * {@inheritdoc}
      */
@@ -111,7 +86,6 @@ class Hub implements HubInterface
             $this->popScope();
         }
     }
-
     /**
      * {@inheritdoc}
      */
@@ -119,7 +93,6 @@ class Hub implements HubInterface
     {
         $callback($this->getScope());
     }
-
     /**
      * {@inheritdoc}
      */
@@ -128,7 +101,6 @@ class Hub implements HubInterface
         $layer = $this->getStackTop();
         $layer->setClient($client);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -138,10 +110,8 @@ class Hub implements HubInterface
         if ($client !== null) {
             return $this->lastEventId = $client->captureMessage($message, $level, $this->getScope(), $hint);
         }
-
         return null;
     }
-
     /**
      * {@inheritdoc}
      */
@@ -151,10 +121,8 @@ class Hub implements HubInterface
         if ($client !== null) {
             return $this->lastEventId = $client->captureException($exception, $this->getScope(), $hint);
         }
-
         return null;
     }
-
     /**
      * {@inheritdoc}
      */
@@ -164,10 +132,8 @@ class Hub implements HubInterface
         if ($client !== null) {
             return $this->lastEventId = $client->captureEvent($event, $hint, $this->getScope());
         }
-
         return null;
     }
-
     /**
      * {@inheritdoc}
      */
@@ -177,10 +143,8 @@ class Hub implements HubInterface
         if ($client !== null) {
             return $this->lastEventId = $client->captureLastError($this->getScope(), $hint);
         }
-
         return null;
     }
-
     /**
      * {@inheritdoc}
      *
@@ -197,10 +161,8 @@ class Hub implements HubInterface
         $checkIn = new CheckIn($slug, $status, $checkInId, $options->getRelease(), $options->getEnvironment(), $duration, $monitorConfig);
         $event->setCheckIn($checkIn);
         $this->captureEvent($event);
-
         return $checkIn->getId();
     }
-
     /**
      * {@inheritdoc}
      */
@@ -220,10 +182,8 @@ class Hub implements HubInterface
         if ($breadcrumb !== null) {
             $this->getScope()->addBreadcrumb($breadcrumb, $maxBreadcrumbs);
         }
-
         return $breadcrumb !== null;
     }
-
     /**
      * {@inheritdoc}
      */
@@ -233,10 +193,8 @@ class Hub implements HubInterface
         if ($client !== null) {
             return $client->getIntegration($className);
         }
-
         return null;
     }
-
     /**
      * {@inheritdoc}
      *
@@ -251,7 +209,6 @@ class Hub implements HubInterface
         if ($options === null || !$options->isTracingEnabled()) {
             $transaction->setSampled(\false);
             $logger->warning(\sprintf('Transaction [%s] was started but tracing is not enabled.', (string) $transaction->getTraceId()), ['context' => $context]);
-
             return $transaction;
         }
         $samplingContext = SamplingContext::getDefault($context);
@@ -276,7 +233,6 @@ class Hub implements HubInterface
             if (!$this->isValidSampleRate($sampleRate)) {
                 $transaction->setSampled(\false);
                 $logger->warning(\sprintf('Transaction [%s] was started but not sampled because sample rate (decided by %s) is invalid.', (string) $transaction->getTraceId(), $sampleSource), ['context' => $context]);
-
                 return $transaction;
             }
             $transaction->getMetadata()->setSamplingRate($sampleRate);
@@ -288,14 +244,12 @@ class Hub implements HubInterface
             if ($sampleRate === 0.0) {
                 $transaction->setSampled(\false);
                 $logger->info(\sprintf('Transaction [%s] was started but not sampled because sample rate (decided by %s) is %s.', (string) $transaction->getTraceId(), $sampleSource, $sampleRate), ['context' => $context]);
-
                 return $transaction;
             }
             $transaction->setSampled($sampleRand < $sampleRate);
         }
         if (!$transaction->getSampled()) {
             $logger->info(\sprintf('Transaction [%s] was started but not sampled, decided by %s.', (string) $transaction->getTraceId(), $sampleSource), ['context' => $context]);
-
             return $transaction;
         }
         $logger->info(\sprintf('Transaction [%s] was started and sampled, decided by %s.', (string) $transaction->getTraceId(), $sampleSource), ['context' => $context]);
@@ -318,10 +272,8 @@ class Hub implements HubInterface
         } else {
             $logger->info(\sprintf('Transaction [%s] is not profiling because it was not sampled.', (string) $transaction->getTraceId()));
         }
-
         return $transaction;
     }
-
     /**
      * {@inheritdoc}
      */
@@ -329,17 +281,14 @@ class Hub implements HubInterface
     {
         return $this->getScope()->getTransaction();
     }
-
     /**
      * {@inheritdoc}
      */
     public function setSpan(?Span $span): HubInterface
     {
         $this->getScope()->setSpan($span);
-
         return $this;
     }
-
     /**
      * {@inheritdoc}
      */
@@ -347,7 +296,6 @@ class Hub implements HubInterface
     {
         return $this->getScope()->getSpan();
     }
-
     /**
      * Gets the scope bound to the top of the stack.
      */
@@ -355,7 +303,6 @@ class Hub implements HubInterface
     {
         return $this->getStackTop()->getScope();
     }
-
     /**
      * Gets the topmost client/layer pair in the stack.
      */
@@ -363,7 +310,6 @@ class Hub implements HubInterface
     {
         return $this->stack[\count($this->stack) - 1];
     }
-
     private function getSampleRate(?bool $hasParentBeenSampled, float $fallbackSampleRate): float
     {
         if ($hasParentBeenSampled === \true) {
@@ -372,10 +318,8 @@ class Hub implements HubInterface
         if ($hasParentBeenSampled === \false) {
             return 0.0;
         }
-
         return $fallbackSampleRate;
     }
-
     /**
      * @param mixed $sampleRate
      */
@@ -387,10 +331,8 @@ class Hub implements HubInterface
         if ($sampleRate === 1.0) {
             return \true;
         }
-
         return mt_rand(0, mt_getrandmax() - 1) / mt_getrandmax() < $sampleRate;
     }
-
     /**
      * @param mixed $sampleRate
      */
@@ -402,7 +344,6 @@ class Hub implements HubInterface
         if ($sampleRate < 0 || $sampleRate > 1) {
             return \false;
         }
-
         return \true;
     }
 }

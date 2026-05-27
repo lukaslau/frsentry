@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\Metrics;
 
 use FrSentry\Sentry\Client;
@@ -33,7 +17,6 @@ use FrSentry\Sentry\Tracing\SpanId;
 use FrSentry\Sentry\Tracing\TraceId;
 use FrSentry\Sentry\Unit;
 use FrSentry\Sentry\Util\TelemetryStorage;
-
 /**
  * @internal
  */
@@ -48,9 +31,8 @@ final class MetricsAggregator
      * @var TelemetryStorage<Metric>|null
      */
     private $metrics;
-
     /**
-     * @param int|float $value
+     * @param int|float                            $value
      * @param array<string, int|float|string|bool> $attributes
      */
     public function add(string $type, string $name, $value, array $attributes, ?Unit $unit): void
@@ -62,7 +44,6 @@ final class MetricsAggregator
             if ($client !== null) {
                 $client->getOptions()->getLoggerOrNullLogger()->debug('Metrics value is neither int nor float. Metric will be discarded');
             }
-
             return;
         }
         if ($client !== null) {
@@ -115,7 +96,6 @@ final class MetricsAggregator
             $this->flush($hub);
         }
     }
-
     public function flush(?HubInterface $hub = null): ?EventId
     {
         if ($this->metrics === null || $this->metrics->isEmpty()) {
@@ -123,10 +103,8 @@ final class MetricsAggregator
         }
         $hub = $hub ?? SentrySdk::getCurrentHub();
         $event = Event::createMetrics()->setMetrics($this->metrics->drain());
-
         return $hub->captureEvent($event);
     }
-
     /**
      * @return array{trace_id: string, span_id: string}
      */
@@ -136,11 +114,9 @@ final class MetricsAggregator
         $hub->configureScope(static function (Scope $scope) use (&$traceContext): void {
             $traceContext = $scope->getTraceContext();
         });
-
-        /* @var array{trace_id: string, span_id: string} $traceContext */
+        /** @var array{trace_id: string, span_id: string} $traceContext */
         return $traceContext;
     }
-
     /**
      * @return TelemetryStorage<Metric>
      */
@@ -151,7 +127,6 @@ final class MetricsAggregator
             $metrics = $metricFlushThreshold !== null ? TelemetryStorage::unbounded() : TelemetryStorage::bounded(self::METRICS_BUFFER_SIZE);
             $this->metrics = $metrics;
         }
-
         return $this->metrics;
     }
 }

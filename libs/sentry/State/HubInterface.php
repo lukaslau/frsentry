@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\State;
 
 use FrSentry\Sentry\Breadcrumb;
@@ -31,19 +15,16 @@ use FrSentry\Sentry\Severity;
 use FrSentry\Sentry\Tracing\Span;
 use FrSentry\Sentry\Tracing\Transaction;
 use FrSentry\Sentry\Tracing\TransactionContext;
-
 interface HubInterface
 {
     /**
      * Gets the client bound to the top of the stack.
      */
     public function getClient(): ?ClientInterface;
-
     /**
      * Gets the ID of the last captured event.
      */
     public function getLastEventId(): ?EventId;
-
     /**
      * Creates a new scope to store context information that will be layered on
      * top of the current one. It is isolated, i.e. all breadcrumbs and context
@@ -52,14 +33,12 @@ interface HubInterface
      * operation finishes or throws.
      */
     public function pushScope(): Scope;
-
     /**
      * Removes a previously pushed scope from the stack. This restores the state
      * before the scope was pushed. All breadcrumbs and context information added
      * since the last call to {@see Hub::pushScope} are discarded.
      */
     public function popScope(): bool;
-
     /**
      * Creates a new scope with and executes the given operation within. The scope
      * is automatically removed once the operation finishes or throws.
@@ -75,52 +54,43 @@ interface HubInterface
      * @phpstan-return T
      */
     public function withScope(callable $callback);
-
     /**
      * Calls the given callback passing to it the current scope so that any
      * operation can be run within its context.
      */
     public function configureScope(callable $callback): void;
-
     /**
      * Binds the given client to the current scope.
      */
     public function bindClient(ClientInterface $client): void;
-
     /**
      * Captures a message event and sends it to Sentry.
      */
     public function captureMessage(string $message, ?Severity $level = null, ?EventHint $hint = null): ?EventId;
-
     /**
      * Captures an exception event and sends it to Sentry.
      */
     public function captureException(\Throwable $exception, ?EventHint $hint = null): ?EventId;
-
     /**
      * Captures a new event using the provided data.
      */
     public function captureEvent(Event $event, ?EventHint $hint = null): ?EventId;
-
     /**
      * Captures an event that logs the last occurred error.
      */
     public function captureLastError(?EventHint $hint = null): ?EventId;
-
     /**
      * Records a new breadcrumb which will be attached to future events. They
      * will be added to subsequent events to provide more context on user's
      * actions prior to an error or crash.
      */
     public function addBreadcrumb(Breadcrumb $breadcrumb): bool;
-
     /**
      * Captures a check-in.
      *
      * @param int|float|null $duration
      */
     public function captureCheckIn(string $slug, CheckInStatus $status, $duration = null, ?MonitorConfig $monitorConfig = null, ?string $checkInId = null): ?string;
-
     /**
      * Gets the integration whose FQCN matches the given one if it's available on the current client.
      *
@@ -133,7 +103,6 @@ interface HubInterface
      * @phpstan-return T|null
      */
     public function getIntegration(string $className): ?IntegrationInterface;
-
     /**
      * Starts a new `Transaction` and returns it. This is the entry point to manual
      * tracing instrumentation.
@@ -152,17 +121,14 @@ interface HubInterface
      * @param array<string, mixed> $customSamplingContext Additional context that will be passed to the {@see SamplingContext}
      */
     public function startTransaction(TransactionContext $context, array $customSamplingContext = []): Transaction;
-
     /**
      * Returns the transaction that is on the Hub.
      */
     public function getTransaction(): ?Transaction;
-
     /**
      * Returns the span that is on the Hub.
      */
     public function getSpan(): ?Span;
-
     /**
      * Sets the span on the Hub.
      */

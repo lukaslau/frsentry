@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\State;
 
 use FrSentry\Sentry\Breadcrumb;
@@ -32,7 +16,6 @@ use FrSentry\Sentry\Severity;
 use FrSentry\Sentry\Tracing\Span;
 use FrSentry\Sentry\Tracing\Transaction;
 use FrSentry\Sentry\Tracing\TransactionContext;
-
 /**
  * An implementation of {@see HubInterface} that uses {@see SentrySdk} internally
  * to manage the current hub.
@@ -43,14 +26,12 @@ final class HubAdapter implements HubInterface
      * @var self|null The single instance which forwards all calls to {@see SentrySdk}
      */
     private static $instance;
-
     /**
      * Constructor.
      */
     private function __construct()
     {
     }
-
     /**
      * Gets the instance of this class. This is a singleton, so once initialized
      * you will always get the same instance.
@@ -60,10 +41,8 @@ final class HubAdapter implements HubInterface
         if (self::$instance === null) {
             self::$instance = new self();
         }
-
         return self::$instance;
     }
-
     /**
      * {@inheritdoc}
      */
@@ -71,7 +50,6 @@ final class HubAdapter implements HubInterface
     {
         return SentrySdk::getCurrentHub()->getClient();
     }
-
     /**
      * {@inheritdoc}
      */
@@ -79,7 +57,6 @@ final class HubAdapter implements HubInterface
     {
         return SentrySdk::getCurrentHub()->getLastEventId();
     }
-
     /**
      * {@inheritdoc}
      */
@@ -87,7 +64,6 @@ final class HubAdapter implements HubInterface
     {
         return SentrySdk::getCurrentHub()->pushScope();
     }
-
     /**
      * {@inheritdoc}
      */
@@ -95,7 +71,6 @@ final class HubAdapter implements HubInterface
     {
         return SentrySdk::getCurrentHub()->popScope();
     }
-
     /**
      * {@inheritdoc}
      */
@@ -103,7 +78,6 @@ final class HubAdapter implements HubInterface
     {
         return SentrySdk::getCurrentHub()->withScope($callback);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -111,7 +85,6 @@ final class HubAdapter implements HubInterface
     {
         SentrySdk::getCurrentHub()->configureScope($callback);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -119,7 +92,6 @@ final class HubAdapter implements HubInterface
     {
         SentrySdk::getCurrentHub()->bindClient($client);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -127,7 +99,6 @@ final class HubAdapter implements HubInterface
     {
         return SentrySdk::getCurrentHub()->captureMessage($message, $level, $hint);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -135,7 +106,6 @@ final class HubAdapter implements HubInterface
     {
         return SentrySdk::getCurrentHub()->captureException($exception, $hint);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -143,7 +113,6 @@ final class HubAdapter implements HubInterface
     {
         return SentrySdk::getCurrentHub()->captureEvent($event, $hint);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -151,7 +120,6 @@ final class HubAdapter implements HubInterface
     {
         return SentrySdk::getCurrentHub()->captureLastError($hint);
     }
-
     /**
      * {@inheritdoc}
      *
@@ -161,7 +129,6 @@ final class HubAdapter implements HubInterface
     {
         return SentrySdk::getCurrentHub()->captureCheckIn($slug, $status, $duration, $monitorConfig, $checkInId);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -169,7 +136,6 @@ final class HubAdapter implements HubInterface
     {
         return SentrySdk::getCurrentHub()->addBreadcrumb($breadcrumb);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -177,7 +143,6 @@ final class HubAdapter implements HubInterface
     {
         return SentrySdk::getCurrentHub()->getIntegration($className);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -185,7 +150,6 @@ final class HubAdapter implements HubInterface
     {
         return SentrySdk::getCurrentHub()->startTransaction($context, $customSamplingContext);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -193,7 +157,6 @@ final class HubAdapter implements HubInterface
     {
         return SentrySdk::getCurrentHub()->getTransaction();
     }
-
     /**
      * {@inheritdoc}
      */
@@ -201,7 +164,6 @@ final class HubAdapter implements HubInterface
     {
         return SentrySdk::getCurrentHub()->getSpan();
     }
-
     /**
      * {@inheritdoc}
      */
@@ -209,7 +171,6 @@ final class HubAdapter implements HubInterface
     {
         return SentrySdk::getCurrentHub()->setSpan($span);
     }
-
     /**
      * @see https://www.php.net/manual/en/language.oop5.cloning.php#object.clone
      */
@@ -217,7 +178,6 @@ final class HubAdapter implements HubInterface
     {
         throw new \BadMethodCallException('Cloning is forbidden.');
     }
-
     /**
      * @see https://www.php.net/manual/en/language.oop5.magic.php#object.wakeup
      */
@@ -225,7 +185,6 @@ final class HubAdapter implements HubInterface
     {
         throw new \BadMethodCallException('Unserializing instances of this class is forbidden.');
     }
-
     /**
      * @see https://www.php.net/manual/en/language.oop5.magic.php#object.sleep
      */

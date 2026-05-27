@@ -1,24 +1,10 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use FrSentry\Sentry\Integration\IntegrationInterface;
 use FrSentry\Sentry\Integration\IntegrationRegistry;
 use FrSentry\Sentry\Serializer\RepresentationSerializer;
@@ -26,9 +12,6 @@ use FrSentry\Sentry\Serializer\RepresentationSerializerInterface;
 use FrSentry\Sentry\State\Scope;
 use FrSentry\Sentry\Transport\Result;
 use FrSentry\Sentry\Transport\TransportInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
-
 /**
  * Default implementation of the {@see ClientInterface} interface.
  */
@@ -81,16 +64,15 @@ class Client implements ClientInterface
      * @var string The SDK version of the Client
      */
     private $sdkVersion;
-
     /**
      * Constructor.
      *
-     * @param Options $options The client configuration
-     * @param TransportInterface $transport The transport
-     * @param string|null $sdkIdentifier The Sentry SDK identifier
-     * @param string|null $sdkVersion The Sentry SDK version
+     * @param Options                                $options                  The client configuration
+     * @param TransportInterface                     $transport                The transport
+     * @param string|null                            $sdkIdentifier            The Sentry SDK identifier
+     * @param string|null                            $sdkVersion               The Sentry SDK version
      * @param RepresentationSerializerInterface|null $representationSerializer The serializer for function arguments
-     * @param LoggerInterface|null $logger The PSR-3 logger
+     * @param LoggerInterface|null                   $logger                   The PSR-3 logger
      */
     public function __construct(Options $options, TransportInterface $transport, ?string $sdkIdentifier = null, ?string $sdkVersion = null, ?RepresentationSerializerInterface $representationSerializer = null, ?LoggerInterface $logger = null)
     {
@@ -102,7 +84,6 @@ class Client implements ClientInterface
         $this->logger = $logger ?? new NullLogger();
         $this->integrations = IntegrationRegistry::getInstance()->setupIntegrations($options, $this->logger);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -110,7 +91,6 @@ class Client implements ClientInterface
     {
         return $this->options;
     }
-
     /**
      * {@inheritdoc}
      */
@@ -125,10 +105,8 @@ class Client implements ClientInterface
         if (!empty($query)) {
             $endpoint .= '&' . http_build_query($query, '', '&');
         }
-
         return $endpoint;
     }
-
     /**
      * {@inheritdoc}
      */
@@ -137,10 +115,8 @@ class Client implements ClientInterface
         $event = Event::createEvent();
         $event->setMessage($message);
         $event->setLevel($level);
-
         return $this->captureEvent($event, $hint, $scope);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -149,7 +125,6 @@ class Client implements ClientInterface
         $className = \get_class($exception);
         if ($this->shouldIgnoreException($className)) {
             $this->logger->info('The exception will be discarded because it matches an entry in "ignore_exceptions".', ['className' => $className]);
-
             return null;
             // short circuit to avoid unnecessary processing
         }
@@ -157,10 +132,8 @@ class Client implements ClientInterface
         if ($hint->exception === null) {
             $hint->exception = $exception;
         }
-
         return $this->captureEvent(Event::createEvent(), $hint, $scope);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -183,10 +156,8 @@ class Client implements ClientInterface
         } catch (\Throwable $exception) {
             $this->logger->error(\sprintf('Failed to send the event to Sentry. Reason: "%s".', $exception->getMessage()), ['exception' => $exception, 'event' => $event]);
         }
-
         return null;
     }
-
     /**
      * {@inheritdoc}
      */
@@ -197,10 +168,8 @@ class Client implements ClientInterface
             return null;
         }
         $exception = new \ErrorException(@$error['message'], 0, @$error['type'], @$error['file'], @$error['line']);
-
         return $this->captureException($exception, $scope, $hint);
     }
-
     /**
      * {@inheritdoc}
      *
@@ -208,10 +177,9 @@ class Client implements ClientInterface
      */
     public function getIntegration(string $className): ?IntegrationInterface
     {
-        /* @phpstan-var T|null */
+        /** @phpstan-var T|null */
         return $this->integrations[$className] ?? null;
     }
-
     /**
      * {@inheritdoc}
      */
@@ -219,7 +187,6 @@ class Client implements ClientInterface
     {
         return $this->transport->close($timeout);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -227,7 +194,6 @@ class Client implements ClientInterface
     {
         return $this->stacktraceBuilder;
     }
-
     /**
      * @internal
      */
@@ -235,7 +201,6 @@ class Client implements ClientInterface
     {
         return $this->logger;
     }
-
     /**
      * @internal
      */
@@ -243,23 +208,20 @@ class Client implements ClientInterface
     {
         return $this->transport;
     }
-
     public function getSdkIdentifier(): string
     {
         return $this->sdkIdentifier;
     }
-
     public function getSdkVersion(): string
     {
         return $this->sdkVersion;
     }
-
     /**
      * Assembles an event and prepares it to be sent of to Sentry.
      *
-     * @param Event $event The payload that will be converted to an Event
-     * @param EventHint|null $hint May contain additional information about the event
-     * @param Scope|null $scope Optional scope which enriches the Event
+     * @param Event          $event The payload that will be converted to an Event
+     * @param EventHint|null $hint  May contain additional information about the event
+     * @param Scope|null     $scope Optional scope which enriches the Event
      *
      * @return Event|null The prepared event object or null if it must be discarded
      */
@@ -292,7 +254,6 @@ class Client implements ClientInterface
         // only sample with the `sample_rate` on errors/messages
         if ($isEvent && $sampleRate < 1 && mt_rand(1, 100) / 100.0 > $sampleRate) {
             $this->logger->info(\sprintf('The %s will be discarded because it has been sampled.', $eventDescription), ['event' => $event]);
-
             return null;
         }
         $event = $this->applyIgnoreOptions($event, $eventDescription);
@@ -304,7 +265,6 @@ class Client implements ClientInterface
             $event = $scope->applyToEvent($event, $hint, $this->options);
             if ($event === null) {
                 $this->logger->info(\sprintf('The %s will be discarded because one of the event processors returned "null".', $eventDescription), ['event' => $beforeEventProcessors]);
-
                 return null;
             }
         }
@@ -313,10 +273,8 @@ class Client implements ClientInterface
         if ($event === null) {
             $this->logger->info(\sprintf('The %s will be discarded because the "%s" callback returned "null".', $eventDescription, $this->getBeforeSendCallbackName($beforeSendCallback)), ['event' => $beforeSendCallback]);
         }
-
         return $event;
     }
-
     /**
      * Checks if an exception should be ignored based on configured patterns.
      * Supports both class hierarchy matching and regex patterns.
@@ -336,14 +294,12 @@ class Client implements ClientInterface
                     $this->logger->warning(\sprintf('Invalid regex pattern in ignore_exceptions: "%s". Error: %s', $pattern, $e->getMessage()));
                     continue;
                 }
-            } elseif (is_a($className, $pattern, \true)) {
+            } else if (is_a($className, $pattern, \true)) {
                 return \true;
             }
         }
-
         return \false;
     }
-
     /**
      * Checks if a transaction should be ignored based on configured patterns.
      * Supports both exact string matching and regex patterns.
@@ -363,14 +319,12 @@ class Client implements ClientInterface
                     $this->logger->warning(\sprintf('Invalid regex pattern in ignore_transactions: "%s". Error: %s', $pattern, $e->getMessage()));
                     continue;
                 }
-            } elseif ($transactionName === $pattern) {
+            } else if ($transactionName === $pattern) {
                 return \true;
             }
         }
-
         return \false;
     }
-
     private function applyIgnoreOptions(Event $event, string $eventDescription): ?Event
     {
         if ($event->getType() === EventType::event()) {
@@ -381,7 +335,6 @@ class Client implements ClientInterface
             foreach ($exceptions as $exception) {
                 if ($this->shouldIgnoreException($exception->getType())) {
                     $this->logger->info(\sprintf('The %s will be discarded because it matches an entry in "ignore_exceptions".', $eventDescription), ['event' => $event]);
-
                     return null;
                 }
             }
@@ -393,14 +346,11 @@ class Client implements ClientInterface
             }
             if ($this->shouldIgnoreTransaction($transactionName)) {
                 $this->logger->info(\sprintf('The %s will be discarded because it matches a entry in "ignore_transactions".', $eventDescription), ['event' => $event]);
-
                 return null;
             }
         }
-
         return $event;
     }
-
     private function applyBeforeSendCallback(Event $event, ?EventHint $hint): ?Event
     {
         switch ($event->getType()) {
@@ -414,7 +364,6 @@ class Client implements ClientInterface
                 return $event;
         }
     }
-
     private function getBeforeSendCallbackName(Event $event): string
     {
         switch ($event->getType()) {
@@ -426,7 +375,6 @@ class Client implements ClientInterface
                 return 'before_send';
         }
     }
-
     /**
      * Optionally adds a missing stacktrace to the Event if the client is configured to do so.
      *
@@ -443,13 +391,12 @@ class Client implements ClientInterface
         }
         $event->setStacktrace($this->stacktraceBuilder->buildFromBacktrace(debug_backtrace(0), __FILE__, __LINE__ - 3));
     }
-
     /**
      * Stores the given exception in the passed event.
      *
-     * @param Event $event The event that will be enriched with the exception
+     * @param Event      $event     The event that will be enriched with the exception
      * @param \Throwable $exception The exception that will be processed and added to the event
-     * @param EventHint $hint Contains additional information about the event
+     * @param EventHint  $hint      Contains additional information about the event
      */
     private function addThrowableToEvent(Event $event, \Throwable $exception, EventHint $hint): void
     {

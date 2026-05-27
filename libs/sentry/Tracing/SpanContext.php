@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\Tracing;
 
 class SpanContext
@@ -69,7 +53,6 @@ class SpanContext
      * @var string|null the trace origin of the span
      */
     private $origin;
-
     /**
      * @return self
      */
@@ -77,112 +60,90 @@ class SpanContext
     {
         return new self();
     }
-
     public function getDescription(): ?string
     {
         return $this->description;
     }
-
     /**
      * @return $this
      */
     public function setDescription(?string $description)
     {
         $this->description = $description;
-
         return $this;
     }
-
     public function getOp(): ?string
     {
         return $this->op;
     }
-
     /**
      * @return $this
      */
     public function setOp(?string $op)
     {
         $this->op = $op;
-
         return $this;
     }
-
     public function getStatus(): ?SpanStatus
     {
         return $this->status;
     }
-
     /**
      * @return $this
      */
     public function setStatus(?SpanStatus $status)
     {
         $this->status = $status;
-
         return $this;
     }
-
     public function getParentSpanId(): ?SpanId
     {
         return $this->parentSpanId;
     }
-
     /**
      * @return $this
      */
     public function setParentSpanId(?SpanId $parentSpanId)
     {
         $this->parentSpanId = $parentSpanId;
-
         return $this;
     }
-
     public function getSampled(): ?bool
     {
         return $this->sampled;
     }
-
     /**
      * @return $this
      */
     public function setSampled(?bool $sampled)
     {
         $this->sampled = $sampled;
-
         return $this;
     }
-
     public function getSpanId(): ?SpanId
     {
         return $this->spanId;
     }
-
     /**
      * @return $this
      */
     public function setSpanId(?SpanId $spanId)
     {
         $this->spanId = $spanId;
-
         return $this;
     }
-
     public function getTraceId(): ?TraceId
     {
         return $this->traceId;
     }
-
     /**
      * @return $this
      */
     public function setTraceId(?TraceId $traceId)
     {
         $this->traceId = $traceId;
-
         return $this;
     }
-
     /**
      * @return array<string, string>
      */
@@ -190,7 +151,6 @@ class SpanContext
     {
         return $this->tags;
     }
-
     /**
      * @param array<string, string> $tags
      *
@@ -199,10 +159,8 @@ class SpanContext
     public function setTags(array $tags)
     {
         $this->tags = $tags;
-
         return $this;
     }
-
     /**
      * @return array<string, mixed>
      */
@@ -210,7 +168,6 @@ class SpanContext
     {
         return $this->data;
     }
-
     /**
      * @param array<string, mixed> $data
      *
@@ -219,52 +176,42 @@ class SpanContext
     public function setData(array $data)
     {
         $this->data = $data;
-
         return $this;
     }
-
     public function getStartTimestamp(): ?float
     {
         return $this->startTimestamp;
     }
-
     /**
      * @return $this
      */
     public function setStartTimestamp(?float $startTimestamp)
     {
         $this->startTimestamp = $startTimestamp;
-
         return $this;
     }
-
     public function getEndTimestamp(): ?float
     {
         return $this->endTimestamp;
     }
-
     /**
      * @return $this
      */
     public function setEndTimestamp(?float $endTimestamp)
     {
         $this->endTimestamp = $endTimestamp;
-
         return $this;
     }
-
     public function getOrigin(): ?string
     {
         return $this->origin;
     }
-
     /**
      * @return $this
      */
     public function setOrigin(?string $origin)
     {
         $this->origin = $origin;
-
         return $this;
     }
 }

@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry;
 
 /**
@@ -30,7 +14,6 @@ final class Stacktrace
      * @var Frame[] The frames that compose the stacktrace
      */
     private $frames = [];
-
     /**
      * Constructor.
      *
@@ -50,7 +33,6 @@ final class Stacktrace
         }
         $this->frames = $frames;
     }
-
     /**
      * Gets the stacktrace frames.
      *
@@ -60,7 +42,6 @@ final class Stacktrace
     {
         return $this->frames;
     }
-
     /**
      * Gets the frame at the given index.
      *
@@ -73,10 +54,8 @@ final class Stacktrace
         if ($index < 0 || $index >= \count($this->frames)) {
             throw new \OutOfBoundsException();
         }
-
         return $this->frames[$index];
     }
-
     /**
      * Adds a new frame to the stacktrace.
      *
@@ -85,10 +64,8 @@ final class Stacktrace
     public function addFrame(Frame $frame): self
     {
         array_unshift($this->frames, $frame);
-
         return $this;
     }
-
     /**
      * Removes the frame at the given index from the stacktrace.
      *
@@ -105,7 +82,6 @@ final class Stacktrace
             throw new \RuntimeException('Cannot remove all frames from the stacktrace.');
         }
         array_splice($this->frames, $index, 1);
-
         return $this;
     }
 }

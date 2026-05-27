@@ -1,33 +1,16 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\Transport;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use FrSentry\Sentry\Event;
 use FrSentry\Sentry\HttpClient\HttpClientInterface;
 use FrSentry\Sentry\HttpClient\Request;
 use FrSentry\Sentry\Options;
 use FrSentry\Sentry\Serializer\PayloadSerializerInterface;
 use FrSentry\Sentry\Spotlight\SpotlightClient;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
-
 /**
  * @internal
  */
@@ -53,12 +36,11 @@ class HttpTransport implements TransportInterface
      * @var RateLimiter The rate limiter
      */
     private $rateLimiter;
-
     /**
-     * @param Options $options The options
-     * @param HttpClientInterface $httpClient The HTTP client
+     * @param Options                    $options           The options
+     * @param HttpClientInterface        $httpClient        The HTTP client
      * @param PayloadSerializerInterface $payloadSerializer The event serializer
-     * @param LoggerInterface|null $logger An instance of a PSR-3 logger
+     * @param LoggerInterface|null       $logger            An instance of a PSR-3 logger
      */
     public function __construct(Options $options, HttpClientInterface $httpClient, PayloadSerializerInterface $payloadSerializer, ?LoggerInterface $logger = null)
     {
@@ -68,7 +50,6 @@ class HttpTransport implements TransportInterface
         $this->logger = $logger ?? new NullLogger();
         $this->rateLimiter = new RateLimiter($this->logger);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -78,7 +59,6 @@ class HttpTransport implements TransportInterface
         $eventDescription = \sprintf('%s%s [%s]', $event->getLevel() !== null ? $event->getLevel() . ' ' : '', (string) $event->getType(), (string) $event->getId());
         if ($this->options->getDsn() === null) {
             $this->logger->info(\sprintf('Skipping %s, because no DSN is set.', $eventDescription), ['event' => $event]);
-
             return new Result(ResultStatus::skipped(), $event);
         }
         $targetDescription = \sprintf('%s [project:%s]', $this->options->getDsn()->getHost(), $this->options->getDsn()->getProjectId());
@@ -87,7 +67,6 @@ class HttpTransport implements TransportInterface
         if ($eventType->requiresRateLimiting()) {
             if ($this->rateLimiter->isRateLimited((string) $eventType)) {
                 $this->logger->warning(\sprintf('Rate limit exceeded for sending requests of type "%s".', (string) $eventType), ['event' => $event]);
-
                 return new Result(ResultStatus::rateLimit());
             }
             // Since profiles are attached to transaction we have to check separately if they are rate limited.
@@ -107,21 +86,17 @@ class HttpTransport implements TransportInterface
             $response = $this->httpClient->sendRequest($request, $this->options);
         } catch (\Throwable $exception) {
             $this->logger->error(\sprintf('Failed to send %s to %s. Reason: "%s".', $eventDescription, $targetDescription, $exception->getMessage()), ['exception' => $exception, 'event' => $event]);
-
             return new Result(ResultStatus::failed());
         }
         if ($response->hasError()) {
             $this->logger->error(\sprintf('Failed to send %s to %s. Reason: "%s".', $eventDescription, $targetDescription, $response->getError()), ['event' => $event]);
-
             return new Result(ResultStatus::unknown());
         }
         $this->rateLimiter->handleResponse($response);
         $resultStatus = ResultStatus::createFromHttpStatusCode($response->getStatusCode());
         $this->logger->info(\sprintf('Sent %s to %s. Result: "%s" (status: %s).', $eventDescription, $targetDescription, strtolower((string) $resultStatus), $response->getStatusCode()), ['response' => $response, 'event' => $event]);
-
         return new Result($resultStatus, $event);
     }
-
     /**
      * {@inheritdoc}
      */
@@ -129,7 +104,6 @@ class HttpTransport implements TransportInterface
     {
         return new Result(ResultStatus::success());
     }
-
     /**
      * @internal
      */
@@ -137,7 +111,6 @@ class HttpTransport implements TransportInterface
     {
         return $this->httpClient;
     }
-
     private function sendRequestToSpotlight(Event $event): void
     {
         if (!$this->options->isSpotlightEnabled()) {

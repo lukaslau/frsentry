@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry;
 
 /**
@@ -43,7 +27,6 @@ final class ExceptionDataBag
      * @var ExceptionMechanism|null An optional object describing the mechanism that created this exception
      */
     private $mechanism;
-
     public function __construct(\Throwable $exception, ?Stacktrace $stacktrace = null, ?ExceptionMechanism $mechanism = null)
     {
         $this->type = \get_class($exception);
@@ -51,7 +34,6 @@ final class ExceptionDataBag
         $this->stacktrace = $stacktrace;
         $this->mechanism = $mechanism;
     }
-
     /**
      * Gets the type of exception, e.g. RuntimeException.
      */
@@ -59,7 +41,6 @@ final class ExceptionDataBag
     {
         return $this->type;
     }
-
     /**
      * Sets the type of the exception.
      *
@@ -68,10 +49,8 @@ final class ExceptionDataBag
     public function setType(string $type): self
     {
         $this->type = $type;
-
         return $this;
     }
-
     /**
      * Gets the value of the exception.
      */
@@ -79,17 +58,14 @@ final class ExceptionDataBag
     {
         return $this->value;
     }
-
     /**
      * Sets the value of the exception.
      */
     public function setValue(string $value): self
     {
         $this->value = $value;
-
         return $this;
     }
-
     /**
      * Gets the stack trace object corresponding to the Stack Trace Interface.
      */
@@ -97,7 +73,6 @@ final class ExceptionDataBag
     {
         return $this->stacktrace;
     }
-
     /**
      * Sets the stack trace object corresponding to the Stack Trace Interface.
      *
@@ -106,10 +81,8 @@ final class ExceptionDataBag
     public function setStacktrace(Stacktrace $stacktrace): self
     {
         $this->stacktrace = $stacktrace;
-
         return $this;
     }
-
     /**
      * Gets the object describing the mechanism that created this exception.
      */
@@ -117,7 +90,6 @@ final class ExceptionDataBag
     {
         return $this->mechanism;
     }
-
     /**
      * Sets the object describing the mechanism that created this exception.
      *
@@ -126,7 +98,6 @@ final class ExceptionDataBag
     public function setMechanism(?ExceptionMechanism $mechanism): self
     {
         $this->mechanism = $mechanism;
-
         return $this;
     }
 }

@@ -1,26 +1,9 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry;
 
 use FrSentry\Sentry\Util\SentryUid;
-
 final class CheckIn
 {
     /**
@@ -51,7 +34,6 @@ final class CheckIn
      * @var MonitorConfig|null The monitor configuration
      */
     private $monitorConfig;
-
     /**
      * @param int|float|null $duration The duration of the check-in in seconds
      */
@@ -65,65 +47,50 @@ final class CheckIn
         $this->setDuration($duration);
         $this->setMonitorConfig($monitorConfig);
     }
-
     public function getId(): string
     {
         return $this->id;
     }
-
     public function setId(string $id): void
     {
         $this->id = $id;
     }
-
     public function getMonitorSlug(): string
     {
         return $this->monitorSlug;
     }
-
     public function setMonitorSlug(string $monitorSlug): self
     {
         $this->monitorSlug = $monitorSlug;
-
         return $this;
     }
-
     public function getStatus(): CheckInStatus
     {
         return $this->status;
     }
-
     public function setStatus(CheckInStatus $status): self
     {
         $this->status = $status;
-
         return $this;
     }
-
     public function getRelease(): ?string
     {
         return $this->release;
     }
-
     public function setRelease(string $release): self
     {
         $this->release = $release;
-
         return $this;
     }
-
     public function getEnvironment(): ?string
     {
         return $this->environment;
     }
-
     public function setEnvironment(string $environment): self
     {
         $this->environment = $environment;
-
         return $this;
     }
-
     /**
      * @return int|float|null
      */
@@ -131,26 +98,21 @@ final class CheckIn
     {
         return $this->duration;
     }
-
     /**
      * @param int|float|null $duration The duration of the check-in in seconds
      */
     public function setDuration($duration): self
     {
         $this->duration = $duration;
-
         return $this;
     }
-
     public function getMonitorConfig(): ?MonitorConfig
     {
         return $this->monitorConfig;
     }
-
     public function setMonitorConfig(?MonitorConfig $monitorConfig): self
     {
         $this->monitorConfig = $monitorConfig;
-
         return $this;
     }
 }

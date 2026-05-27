@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\Serializer\EnvelopItems;
 
 use FrSentry\Sentry\Event;
@@ -25,7 +9,6 @@ use FrSentry\Sentry\Serializer\Traits\BreadcrumbSeralizerTrait;
 use FrSentry\Sentry\Serializer\Traits\StacktraceFrameSeralizerTrait;
 use FrSentry\Sentry\Util\JSON;
 use FrSentry\Sentry\Util\Str;
-
 /**
  * @internal
  */
@@ -33,7 +16,6 @@ class EventItem implements EnvelopeItemInterface
 {
     use BreadcrumbSeralizerTrait;
     use StacktraceFrameSeralizerTrait;
-
     public static function toEnvelopeItem(Event $event): string
     {
         $header = ['type' => (string) $event->getType(), 'content_type' => 'application/json'];
@@ -107,10 +89,8 @@ class EventItem implements EnvelopeItemInterface
         if ($stacktrace !== null) {
             $payload['stacktrace'] = ['frames' => array_map([self::class, 'serializeStacktraceFrame'], $stacktrace->getFrames())];
         }
-
         return \sprintf("%s\n%s", JSON::encode($header), JSON::encode($payload));
     }
-
     /**
      * @return array<string, mixed>
      *
@@ -141,7 +121,6 @@ class EventItem implements EnvelopeItemInterface
                 $result['mechanism']['data'] = $exceptionMechanism->getData();
             }
         }
-
         return $result;
     }
 }

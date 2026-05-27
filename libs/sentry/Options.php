@@ -1,35 +1,18 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use FrSentry\Sentry\HttpClient\HttpClientInterface;
 use FrSentry\Sentry\Integration\ErrorListenerIntegration;
 use FrSentry\Sentry\Integration\IntegrationInterface;
 use FrSentry\Sentry\Logs\Log;
 use FrSentry\Sentry\Metrics\Types\Metric;
 use FrSentry\Sentry\Transport\TransportInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\OptionsResolver\Options as SymfonyOptions;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-
 /**
  * Configuration container for the Sentry client.
  *
@@ -60,7 +43,6 @@ final class Options
      * @var OptionsResolver The options resolver
      */
     private $resolver;
-
     /**
      * Class constructor.
      *
@@ -80,7 +62,6 @@ final class Options
             $this->options = array_merge($this->options, ['traces_sample_rate' => 1]);
         }
     }
-
     /**
      * Gets the prefixes which should be stripped from filenames to create
      * relative paths.
@@ -91,7 +72,6 @@ final class Options
     {
         return $this->options['prefixes'];
     }
-
     /**
      * Sets the prefixes which should be stripped from filenames to create
      * relative paths.
@@ -102,10 +82,8 @@ final class Options
     {
         $options = array_merge($this->options, ['prefixes' => $prefixes]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the sampling factor to apply to events. A value of 0 will deny
      * sending any events, and a value of 1 will send 100% of events.
@@ -114,7 +92,6 @@ final class Options
     {
         return $this->options['sample_rate'];
     }
-
     /**
      * Sets the sampling factor to apply to events. A value of 0 will deny
      * sending any events, and a value of 1 will send 100% of events.
@@ -125,10 +102,8 @@ final class Options
     {
         $options = array_merge($this->options, ['sample_rate' => $sampleRate]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the sampling factor to apply to transaction. A value of 0 will deny
      * sending any transaction, and a value of 1 will send 100% of transaction.
@@ -137,7 +112,6 @@ final class Options
     {
         return $this->options['traces_sample_rate'];
     }
-
     /**
      * Sets if tracing should be enabled or not. If null tracesSampleRate takes
      * precedence.
@@ -150,10 +124,8 @@ final class Options
     {
         $options = array_merge($this->options, ['enable_tracing' => $enableTracing]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets if tracing is enabled or not.
      *
@@ -165,7 +137,6 @@ final class Options
     {
         return $this->options['enable_tracing'];
     }
-
     /**
      * Sets if logs should be enabled or not.
      *
@@ -175,10 +146,8 @@ final class Options
     {
         $options = array_merge($this->options, ['enable_logs' => $enableLogs]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets if logs is enabled or not.
      */
@@ -186,7 +155,6 @@ final class Options
     {
         return $this->options['enable_logs'] ?? \false;
     }
-
     /**
      * Gets the number of buffered logs that trigger an immediate flush.
      */
@@ -196,10 +164,8 @@ final class Options
          * @var int|null $logFlushThreshold
          */
         $logFlushThreshold = $this->options['log_flush_threshold'];
-
         return $logFlushThreshold;
     }
-
     /**
      * Sets the number of buffered logs that trigger an immediate flush.
      * null will never trigger an immediate flush.
@@ -208,10 +174,8 @@ final class Options
     {
         $options = array_merge($this->options, ['log_flush_threshold' => $logFlushThreshold]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the number of buffered metrics that trigger an immediate flush.
      */
@@ -221,10 +185,8 @@ final class Options
          * @var int|null $metricFlushThreshold
          */
         $metricFlushThreshold = $this->options['metric_flush_threshold'];
-
         return $metricFlushThreshold;
     }
-
     /**
      * Sets the number of buffered metrics that trigger an immediate flush.
      * null will never trigger an immediate flush.
@@ -233,10 +195,8 @@ final class Options
     {
         $options = array_merge($this->options, ['metric_flush_threshold' => $metricFlushThreshold]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Sets if metrics should be enabled or not.
      */
@@ -244,10 +204,8 @@ final class Options
     {
         $options = array_merge($this->options, ['enable_metrics' => $enableTracing]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Returns whether metrics are enabled or not.
      */
@@ -257,10 +215,8 @@ final class Options
          * @var bool $enableMetrics
          */
         $enableMetrics = $this->options['enable_metrics'] ?? \true;
-
         return $enableMetrics;
     }
-
     /**
      * Sets the sampling factor to apply to transactions. A value of 0 will deny
      * sending any transactions, and a value of 1 will send 100% of transactions.
@@ -271,26 +227,20 @@ final class Options
     {
         $options = array_merge($this->options, ['traces_sample_rate' => $sampleRate]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     public function getProfilesSampleRate(): ?float
     {
         /** @var int|float|null $value */
         $value = $this->options['profiles_sample_rate'] ?? null;
-
         return $value ?? null;
     }
-
     public function setProfilesSampleRate(?float $sampleRate): self
     {
         $options = array_merge($this->options, ['profiles_sample_rate' => $sampleRate]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets a callback that will be invoked when we sample a profile.
      *
@@ -300,10 +250,8 @@ final class Options
     {
         /** @var callable(Tracing\SamplingContext): float|null $value */
         $value = $this->options['profiles_sampler'];
-
         return $value;
     }
-
     /**
      * Sets a callback that will be invoked when we take the profiling sampling decision.
      * Return a number between 0 and 1 to define the sample rate for the provided SamplingContext.
@@ -316,10 +264,8 @@ final class Options
     {
         $options = array_merge($this->options, ['profiles_sampler' => $sampler]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets whether tracing is enabled or not. The feature is enabled when at
      * least one of the `traces_sample_rate` and `traces_sampler` options is
@@ -330,10 +276,8 @@ final class Options
         if ($this->getEnableTracing() !== null && $this->getEnableTracing() === \false) {
             return \false;
         }
-
         return $this->getTracesSampleRate() !== null || $this->getTracesSampler() !== null;
     }
-
     /**
      * Gets whether the stacktrace will be attached on captureMessage.
      */
@@ -341,7 +285,6 @@ final class Options
     {
         return $this->options['attach_stacktrace'];
     }
-
     /**
      * Sets whether the stacktrace will be attached on captureMessage.
      *
@@ -351,10 +294,8 @@ final class Options
     {
         $options = array_merge($this->options, ['attach_stacktrace' => $enable]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets whether a metric has their code location attached.
      *
@@ -364,7 +305,6 @@ final class Options
     {
         return $this->options['attach_metric_code_locations'];
     }
-
     /**
      * Sets whether a metric will have their code location attached.
      *
@@ -374,10 +314,8 @@ final class Options
     {
         $options = array_merge($this->options, ['attach_metric_code_locations' => $enable]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the number of lines of code context to capture, or null if none.
      */
@@ -385,7 +323,6 @@ final class Options
     {
         return $this->options['context_lines'];
     }
-
     /**
      * Sets the number of lines of code context to capture, or null if none.
      *
@@ -395,10 +332,8 @@ final class Options
     {
         $options = array_merge($this->options, ['context_lines' => $contextLines]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the environment.
      */
@@ -406,7 +341,6 @@ final class Options
     {
         return $this->options['environment'];
     }
-
     /**
      * Sets the environment.
      *
@@ -416,10 +350,8 @@ final class Options
     {
         $options = array_merge($this->options, ['environment' => $environment]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the list of paths to exclude from in_app detection.
      *
@@ -429,7 +361,6 @@ final class Options
     {
         return $this->options['in_app_exclude'];
     }
-
     /**
      * Sets the list of paths to exclude from in_app detection.
      *
@@ -439,10 +370,8 @@ final class Options
     {
         $options = array_merge($this->options, ['in_app_exclude' => $paths]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the list of paths which has to be identified as in_app.
      *
@@ -452,7 +381,6 @@ final class Options
     {
         return $this->options['in_app_include'];
     }
-
     /**
      * Set the list of paths to include in in_app detection.
      *
@@ -462,10 +390,8 @@ final class Options
     {
         $options = array_merge($this->options, ['in_app_include' => $paths]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets a PSR-3 compatible logger to log internal debug messages.
      */
@@ -473,7 +399,6 @@ final class Options
     {
         return $this->options['logger'];
     }
-
     /**
      * Helper to always get a logger instance even if it was not set.
      */
@@ -481,7 +406,6 @@ final class Options
     {
         return $this->getLogger() ?? new NullLogger();
     }
-
     /**
      * Sets a PSR-3 compatible logger to log internal debug messages.
      */
@@ -489,15 +413,12 @@ final class Options
     {
         $options = array_merge($this->options, ['logger' => $logger]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     public function isSpotlightEnabled(): bool
     {
         return \is_string($this->options['spotlight']) || $this->options['spotlight'];
     }
-
     /**
      * @param bool|string $enable can be passed a boolean or the Spotlight URL (which will also enable Spotlight)
      */
@@ -505,19 +426,15 @@ final class Options
     {
         $options = array_merge($this->options, ['spotlight' => $enable]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     public function getSpotlightUrl(): string
     {
         if (\is_string($this->options['spotlight'])) {
             return $this->options['spotlight'];
         }
-
         return $this->options['spotlight_url'];
     }
-
     /**
      * @return $this
      *
@@ -527,10 +444,8 @@ final class Options
     {
         $options = array_merge($this->options, ['spotlight_url' => $url]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the release tag to be passed with every event sent to Sentry.
      */
@@ -538,7 +453,6 @@ final class Options
     {
         return $this->options['release'];
     }
-
     /**
      * Sets the release tag to be passed with every event sent to Sentry.
      *
@@ -548,10 +462,8 @@ final class Options
     {
         $options = array_merge($this->options, ['release' => $release]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the DSN of the Sentry server the authenticated user is bound to.
      */
@@ -559,7 +471,6 @@ final class Options
     {
         return $this->options['dsn'];
     }
-
     /**
      * Gets the Org ID.
      */
@@ -567,7 +478,6 @@ final class Options
     {
         return $this->options['org_id'];
     }
-
     /**
      * Sets the Org ID.
      */
@@ -575,10 +485,8 @@ final class Options
     {
         $options = array_merge($this->options, ['org_id' => $orgId]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the name of the server the SDK is running on (e.g. the hostname).
      */
@@ -586,7 +494,6 @@ final class Options
     {
         return $this->options['server_name'];
     }
-
     /**
      * Sets the name of the server the SDK is running on (e.g. the hostname).
      *
@@ -596,10 +503,8 @@ final class Options
     {
         $options = array_merge($this->options, ['server_name' => $serverName]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets a list of exceptions to be ignored and not sent to Sentry.
      *
@@ -611,7 +516,6 @@ final class Options
     {
         return $this->options['ignore_exceptions'];
     }
-
     /**
      * Sets a list of exceptions to be ignored and not sent to Sentry.
      *
@@ -621,10 +525,8 @@ final class Options
     {
         $options = array_merge($this->options, ['ignore_exceptions' => $ignoreErrors]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets a list of transaction names to be ignored and not sent to Sentry.
      *
@@ -634,7 +536,6 @@ final class Options
     {
         return $this->options['ignore_transactions'];
     }
-
     /**
      * Sets a list of transaction names to be ignored and not sent to Sentry.
      *
@@ -644,10 +545,8 @@ final class Options
     {
         $options = array_merge($this->options, ['ignore_transactions' => $ignoreTransaction]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets a callback that will be invoked before an event is sent to the server.
      * If `null` is returned it won't be sent.
@@ -658,7 +557,6 @@ final class Options
     {
         return $this->options['before_send'];
     }
-
     /**
      * Sets a callable to be called to decide whether an event should
      * be captured or not.
@@ -671,10 +569,8 @@ final class Options
     {
         $options = array_merge($this->options, ['before_send' => $callback]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets a callback that will be invoked before an transaction is sent to the server.
      * If `null` is returned it won't be sent.
@@ -685,7 +581,6 @@ final class Options
     {
         return $this->options['before_send_transaction'];
     }
-
     /**
      * Sets a callable to be called to decide whether an transaction should
      * be captured or not.
@@ -698,10 +593,8 @@ final class Options
     {
         $options = array_merge($this->options, ['before_send_transaction' => $callback]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets a callback that will be invoked before a check-in is sent to the server.
      * If `null` is returned it won't be sent.
@@ -712,7 +605,6 @@ final class Options
     {
         return $this->options['before_send_check_in'];
     }
-
     /**
      * Sets a callable to be called to decide whether a check-in should
      * be captured or not.
@@ -725,10 +617,8 @@ final class Options
     {
         $options = array_merge($this->options, ['before_send_check_in' => $callback]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets a callback that will be invoked before an log is sent to the server.
      * If `null` is returned it won't be sent.
@@ -739,7 +629,6 @@ final class Options
     {
         return $this->options['before_send_log'];
     }
-
     /**
      * Sets a callable to be called to decide whether a log should
      * be captured or not.
@@ -752,10 +641,8 @@ final class Options
     {
         $options = array_merge($this->options, ['before_send_log' => $callback]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets a callback that will be invoked before metrics are sent to the server.
      * If `null` is returned it won't be sent.
@@ -768,7 +655,6 @@ final class Options
     {
         return $this->options['before_send_metrics'];
     }
-
     /**
      * Gets a callback that will be invoked before a metric is added.
      * Returning `null` means that the metric will be discarded.
@@ -779,10 +665,8 @@ final class Options
          * @var callable $callback
          */
         $callback = $this->options['before_send_metric'];
-
         return $callback;
     }
-
     /**
      * Sets a new callback that is invoked before metrics are sent.
      * Returning `null` means that the metric will be discarded.
@@ -793,10 +677,8 @@ final class Options
     {
         $options = array_merge($this->options, ['before_send_metric' => $callback]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Sets a callable to be called to decide whether metrics should
      * be send or not.
@@ -811,10 +693,8 @@ final class Options
     {
         $options = array_merge($this->options, ['before_send_metrics' => $callback]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets an allow list of trace propagation targets.
      *
@@ -824,7 +704,6 @@ final class Options
     {
         return $this->options['trace_propagation_targets'];
     }
-
     /**
      * Set an allow list of trace propagation targets.
      *
@@ -834,10 +713,8 @@ final class Options
     {
         $options = array_merge($this->options, ['trace_propagation_targets' => $tracePropagationTargets]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Returns whether strict trace continuation is enabled or not.
      */
@@ -847,10 +724,8 @@ final class Options
          * @var bool $result
          */
         $result = $this->options['strict_trace_continuation'];
-
         return $result;
     }
-
     /**
      * Sets if strict trace continuation should be enabled or not.
      */
@@ -858,10 +733,8 @@ final class Options
     {
         $options = array_merge($this->options, ['strict_trace_continuation' => $strictTraceContinuation]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Returns whether strict trace propagation is enabled or not.
      *
@@ -871,7 +744,6 @@ final class Options
     {
         return $this->isStrictTraceContinuationEnabled();
     }
-
     /**
      * Sets if strict trace propagation should be enabled or not.
      *
@@ -881,7 +753,6 @@ final class Options
     {
         return $this->enableStrictTraceContinuation($strictTracePropagation);
     }
-
     /**
      * Gets a list of default tags for events.
      *
@@ -891,7 +762,6 @@ final class Options
     {
         return $this->options['tags'];
     }
-
     /**
      * Sets a list of default tags for events.
      *
@@ -901,10 +771,8 @@ final class Options
     {
         $options = array_merge($this->options, ['tags' => $tags]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets a bit mask for error_reporting used in {@link ErrorListenerIntegration} to filter which errors to report.
      */
@@ -912,7 +780,6 @@ final class Options
     {
         return $this->options['error_types'] ?? error_reporting();
     }
-
     /**
      * Sets a bit mask for error_reporting used in {@link ErrorListenerIntegration} to filter which errors to report.
      *
@@ -922,10 +789,8 @@ final class Options
     {
         $options = array_merge($this->options, ['error_types' => $errorTypes]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the maximum number of breadcrumbs sent with events.
      */
@@ -933,7 +798,6 @@ final class Options
     {
         return $this->options['max_breadcrumbs'];
     }
-
     /**
      * Sets the maximum number of breadcrumbs sent with events.
      *
@@ -943,10 +807,8 @@ final class Options
     {
         $options = array_merge($this->options, ['max_breadcrumbs' => $maxBreadcrumbs]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets a callback that will be invoked when adding a breadcrumb.
      *
@@ -956,7 +818,6 @@ final class Options
     {
         return $this->options['before_breadcrumb'];
     }
-
     /**
      * Sets a callback that will be invoked when adding a breadcrumb, allowing
      * to optionally modify it before adding it to future events. Note that you
@@ -972,10 +833,8 @@ final class Options
     {
         $options = array_merge($this->options, ['before_breadcrumb' => $callback]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Sets the list of integrations that should be installed after SDK was
      * initialized or a function that receives default integrations and returns
@@ -987,10 +846,8 @@ final class Options
     {
         $options = array_merge($this->options, ['integrations' => $integrations]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Returns all configured integrations that will be used by the Client.
      *
@@ -1000,33 +857,26 @@ final class Options
     {
         return $this->options['integrations'];
     }
-
     public function setTransport(TransportInterface $transport): self
     {
         $options = array_merge($this->options, ['transport' => $transport]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     public function getTransport(): ?TransportInterface
     {
         return $this->options['transport'];
     }
-
     public function setHttpClient(HttpClientInterface $httpClient): self
     {
         $options = array_merge($this->options, ['http_client' => $httpClient]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     public function getHttpClient(): ?HttpClientInterface
     {
         return $this->options['http_client'];
     }
-
     /**
      * Should default PII be sent by default.
      */
@@ -1034,7 +884,6 @@ final class Options
     {
         return $this->options['send_default_pii'];
     }
-
     /**
      * Sets if default PII should be sent with every event (if possible).
      *
@@ -1044,10 +893,8 @@ final class Options
     {
         $options = array_merge($this->options, ['send_default_pii' => $enable]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Returns whether the default integrations are enabled.
      */
@@ -1055,7 +902,6 @@ final class Options
     {
         return $this->options['default_integrations'];
     }
-
     /**
      * Sets whether the default integrations are enabled.
      *
@@ -1065,10 +911,8 @@ final class Options
     {
         $options = array_merge($this->options, ['default_integrations' => $enable]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the max length for values in the event payload.
      */
@@ -1076,7 +920,6 @@ final class Options
     {
         return $this->options['max_value_length'];
     }
-
     /**
      * Sets the max length for specific values in the event payload.
      *
@@ -1086,10 +929,8 @@ final class Options
     {
         $options = array_merge($this->options, ['max_value_length' => $maxValueLength]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the http proxy setting.
      */
@@ -1097,7 +938,6 @@ final class Options
     {
         return $this->options['http_proxy'];
     }
-
     /**
      * Sets the http proxy. Be aware this option only works when curl client is used.
      *
@@ -1107,23 +947,18 @@ final class Options
     {
         $options = array_merge($this->options, ['http_proxy' => $httpProxy]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     public function getHttpProxyAuthentication(): ?string
     {
         return $this->options['http_proxy_authentication'];
     }
-
     public function setHttpProxyAuthentication(?string $httpProxy): self
     {
         $options = array_merge($this->options, ['http_proxy_authentication' => $httpProxy]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the maximum number of seconds to wait while trying to connect to a server.
      */
@@ -1131,7 +966,6 @@ final class Options
     {
         return $this->options['http_connect_timeout'];
     }
-
     /**
      * Sets the maximum number of seconds to wait while trying to connect to a server.
      *
@@ -1141,10 +975,8 @@ final class Options
     {
         $options = array_merge($this->options, ['http_connect_timeout' => $httpConnectTimeout]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the maximum execution time for the request+response as a whole.
      */
@@ -1152,7 +984,6 @@ final class Options
     {
         return $this->options['http_timeout'];
     }
-
     /**
      * Sets the maximum execution time for the request+response as a whole. The
      * value should also include the time for the connect phase, so it should be
@@ -1164,36 +995,28 @@ final class Options
     {
         $options = array_merge($this->options, ['http_timeout' => $httpTimeout]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     public function getHttpSslVerifyPeer(): bool
     {
         return $this->options['http_ssl_verify_peer'];
     }
-
     public function setHttpSslVerifyPeer(bool $httpSslVerifyPeer): self
     {
         $options = array_merge($this->options, ['http_ssl_verify_peer' => $httpSslVerifyPeer]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     public function getHttpSslNativeCa(): bool
     {
         return $this->options['http_ssl_native_ca'];
     }
-
     public function setHttpSslNativeCa(bool $httpSslNativeCa): self
     {
         $options = array_merge($this->options, ['http_ssl_native_ca' => $httpSslNativeCa]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Returns whether the requests should be compressed using GZIP or not.
      */
@@ -1201,7 +1024,6 @@ final class Options
     {
         return $this->options['http_compression'];
     }
-
     /**
      * Sets whether the request should be compressed using JSON or not.
      */
@@ -1209,10 +1031,8 @@ final class Options
     {
         $options = array_merge($this->options, ['http_compression' => $enabled]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Returns whether a shared curl handle should be used or not.
      *
@@ -1225,10 +1045,8 @@ final class Options
          * @var bool $shareHandleEnabled
          */
         $shareHandleEnabled = $this->options['http_enable_curl_share_handle'];
-
         return $shareHandleEnabled;
     }
-
     /**
      * Sets whether the persistent curl handle should be used or not.
      *
@@ -1239,10 +1057,8 @@ final class Options
     {
         $options = array_merge($this->options, ['http_enable_curl_share_handle' => $enabled]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets whether the silenced errors should be captured or not.
      *
@@ -1253,7 +1069,6 @@ final class Options
     {
         return $this->options['capture_silenced_errors'];
     }
-
     /**
      * Sets whether the silenced errors should be captured or not.
      *
@@ -1264,10 +1079,8 @@ final class Options
     {
         $options = array_merge($this->options, ['capture_silenced_errors' => $shouldCapture]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the limit up to which integrations should capture the HTTP request
      * body.
@@ -1276,7 +1089,6 @@ final class Options
     {
         return $this->options['max_request_body_size'];
     }
-
     /**
      * Sets the limit up to which integrations should capture the HTTP request
      * body.
@@ -1299,10 +1111,8 @@ final class Options
     {
         $options = array_merge($this->options, ['max_request_body_size' => $maxRequestBodySize]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets the callbacks used to customize how objects are serialized in the payload
      * of the event.
@@ -1313,7 +1123,6 @@ final class Options
     {
         return $this->options['class_serializers'];
     }
-
     /**
      * Sets a list of callables that will be called to customize how objects are
      * serialized in the event's payload. The list must be a map of FQCN/callable
@@ -1325,10 +1134,8 @@ final class Options
     {
         $options = array_merge($this->options, ['class_serializers' => $serializers]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Gets a callback that will be invoked when we sample a Transaction.
      *
@@ -1338,7 +1145,6 @@ final class Options
     {
         return $this->options['traces_sampler'];
     }
-
     /**
      * Sets a callback that will be invoked when we take the sampling decision for Transactions.
      * Return a number between 0 and 1 to define the sample rate for the provided SamplingContext.
@@ -1351,10 +1157,8 @@ final class Options
     {
         $options = array_merge($this->options, ['traces_sampler' => $sampler]);
         $this->options = $this->resolver->resolve($options);
-
         return $this;
     }
-
     /**
      * Configures the options of the client.
      *
@@ -1380,7 +1184,7 @@ final class Options
             'profiles_sample_rate' => null,
             'profiles_sampler' => null,
             'attach_stacktrace' => \false,
-            /*
+            /**
              * @deprecated Metrics are no longer supported. Metrics API is a no-op and will be removed in 5.x.
              */
             'attach_metric_code_locations' => \false,
@@ -1388,7 +1192,7 @@ final class Options
             'environment' => $_SERVER['SENTRY_ENVIRONMENT'] ?? null,
             'logger' => null,
             'spotlight' => $_SERVER['SENTRY_SPOTLIGHT'] ?? null,
-            /*
+            /**
              * @deprecated since version 4.11. To be removed in 5.0. You may use `spotlight` instead.
              */
             'spotlight_url' => 'http://localhost:8969',
@@ -1410,7 +1214,7 @@ final class Options
             'before_send_log' => static function (Log $log): Log {
                 return $log;
             },
-            /*
+            /**
              * @deprecated Metrics are no longer supported. Metrics API is a no-op and will be removed in 5.x.
              * Use `before_send_metric` instead.
              */
@@ -1521,7 +1325,6 @@ final class Options
             return array_map([$this, 'normalizeAbsolutePath'], $value);
         });
     }
-
     /**
      * Normalizes the given path as an absolute path.
      *
@@ -1533,10 +1336,8 @@ final class Options
         if ($path === \false) {
             $path = $value;
         }
-
         return $path;
     }
-
     /**
      * @return bool|string
      */
@@ -1548,10 +1349,8 @@ final class Options
         if (filter_var($booleanOrUrl, \FILTER_VALIDATE_URL)) {
             return $this->normalizeSpotlightUrl($options, $booleanOrUrl);
         }
-
         return filter_var($booleanOrUrl, \FILTER_VALIDATE_BOOLEAN);
     }
-
     /**
      * Normalizes the spotlight URL by removing the `/stream` at the end if present.
      */
@@ -1560,16 +1359,14 @@ final class Options
         if (substr_compare($url, '/stream', -7, 7) === 0) {
             return substr($url, 0, -7);
         }
-
         return $url;
     }
-
     /**
      * Normalizes the DSN option by parsing the host, public and secret keys and
      * an optional path.
      *
-     * @param SymfonyOptions $options The configuration options
-     * @param string|bool|Dsn|null $value The actual value of the option to normalize
+     * @param SymfonyOptions       $options The configuration options
+     * @param string|bool|Dsn|null $value   The actual value of the option to normalize
      */
     private function normalizeDsnOption(SymfonyOptions $options, $value): ?Dsn
     {
@@ -1589,10 +1386,8 @@ final class Options
             case '(null)':
                 return null;
         }
-
         return Dsn::createFromString($value);
     }
-
     /**
      * Validates the DSN option ensuring that all required pieces are set and
      * that the URL is valid.
@@ -1619,13 +1414,11 @@ final class Options
         }
         try {
             Dsn::createFromString($dsn);
-
             return \true;
         } catch (\InvalidArgumentException $exception) {
             return \false;
         }
     }
-
     /**
      * Validates if the value of the max_breadcrumbs option is valid.
      *
@@ -1635,7 +1428,6 @@ final class Options
     {
         return $value >= 0;
     }
-
     /**
      * Validates that the values passed to the `class_serializers` option are valid.
      *
@@ -1648,10 +1440,8 @@ final class Options
                 return \false;
             }
         }
-
         return \true;
     }
-
     /**
      * Validates that the value passed to the "context_lines" option is valid.
      *
@@ -1661,7 +1451,6 @@ final class Options
     {
         return $contextLines === null || $contextLines >= 0;
     }
-
     /**
      * Validates that the value passed to the "log_flush_threshold" option is valid.
      *
@@ -1671,7 +1460,6 @@ final class Options
     {
         return $logFlushThreshold === null || $logFlushThreshold > 0;
     }
-
     /**
      * Validates that the value passed to the "metric_flush_threshold" option is valid.
      *

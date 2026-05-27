@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry;
 
 /**
@@ -43,16 +27,15 @@ final class ExceptionMechanism
      *                           understand the error thrown by this mechanism
      */
     private $data;
-
     /**
      * Class constructor.
      *
-     * @param string $type Unique identifier of this mechanism determining
-     *                     rendering and processing of the mechanism data
-     * @param bool $handled Flag indicating whether the exception has been
-     *                      handled by the user (e.g. via try..catch)
-     * @param array<string, mixed> $data Arbitrary extra data that might help the user
-     *                                   understand the error thrown by this mechanism
+     * @param string               $type    Unique identifier of this mechanism determining
+     *                                      rendering and processing of the mechanism data
+     * @param bool                 $handled Flag indicating whether the exception has been
+     *                                      handled by the user (e.g. via try..catch)
+     * @param array<string, mixed> $data    Arbitrary extra data that might help the user
+     *                                      understand the error thrown by this mechanism
      */
     public function __construct(string $type, bool $handled, array $data = [])
     {
@@ -60,7 +43,6 @@ final class ExceptionMechanism
         $this->handled = $handled;
         $this->data = $data;
     }
-
     /**
      * Returns the unique identifier of this mechanism determining rendering and
      * processing of the mechanism data.
@@ -69,7 +51,6 @@ final class ExceptionMechanism
     {
         return $this->type;
     }
-
     /**
      * Returns the flag indicating whether the exception has been handled by the
      * user (e.g. via try..catch).
@@ -78,7 +59,6 @@ final class ExceptionMechanism
     {
         return $this->handled;
     }
-
     /**
      * Returns arbitrary extra data that might help the user understand the error
      * thrown by this mechanism.
@@ -89,7 +69,6 @@ final class ExceptionMechanism
     {
         return $this->data;
     }
-
     /**
      * Sets the arbitrary extra data.
      *
@@ -98,7 +77,6 @@ final class ExceptionMechanism
     public function setData(array $data): self
     {
         $this->data = $data;
-
         return $this;
     }
 }

@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\Serializer;
 
 use FrSentry\Sentry\Event;
@@ -31,7 +15,6 @@ use FrSentry\Sentry\Serializer\EnvelopItems\ProfileItem;
 use FrSentry\Sentry\Serializer\EnvelopItems\TransactionItem;
 use FrSentry\Sentry\Tracing\DynamicSamplingContext;
 use FrSentry\Sentry\Util\JSON;
-
 /**
  * This is a simple implementation of a serializer that takes in input an event
  * object and returns a serialized string ready to be sent off to Sentry.
@@ -44,12 +27,10 @@ final class PayloadSerializer implements PayloadSerializerInterface
      * @var Options The SDK client options
      */
     private $options;
-
     public function __construct(Options $options)
     {
         $this->options = $options;
     }
-
     /**
      * {@inheritdoc}
      */
@@ -97,7 +78,6 @@ final class PayloadSerializer implements PayloadSerializerInterface
         if ($envelopeHeader === null) {
             return \sprintf("{}\n%s", implode("\n", array_filter($items)));
         }
-
         return \sprintf("%s\n%s", JSON::encode($envelopeHeader), implode("\n", array_filter($items)));
     }
 }

@@ -1,22 +1,6 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry\HttpClient;
 
 final class Response
@@ -37,7 +21,6 @@ final class Response
      * @var string The cURL error and error message
      */
     private $error;
-
     /**
      * @param string[][] $headers
      */
@@ -50,22 +33,18 @@ final class Response
             $this->headerNames[strtolower($name)] = $name;
         }
     }
-
     public function getStatusCode(): int
     {
         return $this->statusCode;
     }
-
     public function isSuccess(): bool
     {
         return $this->statusCode >= 200 && $this->statusCode <= 299;
     }
-
     public function hasHeader(string $name): bool
     {
         return isset($this->headerNames[strtolower($name)]);
     }
-
     /**
      * @return string[]
      */
@@ -75,25 +54,20 @@ final class Response
             return [];
         }
         $header = $this->headerNames[strtolower($header)];
-
         return $this->headers[$header];
     }
-
     public function getHeaderLine(string $name): string
     {
         $value = $this->getHeader($name);
         if (empty($value)) {
             return '';
         }
-
         return implode(',', $value);
     }
-
     public function getError(): string
     {
         return $this->error;
     }
-
     public function hasError(): bool
     {
         return $this->error !== '';

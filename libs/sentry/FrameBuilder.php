@@ -1,27 +1,10 @@
 <?php
-/*
- * Copyright (c) 2026 Frento IT <info@frentoit.com>
- *
- * NOTICE OF LICENSE
- *
- * This file is licensed under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the license agreement.
- *
- * You must not modify, adapt or create derivative works of this source code.
- *
- * @author    Frento IT <info@frentoit.com>
- * @copyright Since 2024 Frento IT
- * @license   Commercial license
- */
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace FrSentry\Sentry;
 
 use FrSentry\Sentry\Serializer\RepresentationSerializerInterface;
 use FrSentry\Sentry\Util\PrefixStripper;
-
 /**
  * This class builds a {@see Frame} object out of a backtrace's raw frame.
  *
@@ -47,11 +30,10 @@ final class FrameBuilder
      * @var RepresentationSerializerInterface The representation serializer
      */
     private $representationSerializer;
-
     /**
      * Constructor.
      *
-     * @param Options $options The SDK client options
+     * @param Options                           $options                  The SDK client options
      * @param RepresentationSerializerInterface $representationSerializer The representation serializer
      */
     public function __construct(Options $options, RepresentationSerializerInterface $representationSerializer)
@@ -59,12 +41,11 @@ final class FrameBuilder
         $this->options = $options;
         $this->representationSerializer = $representationSerializer;
     }
-
     /**
      * Builds a {@see Frame} object from the given backtrace's raw frame.
      *
-     * @param string $file The file where the frame originated
-     * @param int $line The line at which the frame originated
+     * @param string               $file           The file where the frame originated
+     * @param int                  $line           The line at which the frame originated
      * @param array<string, mixed> $backtraceFrame The raw frame
      *
      * @phpstan-param StacktraceFrame $backtraceFrame
@@ -82,7 +63,7 @@ final class FrameBuilder
         $functionName = null;
         $rawFunctionName = null;
         $strippedFilePath = $this->stripPrefixFromFilePath($this->options, $file);
-        if (isset($backtraceFrame['class'], $backtraceFrame['function'])) {
+        if (isset($backtraceFrame['class']) && isset($backtraceFrame['function'])) {
             $functionName = $backtraceFrame['class'];
             // Skip if no prefixes are set
             if ($this->options->getPrefixes()) {
@@ -107,14 +88,12 @@ final class FrameBuilder
                 $functionName = $prefixStrippedFunctionName;
             }
         }
-
         return new Frame($functionName, $strippedFilePath, $line, $rawFunctionName, $file !== Frame::INTERNAL_FRAME_FILENAME ? $file : null, $this->getFunctionArguments($backtraceFrame), $this->isFrameInApp($file, $functionName));
     }
-
     /**
      * Checks whether a certain frame should be marked as "in app" or not.
      *
-     * @param string $file The file to check
+     * @param string      $file         The file to check
      * @param string|null $functionName The name of the function
      */
     private function isFrameInApp(string $file, ?string $functionName): bool
@@ -141,10 +120,8 @@ final class FrameBuilder
                 break;
             }
         }
-
         return $isInApp;
     }
-
     /**
      * Gets the arguments of the function called in the given frame.
      *
@@ -186,16 +163,14 @@ final class FrameBuilder
         foreach ($argumentValues as $argumentName => $argumentValue) {
             $argumentValues[$argumentName] = $this->representationSerializer->representationSerialize($argumentValue);
         }
-
         return $argumentValues;
     }
-
     /**
      * Gets an hashmap indexed by argument name containing all the arguments
      * passed to the function called in the given frame of the stacktrace.
      *
      * @param \ReflectionFunctionAbstract $reflectionFunction A reflection object
-     * @param mixed[] $backtraceFrameArgs The arguments of the frame
+     * @param mixed[]                     $backtraceFrameArgs The arguments of the frame
      *
      * @return array<string, mixed>
      */
@@ -216,7 +191,6 @@ final class FrameBuilder
             }
             $argumentValues[$reflectionParameter->getName()] = $backtraceFrameArgs[$parameterPosition];
         }
-
         return $argumentValues;
     }
 }
