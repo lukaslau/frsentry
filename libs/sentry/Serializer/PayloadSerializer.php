@@ -1,0 +1,103 @@
+<?php
+/*
+ * Copyright (c) 2026 Frento IT <info@frentoit.com>
+ *
+ * NOTICE OF LICENSE
+ *
+ * This file is licensed under the Software License Agreement.
+ * With the purchase or the installation of the software in your application
+ * you accept the license agreement.
+ *
+ * You must not modify, adapt or create derivative works of this source code.
+ *
+ * @author    Frento IT <info@frentoit.com>
+ * @copyright Since 2024 Frento IT
+ * @license   Commercial license
+ */
+
+declare(strict_types=1);
+
+namespace FrSentry\Sentry\Serializer;
+
+use FrSentry\Sentry\Event;
+use FrSentry\Sentry\EventType;
+use FrSentry\Sentry\Options;
+use FrSentry\Sentry\Serializer\EnvelopItems\CheckInItem;
+use FrSentry\Sentry\Serializer\EnvelopItems\ClientReportItem;
+use FrSentry\Sentry\Serializer\EnvelopItems\EventItem;
+use FrSentry\Sentry\Serializer\EnvelopItems\LogsItem;
+use FrSentry\Sentry\Serializer\EnvelopItems\MetricsItem;
+use FrSentry\Sentry\Serializer\EnvelopItems\ProfileItem;
+use FrSentry\Sentry\Serializer\EnvelopItems\TransactionItem;
+use FrSentry\Sentry\Tracing\DynamicSamplingContext;
+use FrSentry\Sentry\Util\JSON;
+
+/**
+ * This is a simple implementation of a serializer that takes in input an event
+ * object and returns a serialized string ready to be sent off to Sentry.
+ *
+ * @internal
+ */
+final class PayloadSerializer implements PayloadSerializerInterface
+{
+    /**
+     * @var Options The SDK client options
+     */
+    private $options;
+
+    public function __construct(Options $options)
+    {
+        $this->options = $options;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function serialize(Event $event): string
+    {
+        $envelopeHeader = null;
+        if ($event->getType() !== EventType::clientReport()) {
+            // @see https://develop.sentry.dev/sdk/envelopes/#envelope-headers
+            $envelopeHeader = ['sent_at' => gmdate('Y-m-d\TH:i:s\Z'), 'dsn' => (string) $this->options->getDsn(), 'sdk' => $event->getSdkPayload()];
+            if ($event->getType()->requiresEventId()) {
+                $envelopeHeader['event_id'] = (string) $event->getId();
+            }
+            $dynamicSamplingContext = $event->getSdkMetadata('dynamic_sampling_context');
+            if ($dynamicSamplingContext instanceof DynamicSamplingContext) {
+                $entries = $dynamicSamplingContext->getEntries();
+                if (!empty($entries)) {
+                    $envelopeHeader['trace'] = $entries;
+                }
+            }
+        }
+        $items = [];
+        switch ($event->getType()) {
+            case EventType::event():
+                $items[] = EventItem::toEnvelopeItem($event);
+                break;
+            case EventType::transaction():
+                $items[] = TransactionItem::toEnvelopeItem($event);
+                if ($event->getSdkMetadata('profile') !== null) {
+                    $items[] = ProfileItem::toEnvelopeItem($event);
+                }
+                break;
+            case EventType::checkIn():
+                $items[] = CheckInItem::toEnvelopeItem($event);
+                break;
+            case EventType::logs():
+                $items[] = LogsItem::toEnvelopeItem($event);
+                break;
+            case EventType::metrics():
+                $items[] = MetricsItem::toEnvelopeItem($event);
+                break;
+            case EventType::clientReport():
+                $items[] = ClientReportItem::toEnvelopeItem($event);
+                break;
+        }
+        if ($envelopeHeader === null) {
+            return \sprintf("{}\n%s", implode("\n", array_filter($items)));
+        }
+
+        return \sprintf("%s\n%s", JSON::encode($envelopeHeader), implode("\n", array_filter($items)));
+    }
+}

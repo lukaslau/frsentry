@@ -1,14 +1,8 @@
-# Apache 2.2
-<IfModule !mod_authz_core.c>
-   <Files *.php>
-   order allow,deny
-   deny from all
-   </Files>
-</IfModule>
+# Prevent directory listing
+Options -Indexes
 
-# Apache 2.4
-<IfModule mod_authz_core.c>
-   <Files *.php>
-   Require all denied
-   </Files>
-</IfModule>
+# Deny direct execution of PHP files (PrestaShop loads them via its bootstrap)
+<FilesMatch "\.php$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>

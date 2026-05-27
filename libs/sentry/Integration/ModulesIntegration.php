@@ -1,0 +1,94 @@
+<?php
+/*
+ * Copyright (c) 2026 Frento IT <info@frentoit.com>
+ *
+ * NOTICE OF LICENSE
+ *
+ * This file is licensed under the Software License Agreement.
+ * With the purchase or the installation of the software in your application
+ * you accept the license agreement.
+ *
+ * You must not modify, adapt or create derivative works of this source code.
+ *
+ * @author    Frento IT <info@frentoit.com>
+ * @copyright Since 2024 Frento IT
+ * @license   Commercial license
+ */
+
+declare(strict_types=1);
+
+namespace FrSentry\Sentry\Integration;
+
+use Composer\InstalledVersions;
+use FrSentry\Sentry\Event;
+use FrSentry\Sentry\SentrySdk;
+use FrSentry\Sentry\State\Scope;
+use Jean85\PrettyVersions;
+use PackageVersions\Versions;
+
+/**
+ * This integration logs with the event details all the versions of the packages
+ * installed with Composer; the root project is included too.
+ */
+final class ModulesIntegration implements IntegrationInterface
+{
+    /**
+     * @var array<string, string> The list of installed vendors
+     */
+    private static $packages = [];
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setupOnce(): void
+    {
+        Scope::addGlobalEventProcessor(static function (Event $event): Event {
+            $integration = SentrySdk::getCurrentHub()->getIntegration(self::class);
+            // The integration could be bound to a client that is not the one
+            // attached to the current hub. If this is the case, bail out
+            if ($integration !== null) {
+                $event->setModules(self::getComposerPackages());
+            }
+
+            return $event;
+        });
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function getComposerPackages(): array
+    {
+        if (empty(self::$packages)) {
+            foreach (self::getInstalledPackages() as $package) {
+                try {
+                    self::$packages[$package] = PrettyVersions::getVersion($package)->getPrettyVersion();
+                } catch (\Throwable $exception) {
+                    continue;
+                }
+            }
+        }
+
+        return self::$packages;
+    }
+
+    /**
+     * @return string[]
+     */
+    private static function getInstalledPackages(): array
+    {
+        if (class_exists(InstalledVersions::class)) {
+            return InstalledVersions::getInstalledPackages();
+        }
+        if (class_exists(Versions::class)) {
+            // BC layer for Composer 1, using a transient dependency
+            /** @var string[] $packages */
+            $packages = array_keys(Versions::VERSIONS);
+
+            return $packages;
+        }
+
+        // this should not happen
+        return ['sentry/sentry'];
+    }
+}

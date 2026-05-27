@@ -1,22 +1,18 @@
-﻿<?php
-/**
- * Sentry module for Prestashop
- * Version: 2.1.1
- * Copyright (c) 2023. Mateusz Szymański Frento IT
- * https://frentoit.com
+<?php
+/*
+ * Copyright (c) 2026 Frento IT <info@frentoit.com>
  *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
+ * This file is licensed under the Software License Agreement.
+ * With the purchase or the installation of the software in your application
+ * you accept the license agreement.
+ *
+ * You must not modify, adapt or create derivative works of this source code.
  *
  * @author    Frento IT <info@frentoit.com>
- * @copyright Copyright 2016-2025 © Frento IT Mateusz Szymański All right reserved
- * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
- *
- * @category  Frento IT
+ * @copyright Since 2024 Frento IT
+ * @license   Commercial license
  */
 
 namespace Frento\FrSentry\src\Prestashop;
@@ -25,28 +21,128 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use Frento\FrSentry\src\Types\CustomBoolean;
-
 class FrConfiguration
 {
     public static $configPrefix = 'FRSENTRY_';
 
-    public static function getConfiguration()
+    /** @var array|null Config cache — populated once per request on first call. */
+    private static $cache;
+
+    /**
+     * DB key suffixes for boolean settings (stored as 0/1 in ps_configuration).
+     * Used by install/uninstall routines and the admin form.
+     * Full DB key = FRSENTRY_ + suffix, e.g. FRSENTRY_PHP_IGNORE_USER.
+     */
+    public static $booleanKeys = [
+        'PHP_IGNORE_USER',
+        'PHP_IGNORE_DEPRECATED',
+        'PHP_IGNORE_WARNING',
+        'PHP_IGNORE_NOTICED',
+        'USE_BACKOFFICE',
+        'INSIGHTS_FRONTEND',
+        'PROFILING_FRONTEND',
+        'BACKEND_EXCIMER_ENABLED',
+        'BACKEND_TRACING',
+        'BACKEND_PROFILING',
+    ];
+
+    /**
+     * DB key suffixes for integer settings (stored as 0–100 in ps_configuration).
+     * These are sampling rates expressed as a percentage.
+     * Full DB key = FRSENTRY_ + suffix, e.g. FRSENTRY_BACKEND_TRACING_RATE.
+     */
+    public static $rateKeys = [
+        'BACKEND_TRACING_RATE',
+        'BACKEND_PROFILING_RATE',
+        'FRONTEND_TRACING_RATE',
+        'FRONTEND_PROFILING_RATE',
+    ];
+
+    /**
+     * Reads all module settings from the PrestaShop configuration table.
+     *
+     * @return array{
+     *   backendKey: string,
+     *   frontendKey: string,
+     *   backend: array{
+     *     phpIgnoreUser: bool,
+     *     phpIgnoreDeprecated: bool,
+     *     phpIgnoreWarning: bool,
+     *     phpIgnoreNoticed: bool,
+     *     useBackoffice: bool,
+     *     insightsFrontend: bool,
+     *     profilingFrontend: bool,
+     *     tracingEnabled: bool,
+     *     tracingRate: int,
+     *     profilingEnabled: bool,
+     *     profilingRate: int,
+     *   }
+     * }
+     */
+    public static function getConfiguration(): array
     {
-        return [
-            'backend_key' => \Configuration::get(self::$configPrefix . 'backend_key', null, null, null, null),
-            'frontend_key' => \Configuration::get(self::$configPrefix . 'frontend_key', null, null, null, null),
+        if (self::$cache !== null) {
+            return self::$cache;
+        }
+
+        $prefix = self::$configPrefix;
+
+        return self::$cache = [
+            'backendKey' => (string) (\Configuration::get($prefix . 'BACKEND_KEY') ?: ''),
+            'frontendKey' => (string) (\Configuration::get($prefix . 'FRONTEND_KEY') ?: ''),
             'backend' => [
-                'php_ignore_user' => CustomBoolean::createVO(\Configuration::get(self::$configPrefix . 'backend--php_ignore_user', null, null, null, true)),
-                'php_ignore_deprecated' => CustomBoolean::createVO(\Configuration::get(self::$configPrefix . 'backend--php_ignore_deprecated', null, null, null, true)),
-                'php_ignore_warning' => CustomBoolean::createVO(\Configuration::get(self::$configPrefix . 'backend--php_ignore_warning', null, null, null, true)),
-                'php_ignore_noticed' => CustomBoolean::createVO(\Configuration::get(self::$configPrefix . 'backend--php_ignore_noticed', null, null, null, true)),
-                'use_backoffice' => CustomBoolean::createVO(\Configuration::get(self::$configPrefix . 'backend--use_backoffice', null, null, null, false)),
-                'insights_frontend' => CustomBoolean::createVO(\Configuration::get(self::$configPrefix . 'backend--insights_frontend', null, null, null, false)),
-                'profiling_frontend' => CustomBoolean::createVO(\Configuration::get(self::$configPrefix . 'backend--profiling_frontend', null, null, null, false)),
-                'insights_backend' => CustomBoolean::createVO(\Configuration::get(self::$configPrefix . 'backend--insights_backend', null, null, null, false)),
-                'profiling_backend' => CustomBoolean::createVO(\Configuration::get(self::$configPrefix . 'backend--profiling_backend', null, null, null, false)),
+                'phpIgnoreUser' => self::getBool($prefix . 'PHP_IGNORE_USER', true),
+                'phpIgnoreDeprecated' => self::getBool($prefix . 'PHP_IGNORE_DEPRECATED', true),
+                'phpIgnoreWarning' => self::getBool($prefix . 'PHP_IGNORE_WARNING', true),
+                'phpIgnoreNoticed' => self::getBool($prefix . 'PHP_IGNORE_NOTICED', true),
+                'useBackoffice' => self::getBool($prefix . 'USE_BACKOFFICE', false),
+                'insightsFrontend' => self::getBool($prefix . 'INSIGHTS_FRONTEND', false),
+                'profilingFrontend' => self::getBool($prefix . 'PROFILING_FRONTEND', false),
+                'frontendTracingRate' => self::getInt($prefix . 'FRONTEND_TRACING_RATE', 20),
+                'frontendProfilingRate' => self::getInt($prefix . 'FRONTEND_PROFILING_RATE', 20),
+                'tracingEnabled' => self::getBool($prefix . 'BACKEND_TRACING', false),
+                'tracingRate' => self::getInt($prefix . 'BACKEND_TRACING_RATE', 100),
+                'profilingEnabled' => self::getBool($prefix . 'BACKEND_PROFILING', false),
+                'profilingRate' => self::getInt($prefix . 'BACKEND_PROFILING_RATE', 100),
             ],
         ];
+    }
+
+    /**
+     * Clears the in-memory cache.
+     * Called after saving settings so the next read picks up the new values.
+     */
+    public static function clearCache(): void
+    {
+        self::$cache = null;
+    }
+
+    /**
+     * Reads a stored boolean config value, returning $default when unset.
+     */
+    private static function getBool(string $key, bool $default): bool
+    {
+        $value = \Configuration::get($key);
+
+        if ($value === false) {
+            return $default;
+        }
+
+        return (bool) (int) $value;
+    }
+
+    /**
+     * Reads a stored integer config value, returning $default when unset.
+     * Used for sampling rates (0–100).
+     */
+    private static function getInt(string $key, int $default): int
+    {
+        $value = \Configuration::get($key);
+
+        if ($value === false) {
+            return $default;
+        }
+
+        return (int) $value;
     }
 }
