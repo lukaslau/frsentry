@@ -1,81 +1,66 @@
-﻿<?php
-/**
- * Sentry module for Prestashop
- * Version: 2.1.1
- * Copyright (c) 2023. Mateusz Szymański Frento IT
- * https://frentoit.com
+<?php
+/*
+ * Copyright (c) 2026 Frento IT <info@frentoit.com>
  *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
+ * This file is licensed under the Software License Agreement.
+ * With the purchase or the installation of the software in your application
+ * you accept the license agreement.
+ *
+ * You must not modify, adapt or create derivative works of this source code.
  *
  * @author    Frento IT <info@frentoit.com>
- * @copyright Copyright 2016-2025 © Frento IT Mateusz Szymański All right reserved
- * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
- *
- * @category  Frento IT
+ * @copyright Since 2024 Frento IT
+ * @license   Commercial license
  */
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use Frento\FrSentry\src\Prestashop\FrConfiguration;
-
+/**
+ * Extends the core Db class to forward database exceptions to Sentry.
+ */
 abstract class Db extends DbCore
 {
     /**
-     * @param $sql
-     *
-     * @throws PrestaShopDatabaseException
+     * @param string $sql
      *
      * @return bool|mysqli_result|PDOStatement|resource
+     *
+     * @throws PrestaShopException
      */
     public function query($sql)
     {
         try {
-            $r = parent::query($sql);
-            $this->logErrorByMonitor($sql);
+            return parent::query($sql);
         } catch (PrestaShopException $exception) {
-            $this->logErrorByMonitor($exception->getMessage(), $exception->getCode(), $sql);
-            throw new PrestaShopException($exception->getMessage(), (int) $exception->getCode(), $exception);
+            $this->forwardException($exception, $sql);
+            throw $exception;
         }
-        return $r;
     }
 
     /**
-     * @param $sql
+     * Forwards a database exception to Sentry, including the offending query
+     * as additional context. Deduplication (same SQL in one request) is handled
+     * inside FrSentry::capture() via a per-request SQL hash store.
+     * Silently swallowed if reporting fails — the try/catch also covers the
+     * case where the module is not installed and the FrSentry class does not exist.
+     *
+     * @param PrestaShopException $exception
+     * @param string $sql
+     *
+     * @return void
      */
-    public function logErrorByMonitor($message = false, $code = 0, $sql = null)
+    private function forwardException(PrestaShopException $exception, string $sql): void
     {
         try {
-            if (empty(Context::getContext()->fr_sentry)) {
-                if (!class_exists(FrConfiguration::class)) {
-                    return false;
-                } else {
-                    Context::getContext()->fr_sentry = FrConfiguration::getConfiguration();
-                }
-            }
-        } catch (Throwable $e) {
-        }
-        if (!empty(Context::getContext()->fr_sentry) && Context::getContext()->fr_sentry['backend_key']) {
-            $errno = $code ? $code : $this->getNumberError();
-            if ($errno) {
-                try {
-                    /*Frento\FrSentry\src\Libs\FrSentry::customCaptureException(new Exception(sprintf(
-                        '[SQL Error] %s',
-                        $this->getMsgError()
-                    )), ['type' => 'MySQL']);*/
-                    $tags = ['type' => 'MYSQL'];
-                    if (!empty($sql))
-                        $tags['sql_query'] = $sql;
-
-                    Frento\FrSentry\src\Libs\FrSentry::customCaptureException(new Exception($message, $code), $tags);
-                } catch (Throwable $e) {
-                }
-            }
+            Frento\FrSentry\src\Libs\FrSentry::capture(
+                $exception,
+                ['type' => 'MYSQL', 'sqlQuery' => $sql]
+            );
+        } catch (Throwable $ignored) {
+            // Never let the error reporter itself crash the application
         }
     }
 }

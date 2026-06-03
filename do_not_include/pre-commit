@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+# Copyright (c) 2026 Frento IT <info@frentoit.com>
+#
+# NOTICE OF LICENSE
+#
+# This file is licensed under the Software License Agreement.
+# With the purchase or the installation of the software in your application
+# you accept the license agreement.
+#
+# You must not modify, adapt or create derivative works of this source code.
+#
+# @author    Frento IT <info@frentoit.com>
+# @copyright Since 2024 Frento IT
+# @license   Commercial license
+#
+
+#
+# Git pre-commit hook — runs PHP CS Fixer before every commit.
+#
+# Install:
+#   cp do_not_include/pre-commit .git/hooks/pre-commit
+#   chmod +x .git/hooks/pre-commit
+
+cd "$(git rev-parse --show-toplevel)"
+
+if [ ! -f vendor/bin/php-cs-fixer ]; then
+    echo "[frsentry] php-cs-fixer not found (run composer install), skipping."
+    exit 0
+fi
+
+php vendor/bin/php-cs-fixer fix \
+    --config=do_not_include/.php-cs-fixer.dist.php \
+    --allow-risky=yes \
+    --quiet
+
+if ! git diff --quiet; then
+    echo ""
+    echo "[frsentry] CS Fixer applied fixes to:"
+    git diff --name-only
+    echo ""
+    echo "Stage the changes and commit again."
+    exit 1
+fi

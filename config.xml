@@ -1,11 +1,12 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <module>
-	<name>frsentry</name>
-	<displayName><![CDATA[Sentry Integration]]></displayName>
-	<version><![CDATA[2.1.2]]></version>
-	<description><![CDATA[Monitor bugs and check the availability of your store with sentry integration]]></description>
-	<author><![CDATA[Mateusz Szymanski Frento IT]]></author>
-	<tab><![CDATA[front_office_features]]></tab>
-	<is_configurable>1</is_configurable>
-	<need_instance>1</need_instance>
+    <name>frsentry</name>
+    <displayName><![CDATA[Sentry Integration For PrestaShop]]></displayName>
+    <version><![CDATA[1.0.0]]></version>
+    <description><![CDATA[Monitors your PrestaShop store for PHP errors, exceptions, database failures, and frontend JavaScript issues by forwarding them to Sentry in real time]]></description>
+    <author><![CDATA[Frento IT]]></author>
+    <tab>front_office_features</tab>
+    <is_configurable>1</is_configurable>
+    <need_instance>0</need_instance>
+    <limited_countries></limited_countries>
 </module>

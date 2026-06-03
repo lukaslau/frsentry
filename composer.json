@@ -1,24 +1,33 @@
-﻿{
+{
   "name": "frento/frsentry",
-  "version": "1.1.0",
-  "require": {
-    "php": ">=7.2.0",
-"sentry/sentry": "^4.8"
-  },
-  "license": "PAY",
-  "autoload": {
-    "classmap": [
-      "src",
-      "vendor"
-    ]
-  },
+  "type": "prestashop-module",
+  "license": "proprietary",
   "authors": [
     {
-      "name": "Mateusz Szymański Frento IT",
+      "name": "Frento IT",
       "email": "info@frentoit.com"
     }
   ],
+  "require": {
+    "php": ">=7.2.0",
+    "symfony/options-resolver": "^5.4",
+    "symfony/deprecation-contracts": "^2.5",
+    "psr/log": "^1.0",
+    "jean85/pretty-package-versions": "^1.6"
+  },
+  "require-dev": {
+    "sentry/sentry": "^4.8",
+    "prestashop/php-dev-tools": "^5.0",
+    "friendsofphp/php-cs-fixer": "^3.4"
+  },
+  "autoload": {
+    "classmap": [
+      "src"
+    ]
+  },
   "config": {
-    "prepend-autoloader": false
+    "optimize-autoloader": true,
+    "prepend-autoloader": false,
+    "platform-check": false
   }
 }

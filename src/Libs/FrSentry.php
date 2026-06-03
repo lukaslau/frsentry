@@ -1,22 +1,18 @@
-﻿<?php
-/**
- * Sentry module for Prestashop
- * Version: 2.1.1
- * Copyright (c) 2023. Mateusz Szymański Frento IT
- * https://frentoit.com
+<?php
+/*
+ * Copyright (c) 2026 Frento IT <info@frentoit.com>
  *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
+ * This file is licensed under the Software License Agreement.
+ * With the purchase or the installation of the software in your application
+ * you accept the license agreement.
+ *
+ * You must not modify, adapt or create derivative works of this source code.
  *
  * @author    Frento IT <info@frentoit.com>
- * @copyright Copyright 2016-2025 © Frento IT Mateusz Szymański All right reserved
- * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
- *
- * @category  Frento IT
+ * @copyright Since 2024 Frento IT
+ * @license   Commercial license
  */
 
 namespace Frento\FrSentry\src\Libs;
@@ -25,285 +21,350 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use Sentry\ClientInterface;
-use Sentry\SentrySdk;
-use Sentry\State\Scope;
-
 class FrSentry
 {
-    public static $type = 1;
+    /** @var FrSentryClient|null Lazily initialised per request */
+    private static $client;
+
+    /** @var bool Prevents registering handlers more than once */
+    private static $handlersRegistered = false;
+
+    /** @var \FrSentry\Sentry\Tracing\Transaction|null Active transaction for the current request */
+    private static $transaction;
+
+    /** @var array<string, true> Hashes of exceptions already sent this request */
+    private static $sentErrors = [];
+
+    /** @var array<string, true> MD5 hashes of SQL queries already reported this request */
+    private static $capturedSqlHashes = [];
+
+    /** @var array<string, true> MD5 hashes of DB exception messages already reported this request */
+    private static $capturedSqlMsgHashes = [];
+
+    // -------------------------------------------------------------------------
+    // Public API
+    // -------------------------------------------------------------------------
 
     /**
-     * @return FrSentryClient|ClientInterface
+     * Captures a throwable and forwards it to Sentry.
+     *
+     * Deduplicates identical errors within the same request.
+     * Call this directly when you want to report an exception manually:
+     *   Module::getInstanceByName('frsentry')->captureException($e, ['type' => 'custom']);
+     *
+     * @param \Throwable $exception
+     * @param array $tags extra metadata (key → value) attached to the Sentry event
      */
-    public static function getClient()
+    public static function capture(\Throwable $exception, array $tags = []): void
     {
-        if (self::$type === 2) {
-            return (new FrSentryClient(\Context::getContext()->fr_sentry['backend_key']));
+        $config = self::config();
+
+        if (empty($config['backendKey'])) {
+            return;
         }
 
-        \Sentry\init([
-            'dsn' => \Context::getContext()->fr_sentry['backend_key'],
-            'traces_sample_rate' => 1.0,
-            'profiles_sample_rate' => 1.0,
-            // 'before_send' => function (\Sentry\Event $event, ?\Sentry\EventHint $hint): ?\Sentry\Event {
-            //     return $event;
-            // },
-            'integrations' => function (array $integrations) {
-                // Filter out the ModulesIntegration
-                return array_filter($integrations, function ($integration) {
-                    return !($integration instanceof \Sentry\Integration\ModulesIntegration);
-                });
-            },
-        ]);
+        // SQL-specific dedup: the Db override passes sqlQuery in tags on first
+        // capture. Store both the SQL hash and the exception message hash so
+        // that when the same exception is re-thrown and reaches the global
+        // handler (without sqlQuery), we can match it by message and skip.
+        if (!empty($tags['sqlQuery'])) {
+            $sqlHash = md5($tags['sqlQuery']);
 
-        $hub = SentrySdk::getCurrentHub();
-        $client = $hub->getClient();
+            if (isset(self::$capturedSqlHashes[$sqlHash])) {
+                return;
+            }
 
-        return $client;
+            self::$capturedSqlHashes[$sqlHash] = true;
+            self::$capturedSqlMsgHashes[md5($exception->getMessage())] = true;
+        } elseif (stripos($exception->getMessage(), 'SQLSTATE[') !== false) {
+            // DB exception arriving without sqlQuery — re-thrown after the Db
+            // override already captured it. Skip only when the message hash
+            // matches a query we actually sent; if the DB override is not
+            // installed the hash won't be present and the event falls through.
+            if (isset(self::$capturedSqlMsgHashes[md5($exception->getMessage())])) {
+                return;
+            }
+        }
+
+        $hash = md5($exception->getMessage() . $exception->getCode() . $exception->getFile() . $exception->getLine());
+
+        if (isset(self::$sentErrors[$hash])) {
+            return;
+        }
+
+        self::$sentErrors[$hash] = true;
+
+        if (stripos($exception->getMessage(), 'SQLSTATE[') !== false) {
+            $tags['type'] = $tags['type'] ?? 'MYSQL';
+        }
+
+        $tags = array_merge(self::buildTags(), $tags);
+
+        self::client()->capture($exception, $tags);
     }
 
-    public static function enableFrSentryErrorMonitorShut()
+    // -------------------------------------------------------------------------
+    // PHP error / exception handlers (registered via set_error_handler etc.)
+    // -------------------------------------------------------------------------
+
+    public static function onShutdown(): void
     {
+        // Finish the active transaction first so it is included in the SDK's
+        // final flush, even when a fatal error terminates the request.
+        if (self::$transaction !== null) {
+            try {
+                self::$transaction->finish();
+            } catch (\Throwable $ignored) {
+            }
+            self::$transaction = null;
+        }
+
         $error = error_get_last();
 
-        $typestr = self::checkEnabled($error['type'] ?? 0);
-
-        if (!$typestr) {
+        if (!$error || !$error['type']) {
             return;
         }
 
-        if ($error && ($error['type'])) {
-            self::enableFrSentryErrorMonitorShutHandler($error['type'], $error['message'], $error['file'], $error['line']);
+        if (self::classifyError($error['type']) === null) {
+            return;
         }
-    }
 
+        self::onError($error['type'], $error['message'], $error['file'], $error['line']);
+    }
 
     /**
-     * @param \Exception $e
-     * @param array $tags
-     * @return void
+     * @param int $errno
+     * @param string $message
+     * @param string $file
+     * @param int $line
+     *
+     * @return bool always false — lets PHP continue its own error handling
      */
-    public static function customCaptureException($e, $tags = [])
+    public static function onError(int $errno, string $message, string $file, int $line): bool
     {
-        // checking if the same error was already sent for prevent duplication
-        $error_hash = md5($e->getMessage().$e->getCode());
-        if (isset(\Context::getContext()->fr_sentry['sent_errors'][$error_hash]))
-            return;
-        else
-            \Context::getContext()->fr_sentry['sent_errors'][$error_hash] = 1;
-
-        // assigning type if message has sqlstate substring
-        if (stripos($e->getMessage(), 'SQLSTATE[') !== false)
-            $tags['type'] = 'MYSQL';
-
-        $client = self::getClient();
-
-        if ($client instanceof FrSentryClient) {
-            unset($tags['sql_query']);
-            $client->captureException($e, $tags);
-        } else {
-            $tags['lang_id'] = \Context::getContext()->language->id;
-            $tags['shop_id'] = \Context::getContext()->shop->id;
-            $tags['php_ver'] = PHP_VERSION;
-            $tags['controller'] = \Context::getContext()->controller->php_self;
-
-            // \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($tags): void {
-            //     foreach ($tags ?? [] as $key => $value) {
-            //         $scope->setTag($key, $value);
-            //     }
-            // });
-
-
-            $scope = new Scope();
-
-            // adding sql query
-            if (!empty($tags['sql_query']))
-            {
-                $scope->setContext('SQL Query', ['query' => $tags['sql_query']]);
-                unset($tags['sql_query']);
-            }
-
-            $scope->setTags($tags);
-
-            // setting user
-            $user = ['ip_address' => \Tools::getRemoteAddr()];
-
-            if (!empty(\Context::getContext()->customer->id)) {
-                $user['id'] = \Context::getContext()->customer->id;
-                $user['email'] = \Context::getContext()->customer->email;
-            }
-
-            $scope->setUser($user);
-            $client->captureException($e, $scope);
-        }
-    }
-
-
-    /**
-     * @param \Exception $e
-     * @return void
-     */
-    public static function enableFrSentryException($e)
-    {
-        $typestr = self::checkEnabled(0);
-
-        if (!$typestr) {
-            return;
+        if (self::classifyError($errno) === null) {
+            return false;
         }
 
-        self::customCaptureException($e, ['type' => 'PHP']);
-
-        self::innerExceptionHandler($e);
-    }
-
-    public static function enableFrSentryErrorMonitorShutHandler($errno, $errstr, $errfile, $errline)
-    {
-        $typestr = self::checkEnabled($errno);
-
-        if (!$typestr) {
-            return;
+        // SQLSTATE errors from PDO (E_WARNING triggered by DbPDOCore::_query)
+        // are already captured with richer context — the full SQL query — by
+        // the Db class override. Skip the raw warning here to avoid duplicates.
+        if (stripos($message, 'SQLSTATE[') !== false) {
+            return false;
         }
 
         try {
-            self::customCaptureException(new \Exception(sprintf(
-                '[file:%s:%s] error_type: %s -> %s',
-                $errfile,
-                $errline,
-                $typestr,
-                $errstr
-            )), ['type' => 'PHP']);
-        } catch (\Throwable $e) {
-            // var_dump($e);
-            // exit;
+            self::capture(new \ErrorException($message, 0, $errno, $file, $line), ['type' => 'PHP']);
+        } catch (\Throwable $ignored) {
+            // Never let the error handler itself throw
+        }
+
+        return false;
+    }
+
+    public static function onException(\Throwable $exception): void
+    {
+        if (self::isMonitoringEnabled()) {
+            self::capture($exception, ['type' => 'PHP']);
         }
     }
 
-    public static function checkEnabled($errno)
+    // -------------------------------------------------------------------------
+    // Handler registration (called once per request)
+    // -------------------------------------------------------------------------
+
+    public static function registerHandlers(): void
     {
-        if (defined('_PS_ADMIN_DIR_') && !\Context::getContext()->fr_sentry['backend']['use_backoffice']) {
-            return false;
+        if (self::$handlersRegistered) {
+            return;
         }
 
-        $typestr = true;
-        $php_ignore_user = \Context::getContext()->fr_sentry['backend']['php_ignore_user'];
-        $php_ignore_deprecated = \Context::getContext()->fr_sentry['backend']['php_ignore_deprecated'];
-        $php_ignore_warning = \Context::getContext()->fr_sentry['backend']['php_ignore_warning'];
-        $php_ignore_noticed = \Context::getContext()->fr_sentry['backend']['php_ignore_noticed'];
+        self::$handlersRegistered = true;
 
-        switch ($errno) {
-            case E_ERROR: // 1 //
-                $typestr = 'E_ERROR';
-                break;
-            case E_WARNING: // 2 //
-                if ($php_ignore_warning) {
-                    return false;
-                }
-                $typestr = 'E_WARNING';
-                break;
-            case E_PARSE: // 4 //
-                $typestr = 'E_PARSE';
-                break;
-            case E_NOTICE: // 8 //
-                if ($php_ignore_noticed) {
-                    return false;
-                }
-                $typestr = 'E_NOTICE';
-                break;
-            case E_CORE_ERROR: // 16 //
-                $typestr = 'E_CORE_ERROR';
-                break;
-            case E_CORE_WARNING: // 32 //
-                $typestr = 'E_CORE_WARNING';
-                break;
-            case E_COMPILE_ERROR: // 64 //
-                $typestr = 'E_COMPILE_ERROR';
-                break;
-            case E_COMPILE_WARNING: // 128 //
-                $typestr = 'E_COMPILE_WARNING';
-                break;
-            case E_USER_ERROR: // 256 //
-                if ($php_ignore_user) {
-                    return false;
-                }
-                $typestr = 'E_USER_ERROR';
-                break;
-            case E_USER_WARNING: // 512 //
-                if ($php_ignore_user) {
-                    return false;
-                }
-                $typestr = 'E_USER_WARNING';
-                break;
-            case E_USER_NOTICE: // 1024 //
-                if ($php_ignore_noticed) {
-                    return false;
-                }
+        // Initialise the SDK immediately so its integrations (breadcrumbs,
+        // request context, etc.) start collecting from this point forward,
+        // rather than only from the moment the first error is captured.
+        $config = self::config();
+        if (!empty($config['backendKey'])) {
+            self::client();
 
-                if ($php_ignore_user) {
-                    return false;
-                }
-                $typestr = 'E_USER_NOTICE';
-                break;
-            case E_STRICT: // 2048 //
-                $typestr = 'E_STRICT';
-                break;
-            case E_RECOVERABLE_ERROR: // 4096 //
-                $typestr = 'E_RECOVERABLE_ERROR';
-                break;
-            case E_DEPRECATED: // 8192 //
-                if ($php_ignore_deprecated) {
-                    return false;
-                }
-                $typestr = 'E_DEPRECATED';
-                break;
-            case E_USER_DEPRECATED: // 16384 //
-                if ($php_ignore_deprecated) {
-                    return false;
-                }
-
-                if ($php_ignore_user) {
-                    return false;
-                }
-                $typestr = 'E_USER_DEPRECATED';
-                break;
-        }
-
-        return $typestr;
-    }
-
-    public static function innerExceptionHandler($e)
-    {
-        if (!self::isFrontOffice()) {
-            throw $e;
-        }
-
-        if (getenv('kernel.environment') === 'test') {
-            throw $e;
-        }
-
-        if (class_exists('\Tools') && method_exists('\Tools', 'isPHPCLI') && \Tools::isPHPCLI())
-        {
-            echo get_class($e) . ' in ' . $e->getFile() . ' line ' . $e->getLine() . "\n";
-            echo $e->getTraceAsString() . "\n";
-        }
-        else if ($e instanceof \PrestaShopException) {
-            $e->displayMessage();
-        }
-        else if (defined('_PS_ROOT_DIR_')) {
-            if (file_exists(_PS_ROOT_DIR_ . '/error500.html')) {
-                header('HTTP/1.1 500 Internal Server Error');
-                echo file_get_contents(_PS_ROOT_DIR_ . '/error500.html');
-                exit();
+            // Start a transaction when tracing is configured.
+            // The transaction is stored in self::$transaction and finished in
+            // onShutdown() — this ensures it wraps the entire request lifetime
+            // and is flushed even on fatal errors.
+            if (!empty($config['backend']['tracingEnabled'])) {
+                self::$transaction = self::startTransaction();
             }
         }
+
+        register_shutdown_function([self::class, 'onShutdown']);
+        set_error_handler([self::class, 'onError']);
+
+        $previous = set_exception_handler(null);
+        $handlers = array_filter([[self::class, 'onException'], $previous]);
+
+        set_exception_handler(static function (\Throwable $exception) use ($handlers): void {
+            foreach ($handlers as $handler) {
+                $handler($exception);
+            }
+        });
     }
 
-    public static function isFrontOffice()
-    {
-        if (!class_exists("\Context") || !class_exists("\FrontController"))
-            return false;
+    // -------------------------------------------------------------------------
+    // Internals
+    // -------------------------------------------------------------------------
 
-        $controller = \Context::getContext()->controller ?? null;
-        return $controller instanceof \FrontController;
+    private static function client(): FrSentryClient
+    {
+        if (self::$client === null) {
+            self::$client = new FrSentryClient(self::config());
+        }
+
+        return self::$client;
+    }
+
+    /**
+     * Starts a Sentry transaction covering the current HTTP request.
+     *
+     * The transaction is required for both tracing and excimer-based profiling —
+     * profiles attach to transactions automatically when profiles_sample_rate > 0
+     * and the excimer extension is loaded.
+     *
+     * Returns null (and swallows the error) if the SDK is not ready or the
+     * transaction context cannot be built, so a misconfiguration here never
+     * breaks the actual page request.
+     */
+    private static function startTransaction(): ?\FrSentry\Sentry\Tracing\Transaction
+    {
+        try {
+            $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+            $uri = strtok($_SERVER['REQUEST_URI'] ?? '/', '?') ?: '/';
+
+            $context = new \FrSentry\Sentry\Tracing\TransactionContext();
+            $context->setName($method . ' ' . $uri);
+            $context->setOp('http.server');
+            $context->setStartTimestamp(microtime(true));
+
+            $transaction = \FrSentry\Sentry\startTransaction($context);
+
+            // Register as the active span so child spans (e.g. from future
+            // instrumentation) attach to this transaction automatically.
+            \FrSentry\Sentry\SentrySdk::getCurrentHub()->setSpan($transaction);
+
+            return $transaction;
+        } catch (\Throwable $ignored) {
+            return null;
+        }
+    }
+
+    private static function config(): array
+    {
+        return \Frento\FrSentry\src\Prestashop\FrConfiguration::getConfiguration();
+    }
+
+    private static function isMonitoringEnabled(): bool
+    {
+        // CLI (cron jobs, test scripts) is treated as front-office context —
+        // _PS_ADMIN_DIR_ is always defined after PS bootstrap regardless of
+        // whether we are actually inside the admin panel.
+        if (PHP_SAPI === 'cli') {
+            return true;
+        }
+
+        $config = self::config();
+
+        if (defined('_PS_ADMIN_DIR_') && empty($config['backend']['useBackoffice'])) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Collects runtime context tags attached to every Sentry event.
+     */
+    private static function buildTags(): array
+    {
+        $context = \Context::getContext();
+        $tags = [
+            'phpVersion' => PHP_VERSION,
+            'psVersion' => defined('_PS_VERSION_') ? _PS_VERSION_ : null,
+            'shopId' => $context->shop->id ?? null,
+            'languageId' => $context->language->id ?? null,
+        ];
+
+        if (!empty($context->controller->php_self)) {
+            $tags['controller'] = $context->controller->php_self;
+        }
+
+        if (!empty($context->customer->id)) {
+            $tags['customerId'] = $context->customer->id;
+            $tags['customerEmail'] = $context->customer->email ?? null;
+        }
+
+        if (!empty($context->cart->id)) {
+            $tags['cartId'] = $context->cart->id;
+
+            // Resolve order ID when the cart has already been converted
+            // (e.g. on the order-confirmation page or during post-payment hooks).
+            $orderId = (int) \Order::getIdByCartId($context->cart->id);
+            if ($orderId > 0) {
+                $tags['orderId'] = $orderId;
+            }
+        }
+
+        return array_filter($tags);
+    }
+
+    /**
+     * Returns the label for a PHP error constant, or null if it should be
+     * suppressed based on current module settings.
+     *
+     * Uses a two-step approach: a static label map covering every handled
+     * constant, then a suppressed set derived from active settings. An error
+     * is captured when it appears in the label map but NOT in the suppressed
+     * set.
+     *
+     * E_CORE_WARNING and E_COMPILE_WARNING are never suppressed — they come
+     * from PHP's engine/compiler, not from application code.
+     *
+     * E_USER_NOTICE and E_USER_DEPRECATED are suppressed when EITHER their
+     * primary category setting OR phpIgnoreUser is on (hence they appear in
+     * two groups in the suppressed set builder).
+     */
+    private static function classifyError(int $errno): ?string
+    {
+        static $labels = [
+            E_ERROR => 'E_ERROR',
+            E_PARSE => 'E_PARSE',
+            E_CORE_ERROR => 'E_CORE_ERROR',
+            E_COMPILE_ERROR => 'E_COMPILE_ERROR',
+            E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
+            E_STRICT => 'E_STRICT',
+            E_CORE_WARNING => 'E_CORE_WARNING',
+            E_COMPILE_WARNING => 'E_COMPILE_WARNING',
+            E_WARNING => 'E_WARNING',
+            E_NOTICE => 'E_NOTICE',
+            E_DEPRECATED => 'E_DEPRECATED',
+            E_USER_ERROR => 'E_USER_ERROR',
+            E_USER_WARNING => 'E_USER_WARNING',
+            E_USER_NOTICE => 'E_USER_NOTICE',
+            E_USER_DEPRECATED => 'E_USER_DEPRECATED',
+        ];
+
+        if (!isset($labels[$errno]) || !self::isMonitoringEnabled()) {
+            return null;
+        }
+
+        $backendConfig = self::config()['backend'] ?? [];
+
+        $suppressed = array_merge(
+            !empty($backendConfig['phpIgnoreWarning']) ? [E_WARNING] : [],
+            !empty($backendConfig['phpIgnoreNoticed']) ? [E_NOTICE,     E_USER_NOTICE] : [],
+            !empty($backendConfig['phpIgnoreDeprecated']) ? [E_DEPRECATED, E_USER_DEPRECATED] : [],
+            !empty($backendConfig['phpIgnoreUser']) ? [E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE, E_USER_DEPRECATED] : []
+        );
+
+        return in_array($errno, $suppressed, true) ? null : $labels[$errno];
     }
 }
