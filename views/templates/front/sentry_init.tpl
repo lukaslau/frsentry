@@ -1,7 +1,17 @@
 {**
+ * Copyright (c) 2026 Frento IT <info@frentoit.com>
+ *
+ * NOTICE OF LICENSE
+ *
+ * This file is licensed under the Software License Agreement.
+ * With the purchase or the installation of the software in your application
+ * you accept the license agreement.
+ *
+ * You must not modify, adapt or create derivative works of this source code.
+ *
  * @author    Frento IT <info@frentoit.com>
- * @copyright Copyright 2016-2025 © Frento IT All right reserved
- * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ * @copyright Since 2024 Frento IT
+ * @license   Commercial license
  *
  * Sentry initialisation snippet -- injected after the static SDK bundle.
  * Variables assigned by frsentryJsModuleFrontController::initContent():

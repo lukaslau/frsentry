@@ -48,9 +48,10 @@ class FrSentry
     /**
      * Captures a throwable and forwards it to Sentry.
      *
-     * Deduplicates identical errors within the same request.
-     * Call this directly when you want to report an exception manually:
-     *   Module::getInstanceByName('frsentry')->captureException($e, ['type' => 'custom']);
+     * Errors with the same signature raised more than once during a single
+     * request are sent only once — see the per-request hash stores declared
+     * above. For manual reporting, prefer the module's captureException()
+     * wrapper rather than calling this internal method directly.
      *
      * @param \Throwable $exception
      * @param array $tags extra metadata (key → value) attached to the Sentry event

@@ -47,12 +47,16 @@ class FrSentry extends Module
     }
 
     /**
-     * Capture exception manually from external code.
+     * Reports an exception to Sentry from outside the module.
      *
-     * Usage: Module::getInstanceByName('frsentry')->captureException(new Exception('MESSAGE'), ['type' => 'PHP'])
+     * Other modules, overrides, or custom scripts can forward a caught
+     * throwable through this wrapper and attach arbitrary metadata as tags:
+     *
+     *   $sentry = Module::getInstanceByName('frsentry');
+     *   $sentry->captureException($e, ['type' => 'payment', 'gateway' => 'stripe']);
      *
      * @param Throwable $exception
-     * @param array $tags
+     * @param array $tags key/value metadata attached to the Sentry event
      *
      * @return void
      */

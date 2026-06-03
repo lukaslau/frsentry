@@ -44,7 +44,7 @@ class frsentryJsModuleFrontController extends ModuleFrontController
             'frontendTracingRate' => round((int) ($config['backend']['frontendTracingRate'] ?? 20) / 100, 2),
             'frontendProfilingRate' => round((int) ($config['backend']['frontendProfilingRate'] ?? 20) / 100, 2),
             'ipAddress' => Tools::getRemoteAddr(),
-            'shopUrl' => str_replace('.', '\.', $context->shop->domain ?? ''),
+            'shopUrl' => preg_quote((string) ($context->shop->domain ?? ''), '/'),
         ];
 
         if (!empty($context->customer->id)) {
@@ -57,15 +57,17 @@ class frsentryJsModuleFrontController extends ModuleFrontController
 
         $this->context->smarty->assign($data);
 
-        ob_clean();
-        ob_start();
-        echo $this->context->smarty->fetch(
+        $script = (string) $this->context->smarty->fetch(
             _PS_MODULE_DIR_ . '/frsentry/views/templates/front/sentry_init.tpl'
         );
-        $output = ob_get_clean();
 
-        // Strip any stray HTML comments the template engine may inject
-        echo preg_replace('/<!--(.|\s)*?-->/', '', (string) $output);
+        // Discard whatever PrestaShop may have buffered before this controller
+        // ran, then emit only the script body with any HTML comments removed.
+        if (ob_get_length() !== false) {
+            ob_clean();
+        }
+
+        echo preg_replace('#<!--.*?-->#s', '', $script);
         exit;
     }
 }
