@@ -25,7 +25,7 @@ if (!defined('_PS_VERSION_')) {
  * rather than letting it propagate to set_exception_handler. This override
  * intercepts that path so these exceptions are still reported.
  *
- * Deduplication is handled inside FrSentry::capture() — DB exceptions already
+ * Deduplication is handled inside SentryReporter::capture() — DB exceptions already
  * captured by the Db class override are silently skipped here via the per-request
  * sentErrors hash.
  */
@@ -34,7 +34,7 @@ class PrestaShopException extends PrestaShopExceptionCore
     public function displayMessage()
     {
         try {
-            Frento\FrSentry\src\Libs\FrSentry::capture($this, ['type' => 'PrestaShopException']);
+            Frento\FrSentry\Core\SentryReporter::capture($this, ['type' => 'PrestaShopException']);
         } catch (Throwable $ignored) {
             // Never let the error reporter itself crash the application
         }

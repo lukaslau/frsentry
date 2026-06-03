@@ -5,7 +5,7 @@
 ## Module overview
 PrestaShop Sentry integration module. Monitors PHP errors, exceptions, DB failures, and frontend JS issues by forwarding them to Sentry.
 
-- **Namespace:** `Frento\FrSentry\src\*`
+- **Namespace:** `Frento\FrSentry\*` (PSR-4 → `src/`)
 - **Main file:** `frsentry.php`
 - **Tested against:** PrestaShop 1.7.7+, PHP 7.2–8.x
 
@@ -60,6 +60,6 @@ for p in lock.get('packages', []):
 ## Architecture notes
 
 - `vendor/autoload.php` is loaded at the top of `frsentry.php` after `libs/sentry/autoload.php`. `sentry/sentry` is `require-dev` only — production `vendor/` never contains the unscoped SDK, so there is no `\Sentry\*` function conflict with ps_mbo.
-- `FrSentry` (lib class) vs `FrSentry` (module class) — the lib lives in `src/Libs/FrSentry.php` under the `Frento\FrSentry\src\Libs` namespace; the module class is the root `frsentry.php`.
+- Core logic lives in `src/Core/`: `SentryReporter` (`Frento\FrSentry\Core\SentryReporter`, error/exception handler registration + `capture()`) and `SentryClient` (SDK wrapper). The root `frsentry.php` module class is `FrSentry`. `FrConfiguration` sits at `Frento\FrSentry\FrConfiguration`, hooks under `Frento\FrSentry\Hooks`.
 - Config is cached per-request in `FrConfiguration::$cache`. Call `FrConfiguration::clearCache()` after saving settings.
 - Excimer tracing/profiling is gated on `extension_loaded('excimer')` at runtime; the admin UI always renders but the transaction is only started when the extension is present.

@@ -48,9 +48,9 @@
     var PROFILING_RATE  = PREFIX + 'BACKEND_PROFILING_RATE';
 
     // Frontend fields
-    var FE_INSIGHTS_FIELD  = PREFIX + 'INSIGHTS_FRONTEND';
+    var FE_INSIGHTS_FIELD  = PREFIX + 'FRONTEND_INSIGHTS';
     var FE_TRACING_RATE    = PREFIX + 'FRONTEND_TRACING_RATE';
-    var FE_PROFILING_FIELD = PREFIX + 'PROFILING_FRONTEND';
+    var FE_PROFILING_FIELD = PREFIX + 'FRONTEND_PROFILING';
     var FE_PROFILING_RATE  = PREFIX + 'FRONTEND_PROFILING_RATE';
 
     // -------------------------------------------------------------------------
@@ -292,7 +292,7 @@
         }
 
         // Test buttons
-        initTestButton('backend',  PREFIX + 'BACKEND_KEY');
-        initTestButton('frontend', PREFIX + 'FRONTEND_KEY');
+        initTestButton('backend',  PREFIX + 'BACKEND_DSN');
+        initTestButton('frontend', PREFIX + 'FRONTEND_DSN');
     });
 }());

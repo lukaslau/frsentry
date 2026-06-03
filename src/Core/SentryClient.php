@@ -15,7 +15,7 @@
  * @license   Commercial license
  */
 
-namespace Frento\FrSentry\src\Libs;
+namespace Frento\FrSentry\Core;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -27,17 +27,19 @@ use FrSentry\Sentry\Integration\FatalErrorListenerIntegration;
 use FrSentry\Sentry\Integration\ModulesIntegration;
 use FrSentry\Sentry\Integration\RequestIntegration;
 
-class FrSentryClient
+class SentryClient
 {
     /**
      * @param array $config full module config array from FrConfiguration::getConfiguration()
      */
     public function __construct(array $config)
     {
-        $dsn = $config['backendKey'] ?? '';
         $backend = $config['backend'] ?? [];
+        $dsn = $backend['dsn'] ?? '';
+        $tracing = $backend['tracing'] ?? [];
+        $profiling = $backend['profiling'] ?? [];
 
-        // Tracing and profiling rates — computed here so FrSentry::registerHandlers()
+        // Tracing and profiling rates — computed here so SentryReporter::registerHandlers()
         // does not need to know SDK internals.
         //
         // Profiling requires both:
@@ -50,11 +52,11 @@ class FrSentryClient
         $tracingRate = 0.0;
         $profilingRate = 0.0;
 
-        if (!empty($backend['tracingEnabled'])) {
-            $tracingRate = (int) ($backend['tracingRate'] ?? 100) / 100;
+        if (!empty($tracing['enabled'])) {
+            $tracingRate = (int) ($tracing['sampleRate'] ?? 100) / 100;
 
-            if (!empty($backend['profilingEnabled']) && extension_loaded('excimer')) {
-                $profilingRate = (int) ($backend['profilingRate'] ?? 100) / 100;
+            if (!empty($profiling['enabled']) && extension_loaded('excimer')) {
+                $profilingRate = (int) ($profiling['sampleRate'] ?? 100) / 100;
             }
         }
 
@@ -115,7 +117,7 @@ class FrSentryClient
      * Registers a one-time global Sentry event processor that attaches a
      * structured HTTP request block to every event.
      *
-     * Uses a static guard so multiple FrSentryClient instances (e.g. the normal
+     * Uses a static guard so multiple SentryClient instances (e.g. the normal
      * capture path and the admin test button) never register the processor twice.
      */
     private static function registerRequestProcessor(): void
@@ -137,7 +139,7 @@ class FrSentryClient
                     return $event;
                 }
 
-                $event->setRequest(FrSentryClient::buildRequestData());
+                $event->setRequest(SentryClient::buildRequestData());
 
                 return $event;
             }

@@ -26,12 +26,11 @@ frsentry/
 │       └── *.php         PHP-Scoper output (139 files)
 ├── override/             PrestaShop overrides
 ├── src/
-│   ├── Libs/
-│   │   ├── FrSentry.php        Error/exception handler registration
-│   │   └── FrSentryClient.php  Sentry SDK wrapper (init, capture)
-│   └── Prestashop/
-│       ├── FrConfiguration.php  Config read/write helpers
-│       └── Hooks/               PrestaShop hook handlers
+│   ├── FrConfiguration.php     Config read/write helpers
+│   ├── Core/
+│   │   ├── SentryReporter.php  Error/exception handler registration
+│   │   └── SentryClient.php    Sentry SDK wrapper (init, capture)
+│   └── Hooks/                  PrestaShop hook handlers
 ├── vendor/               Composer dependencies (deps only, NOT sentry/sentry)
 ├── views/                Smarty templates + JS
 ├── frsentry.php          Module entry point
@@ -161,6 +160,6 @@ Excluded from release: `.git`, `.claude`, `do_not_include`, `*.bat`, `*.zip`,
 | Class | Namespace | Purpose |
 |---|---|---|
 | `FrSentry` (module) | root | PrestaShop module class |
-| `FrSentry` (lib) | `Frento\FrSentry\src\Libs` | Error handler registration, `capture()` |
-| `FrSentryClient` | `Frento\FrSentry\src\Libs` | Sentry SDK init and event capture |
-| `FrConfiguration` | `Frento\FrSentry\src\Prestashop` | Config read/write, per-request cache |
+| `SentryReporter` | `Frento\FrSentry\Core` | Error handler registration, `capture()` |
+| `SentryClient` | `Frento\FrSentry\Core` | Sentry SDK init and event capture |
+| `FrConfiguration` | `Frento\FrSentry` | Config read/write, per-request cache |

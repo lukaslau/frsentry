@@ -53,19 +53,19 @@ $module->hookModuleRoutes();
 
 echo "[diag] hookModuleRoutes() called\n";
 
-$config = Frento\FrSentry\src\Prestashop\FrConfiguration::getConfiguration();
+$config = Frento\FrSentry\FrConfiguration::getConfiguration();
 
-echo "[diag] backendKey: " . (!empty($config['backendKey']) ? 'SET (' . substr($config['backendKey'], 0, 30) . '...)' : 'EMPTY') . "\n";
+echo "[diag] backend DSN: " . (!empty($config['backend']['dsn']) ? 'SET (' . substr($config['backend']['dsn'], 0, 30) . '...)' : 'EMPTY') . "\n";
 echo "[diag] PHP_SAPI: " . PHP_SAPI . "\n";
 echo "[diag] isMonitoringEnabled (via capture test): ";
 
-if (empty($config['backendKey'])) {
+if (empty($config['backend']['dsn'])) {
     fwrite(STDERR, "\nWARNING: Backend DSN key is not configured. Events will not reach Sentry.\n\n");
 } else {
     // Re-init SDK with a transport logger so we can see exactly what Sentry returns.
 
-    $eventId = \FrSentry\Sentry\captureException(new \Exception('[diag] connectivity check'));
-    echo "[diag] eventId: " . ($eventId ? (string) $eventId : 'null (not sent)') . "\n";
+    //$eventId = \FrSentry\Sentry\captureException(new \Exception('[diag] connectivity check'));
+    //echo "[diag] eventId: " . ($eventId ? (string) $eventId : 'null (not sent)') . "\n";
 }
 
 echo "\n";
