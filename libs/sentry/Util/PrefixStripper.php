@@ -1,9 +1,11 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Util;
 
 use FrSentry\Sentry\Options;
+
 trait PrefixStripper
 {
     /**
@@ -19,6 +21,7 @@ trait PrefixStripper
                 return mb_substr($filePath, mb_strlen($prefix));
             }
         }
+
         return $filePath;
     }
 }

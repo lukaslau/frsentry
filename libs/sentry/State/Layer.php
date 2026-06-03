@@ -1,9 +1,11 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\State;
 
 use FrSentry\Sentry\ClientInterface;
+
 /**
  * This class holds a pair of client and scope instances for each element in the
  * stack of a {@see Hub}.
@@ -20,17 +22,19 @@ final class Layer
      * @var Scope The scope held by this layer
      */
     private $scope;
+
     /**
      * Constructor.
      *
      * @param ClientInterface|null $client The client held by this layer
-     * @param Scope                $scope  The scope held by this layer
+     * @param Scope $scope The scope held by this layer
      */
     public function __construct(?ClientInterface $client, Scope $scope)
     {
         $this->client = $client;
         $this->scope = $scope;
     }
+
     /**
      * Gets the client held by this layer.
      */
@@ -38,6 +42,7 @@ final class Layer
     {
         return $this->client;
     }
+
     /**
      * Sets the client held by this layer.
      *
@@ -48,8 +53,10 @@ final class Layer
     public function setClient(?ClientInterface $client): self
     {
         $this->client = $client;
+
         return $this;
     }
+
     /**
      * Gets the scope held by this layer.
      */
@@ -57,6 +64,7 @@ final class Layer
     {
         return $this->scope;
     }
+
     /**
      * Sets the scope held by this layer.
      *
@@ -67,6 +75,7 @@ final class Layer
     public function setScope(Scope $scope): self
     {
         $this->scope = $scope;
+
         return $this;
     }
 }

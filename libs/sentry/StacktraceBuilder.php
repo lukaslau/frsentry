@@ -1,10 +1,12 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry;
 
 use FrSentry\Sentry\Serializer\RepresentationSerializerInterface;
 use FrSentry\Sentry\Util\PHPConfiguration;
+
 /**
  * This class builds {@see Stacktrace} objects from an instance of an exception
  * or from a backtrace.
@@ -17,10 +19,11 @@ final class StacktraceBuilder
      * @var FrameBuilder An instance of the builder of {@see Frame} objects
      */
     private $frameBuilder;
+
     /**
      * Constructor.
      *
-     * @param Options                           $options                  The SDK client options
+     * @param Options $options The SDK client options
      * @param RepresentationSerializerInterface $representationSerializer The representation serializer
      */
     public function __construct(Options $options, RepresentationSerializerInterface $representationSerializer)
@@ -30,6 +33,7 @@ final class StacktraceBuilder
             $options->getLoggerOrNullLogger()->warning('The "zend.exception_ignore_args" PHP setting is enabled which results in missing stack trace arguments, see: https://docs.sentry.io/platforms/php/troubleshooting/#missing-variables-in-stack-traces.');
         }
     }
+
     /**
      * Builds a {@see Stacktrace} object from the given exception.
      *
@@ -39,12 +43,13 @@ final class StacktraceBuilder
     {
         return $this->buildFromBacktrace($exception->getTrace(), $exception->getFile(), $exception->getLine());
     }
+
     /**
      * Builds a {@see Stacktrace} object from the given backtrace.
      *
      * @param array<int, array<string, mixed>> $backtrace The backtrace
-     * @param string                           $file      The file where the backtrace originated from
-     * @param int                              $line      The line from which the backtrace originated from
+     * @param string $file The file where the backtrace originated from
+     * @param int $line The line from which the backtrace originated from
      *
      * @phpstan-param list<StacktraceFrame> $backtrace
      */
@@ -58,6 +63,7 @@ final class StacktraceBuilder
         }
         // Add a final stackframe for the first method ever of this stacktrace
         array_unshift($frames, $this->frameBuilder->buildFromBacktraceFrame($file, $line, []));
+
         return new Stacktrace($frames);
     }
 }

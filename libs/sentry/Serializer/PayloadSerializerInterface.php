@@ -1,9 +1,11 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Serializer;
 
 use FrSentry\Sentry\Event;
+
 /**
  * This interface defines the contract for the classes willing to serialize an
  * event object to a format suitable for sending over the wire to Sentry.

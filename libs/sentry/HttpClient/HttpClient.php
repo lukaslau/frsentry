@@ -1,10 +1,12 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\HttpClient;
 
 use FrSentry\Sentry\Options;
 use FrSentry\Sentry\Util\Http;
+
 /**
  * @internal
  */
@@ -24,11 +26,13 @@ class HttpClient implements HttpClientInterface
      * @var object|resource|null
      */
     private $shareHandle;
+
     public function __construct(string $sdkIdentifier, string $sdkVersion)
     {
         $this->sdkIdentifier = $sdkIdentifier;
         $this->sdkVersion = $sdkVersion;
     }
+
     public function sendRequest(Request $request, Options $options): Response
     {
         $dsn = $options->getDsn();
@@ -97,6 +101,7 @@ class HttpClient implements HttpClientInterface
                 curl_close($curlHandle);
             }
             $message = 'cURL Error (' . $errorCode . ') ' . $error;
+
             return new Response(0, [], $message);
         }
         $statusCode = curl_getinfo($curlHandle, \CURLINFO_HTTP_CODE);
@@ -104,8 +109,10 @@ class HttpClient implements HttpClientInterface
             curl_close($curlHandle);
         }
         $error = $statusCode >= 400 ? $body : '';
+
         return new Response($statusCode, $responseHeaders, $error);
     }
+
     /**
      * Initializes a share handle for CURL requests. If available, it will always try to use a persistent
      * share handle first and fall back to a regular share handle in case it's unavailable.
@@ -148,6 +155,7 @@ class HttpClient implements HttpClientInterface
                 $this->shareHandle = null;
             }
         }
+
         return $this->shareHandle;
     }
 }

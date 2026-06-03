@@ -1,15 +1,17 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Monolog;
 
 use FrSentry\Monolog\Handler\AbstractHandler;
 use FrSentry\Monolog\Level;
 use FrSentry\Monolog\Logger;
 use FrSentry\Monolog\LogRecord;
-use Psr\Log\LogLevel;
 use FrSentry\Sentry\State\HubInterface;
 use FrSentry\Sentry\State\Scope;
+use Psr\Log\LogLevel;
+
 /**
  * This Monolog handler will collect monolog events and send them to sentry.
  */
@@ -19,6 +21,7 @@ class ExceptionToSentryIssueHandler extends AbstractHandler
      * @var HubInterface
      */
     private $hub;
+
     /**
      * @phpstan-param value-of<Level::VALUES>|value-of<Level::NAMES>|Level|LogLevel::* $level
      */
@@ -27,13 +30,14 @@ class ExceptionToSentryIssueHandler extends AbstractHandler
         $this->hub = $hub;
         parent::__construct($level, $bubble);
     }
+
     /**
      * @param array<string, mixed>|LogRecord $record
      */
     public function handle($record): bool
     {
         $exception = $this->getExceptionFromRecord($record);
-        /** @phpstan-ignore-next-line */
+        /* @phpstan-ignore-next-line */
         if ($exception === null || !$this->isHandling($record)) {
             return \false;
         }
@@ -51,8 +55,10 @@ class ExceptionToSentryIssueHandler extends AbstractHandler
             }
             $this->hub->captureException($exception);
         });
+
         return $this->bubble === \false;
     }
+
     /**
      * @param array<string, mixed>|LogRecord $record
      */
@@ -62,8 +68,10 @@ class ExceptionToSentryIssueHandler extends AbstractHandler
         if ($exception instanceof \Throwable) {
             return $exception;
         }
+
         return null;
     }
+
     /**
      * @param array<string, mixed>|LogRecord $record
      *
@@ -73,6 +81,7 @@ class ExceptionToSentryIssueHandler extends AbstractHandler
     {
         return $this->getArrayFieldFromRecord($record, 'context');
     }
+
     /**
      * @param array<string, mixed>|LogRecord $record
      *
@@ -82,6 +91,7 @@ class ExceptionToSentryIssueHandler extends AbstractHandler
     {
         return $this->getArrayFieldFromRecord($record, 'extra');
     }
+
     /**
      * @param array<string, mixed>|LogRecord $record
      *
@@ -92,8 +102,10 @@ class ExceptionToSentryIssueHandler extends AbstractHandler
         if (isset($record[$field]) && \is_array($record[$field])) {
             return $record[$field];
         }
+
         return [];
     }
+
     /**
      * @param array<string, mixed> $context
      *
@@ -102,6 +114,7 @@ class ExceptionToSentryIssueHandler extends AbstractHandler
     private function getMonologContextData(array $context): array
     {
         unset($context['exception']);
+
         return $context;
     }
 }

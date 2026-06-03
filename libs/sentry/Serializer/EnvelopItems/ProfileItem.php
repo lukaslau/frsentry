@@ -1,11 +1,13 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Serializer\EnvelopItems;
 
 use FrSentry\Sentry\Event;
 use FrSentry\Sentry\Profiling\Profile;
 use FrSentry\Sentry\Util\JSON;
+
 /**
  * @internal
  */
@@ -22,6 +24,7 @@ class ProfileItem implements EnvelopeItemInterface
         if ($payload === null) {
             return null;
         }
+
         return \sprintf("%s\n%s", JSON::encode($header), JSON::encode($payload));
     }
 }

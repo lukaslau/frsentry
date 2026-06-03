@@ -1,9 +1,11 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Integration;
 
 use FrSentry\Sentry\Options;
+
 interface OptionAwareIntegrationInterface extends IntegrationInterface
 {
     /**

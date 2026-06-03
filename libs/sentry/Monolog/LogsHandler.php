@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Monolog;
 
 use FrSentry\Monolog\Formatter\FormatterInterface;
@@ -9,6 +10,7 @@ use FrSentry\Monolog\Handler\HandlerInterface;
 use FrSentry\Monolog\LogRecord;
 use FrSentry\Sentry\Logs\LogLevel;
 use FrSentry\Sentry\Logs\Logs;
+
 class LogsHandler implements HandlerInterface
 {
     use CompatibilityLogLevelTrait;
@@ -24,17 +26,19 @@ class LogsHandler implements HandlerInterface
      * @var bool
      */
     private $bubble;
+
     /**
      * Creates a new Monolog handler that converts Monolog logs to Sentry logs.
      *
      * @param LogLevel|\Monolog\Level|int|null $logLevel the minimum logging level at which this handler will be triggered and collects the logs
-     * @param bool                             $bubble   whether the messages that are handled can bubble up the stack or not
+     * @param bool $bubble whether the messages that are handled can bubble up the stack or not
      */
     public function __construct($logLevel = null, bool $bubble = \true)
     {
         $this->logLevel = $logLevel ?? LogLevel::debug();
         $this->bubble = $bubble;
     }
+
     /**
      * @param array<string, mixed>|LogRecord $record
      */
@@ -45,8 +49,10 @@ class LogsHandler implements HandlerInterface
         } elseif ($this->logLevel instanceof \FrSentry\Monolog\Level) {
             return $record['level'] >= $this->logLevel->value;
         }
+
         return $record['level'] >= $this->logLevel;
     }
+
     /**
      * @param array<string, mixed>|LogRecord $record
      */
@@ -60,8 +66,10 @@ class LogsHandler implements HandlerInterface
             return \false;
         }
         Logs::getInstance()->aggregator()->add(self::getSentryLogLevelFromMonologLevel($record['level']), $record['message'], [], $this->compileAttributes($record));
+
         return $this->bubble === \false;
     }
+
     /**
      * @param array<array<string, mixed>|LogRecord> $records
      */
@@ -71,10 +79,12 @@ class LogsHandler implements HandlerInterface
             $this->handle($record);
         }
     }
+
     public function close(): void
     {
         Logs::getInstance()->flush();
     }
+
     /**
      * @param callable $callback
      */
@@ -82,6 +92,7 @@ class LogsHandler implements HandlerInterface
     {
         // noop, this handler does not support processors
     }
+
     /**
      * @return callable
      */
@@ -90,15 +101,18 @@ class LogsHandler implements HandlerInterface
         // Since we do not support processors, we throw an exception if this method is called
         throw new \LogicException('You tried to pop from an empty processor stack.');
     }
+
     public function setFormatter(FormatterInterface $formatter): void
     {
         // noop, this handler does not support formatters
     }
+
     public function getFormatter(): FormatterInterface
     {
         // To adhere to the interface we need to return a formatter so we return a default one
         return new LineFormatter();
     }
+
     public function __destruct()
     {
         try {
@@ -107,6 +121,7 @@ class LogsHandler implements HandlerInterface
             // Just in case so that the destructor can never fail.
         }
     }
+
     /**
      * @param array<string,mixed>|LogRecord $record
      *

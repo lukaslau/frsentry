@@ -1,9 +1,11 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Serializer\Traits;
 
 use FrSentry\Sentry\Frame;
+
 /**
  * @internal
  */
@@ -49,6 +51,7 @@ trait StacktraceFrameSeralizerTrait
         if (!empty($frame->getVars())) {
             $result['vars'] = $frame->getVars();
         }
+
         return $result;
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Serializer;
 
 /**
@@ -21,8 +22,10 @@ class RepresentationSerializer extends AbstractSerializer implements Representat
         if (\is_bool($value)) {
             return $value ? 'true' : 'false';
         }
+
         return $value;
     }
+
     /**
      * This method is overridden to return even basic types as strings.
      *
@@ -47,6 +50,7 @@ class RepresentationSerializer extends AbstractSerializer implements Representat
         if (is_numeric($value)) {
             return (string) $value;
         }
+
         return (string) parent::serializeValue($value);
     }
 }

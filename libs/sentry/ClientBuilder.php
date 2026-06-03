@@ -1,15 +1,17 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry;
 
-use Psr\Log\LoggerInterface;
 use FrSentry\Sentry\HttpClient\HttpClient;
 use FrSentry\Sentry\HttpClient\HttpClientInterface;
 use FrSentry\Sentry\Serializer\PayloadSerializer;
 use FrSentry\Sentry\Serializer\RepresentationSerializerInterface;
 use FrSentry\Sentry\Transport\HttpTransport;
 use FrSentry\Sentry\Transport\TransportInterface;
+use Psr\Log\LoggerInterface;
+
 /**
  * A configurable builder for Client objects.
  */
@@ -43,6 +45,7 @@ final class ClientBuilder
      * @var string The SDK version of the Client
      */
     private $sdkVersion = Client::SDK_VERSION;
+
     /**
      * Class constructor.
      *
@@ -52,6 +55,7 @@ final class ClientBuilder
     {
         $this->options = $options ?? new Options();
     }
+
     /**
      * @param array<string, mixed> $options The client options, in naked array form
      */
@@ -59,52 +63,69 @@ final class ClientBuilder
     {
         return new self(new Options($options));
     }
+
     public function getOptions(): Options
     {
         return $this->options;
     }
+
     public function setRepresentationSerializer(RepresentationSerializerInterface $representationSerializer): self
     {
         $this->representationSerializer = $representationSerializer;
+
         return $this;
     }
+
     public function getLogger(): ?LoggerInterface
     {
         return $this->logger ?? $this->options->getLogger();
     }
+
     public function setLogger(LoggerInterface $logger): self
     {
         $this->logger = $logger;
+
         return $this;
     }
+
     public function setSdkIdentifier(string $sdkIdentifier): self
     {
         $this->sdkIdentifier = $sdkIdentifier;
+
         return $this;
     }
+
     public function setSdkVersion(string $sdkVersion): self
     {
         $this->sdkVersion = $sdkVersion;
+
         return $this;
     }
+
     public function getTransport(): TransportInterface
     {
         return $this->transport ?? $this->options->getTransport() ?? new HttpTransport($this->options, $this->getHttpClient(), new PayloadSerializer($this->options), $this->getLogger());
     }
+
     public function setTransport(TransportInterface $transport): self
     {
         $this->transport = $transport;
+
         return $this;
     }
+
     public function getHttpClient(): HttpClientInterface
     {
         return $this->httpClient ?? $this->options->getHttpClient() ?? new HttpClient($this->sdkIdentifier, $this->sdkVersion);
     }
+
     public function setHttpClient(HttpClientInterface $httpClient): self
     {
         $this->httpClient = $httpClient;
+
         return $this;
     }
+
     public function getClient(): ClientInterface
     {
         return new Client($this->options, $this->getTransport(), $this->sdkIdentifier, $this->sdkVersion, $this->representationSerializer, $this->getLogger());

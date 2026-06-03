@@ -1,10 +1,9 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Integration;
 
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UploadedFileInterface;
 use FrSentry\Sentry\Event;
 use FrSentry\Sentry\Exception\JsonException;
 use FrSentry\Sentry\Options;
@@ -12,8 +11,11 @@ use FrSentry\Sentry\SentrySdk;
 use FrSentry\Sentry\State\Scope;
 use FrSentry\Sentry\UserDataBag;
 use FrSentry\Sentry\Util\JSON;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UploadedFileInterface;
 use Symfony\Component\OptionsResolver\Options as SymfonyOptions;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+
 /**
  * This integration collects information from the request and attaches them to
  * the event.
@@ -56,11 +58,12 @@ final class RequestIntegration implements IntegrationInterface
      * }
      */
     private $options;
+
     /**
      * Constructor.
      *
      * @param RequestFetcherInterface|null $requestFetcher PSR-7 request fetcher
-     * @param array<string, mixed>         $options        The options
+     * @param array<string, mixed> $options The options
      *
      * @phpstan-param array{
      *     pii_sanitize_headers?: string[]
@@ -73,6 +76,7 @@ final class RequestIntegration implements IntegrationInterface
         $this->requestFetcher = $requestFetcher ?? new RequestFetcher();
         $this->options = $resolver->resolve($options);
     }
+
     /**
      * {@inheritdoc}
      */
@@ -88,9 +92,11 @@ final class RequestIntegration implements IntegrationInterface
                 return $event;
             }
             $this->processEvent($event, $client->getOptions());
+
             return $event;
         });
     }
+
     private function processEvent(Event $event, Options $options): void
     {
         $request = $this->requestFetcher->fetchRequest();
@@ -124,6 +130,7 @@ final class RequestIntegration implements IntegrationInterface
         }
         $event->setRequest($requestData);
     }
+
     /**
      * Removes headers containing potential PII.
      *
@@ -143,15 +150,17 @@ final class RequestIntegration implements IntegrationInterface
                 $headers[$name][$headerLine] = '[Filtered]';
             }
         }
+
         return $headers;
     }
+
     /**
      * Gets the decoded body of the request, if available. If the Content-Type
      * header contains "application/json" then the content is decoded and if
      * the parsing fails then the raw data is returned. If there are submitted
      * fields or files, all of their information are parsed and returned.
      *
-     * @param Options                $options The options of the client
+     * @param Options $options The options of the client
      * @param ServerRequestInterface $request The server request
      *
      * @return mixed
@@ -187,8 +196,10 @@ final class RequestIntegration implements IntegrationInterface
                 // Fallback to returning the raw data from the request body
             }
         }
+
         return $requestBody;
     }
+
     /**
      * Create an array with the same structure as $uploadedFiles, but replacing
      * each UploadedFileInterface with an array of info.
@@ -209,8 +220,10 @@ final class RequestIntegration implements IntegrationInterface
                 throw new \UnexpectedValueException(\sprintf('Expected either an object implementing the "%s" interface or an array. Got: "%s".', UploadedFileInterface::class, \is_object($item) ? \get_class($item) : \gettype($item)));
             }
         }
+
         return $result;
     }
+
     private function isRequestBodySizeWithinReadBounds(int $requestBodySize, string $maxRequestBodySize): bool
     {
         if ($requestBodySize <= 0) {
@@ -225,8 +238,10 @@ final class RequestIntegration implements IntegrationInterface
         if ($maxRequestBodySize === 'medium' && $requestBodySize > self::REQUEST_BODY_MEDIUM_MAX_CONTENT_LENGTH) {
             return \false;
         }
+
         return \true;
     }
+
     /**
      * Configures the options of the client.
      *

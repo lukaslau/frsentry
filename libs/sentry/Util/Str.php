@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Util;
 
 /**
@@ -32,6 +33,7 @@ class Str
         }
         try {
             $result = @vsprintf($message, $values);
+
             // @phpstan-ignore-next-line on PHP 7 `vsprintf` does not throw an exception but can return `false`
             return $result === \false ? null : $result;
         } catch (\Error $e) {

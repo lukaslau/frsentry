@@ -1,11 +1,13 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Monolog;
 
 use FrSentry\Monolog\Level;
 use FrSentry\Monolog\Logger;
 use FrSentry\Sentry\Logs\LogLevel;
+
 if (Logger::API >= 3) {
     /**
      * Logic which is used if monolog >= 3 is installed.

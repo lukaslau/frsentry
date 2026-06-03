@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Serializer\EnvelopItems;
 
 use FrSentry\Sentry\Event;
@@ -9,6 +10,7 @@ use FrSentry\Sentry\Serializer\Traits\BreadcrumbSeralizerTrait;
 use FrSentry\Sentry\Serializer\Traits\StacktraceFrameSeralizerTrait;
 use FrSentry\Sentry\Util\JSON;
 use FrSentry\Sentry\Util\Str;
+
 /**
  * @internal
  */
@@ -16,6 +18,7 @@ class EventItem implements EnvelopeItemInterface
 {
     use BreadcrumbSeralizerTrait;
     use StacktraceFrameSeralizerTrait;
+
     public static function toEnvelopeItem(Event $event): string
     {
         $header = ['type' => (string) $event->getType(), 'content_type' => 'application/json'];
@@ -89,8 +92,10 @@ class EventItem implements EnvelopeItemInterface
         if ($stacktrace !== null) {
             $payload['stacktrace'] = ['frames' => array_map([self::class, 'serializeStacktraceFrame'], $stacktrace->getFrames())];
         }
+
         return \sprintf("%s\n%s", JSON::encode($header), JSON::encode($payload));
     }
+
     /**
      * @return array<string, mixed>
      *
@@ -121,6 +126,7 @@ class EventItem implements EnvelopeItemInterface
                 $result['mechanism']['data'] = $exceptionMechanism->getData();
             }
         }
+
         return $result;
     }
 }

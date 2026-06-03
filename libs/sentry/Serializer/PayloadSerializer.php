@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Serializer;
 
 use FrSentry\Sentry\Event;
@@ -15,6 +16,7 @@ use FrSentry\Sentry\Serializer\EnvelopItems\ProfileItem;
 use FrSentry\Sentry\Serializer\EnvelopItems\TransactionItem;
 use FrSentry\Sentry\Tracing\DynamicSamplingContext;
 use FrSentry\Sentry\Util\JSON;
+
 /**
  * This is a simple implementation of a serializer that takes in input an event
  * object and returns a serialized string ready to be sent off to Sentry.
@@ -27,10 +29,12 @@ final class PayloadSerializer implements PayloadSerializerInterface
      * @var Options The SDK client options
      */
     private $options;
+
     public function __construct(Options $options)
     {
         $this->options = $options;
     }
+
     /**
      * {@inheritdoc}
      */
@@ -78,6 +82,7 @@ final class PayloadSerializer implements PayloadSerializerInterface
         if ($envelopeHeader === null) {
             return \sprintf("{}\n%s", implode("\n", array_filter($items)));
         }
+
         return \sprintf("%s\n%s", JSON::encode($envelopeHeader), implode("\n", array_filter($items)));
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Tracing;
 
 /**
@@ -18,10 +19,12 @@ final class TransactionSource implements \Stringable
      * @var array<string, self> A list of cached enum instances
      */
     private static $instances = [];
+
     private function __construct(string $value)
     {
         $this->value = $value;
     }
+
     /**
      * User-defined name.
      */
@@ -29,6 +32,7 @@ final class TransactionSource implements \Stringable
     {
         return self::getInstance('custom');
     }
+
     /**
      * Raw URL, potentially containing identifiers.
      */
@@ -36,6 +40,7 @@ final class TransactionSource implements \Stringable
     {
         return self::getInstance('url');
     }
+
     /**
      * Parametrized URL / route.
      */
@@ -43,6 +48,7 @@ final class TransactionSource implements \Stringable
     {
         return self::getInstance('route');
     }
+
     /**
      * Name of the view handling the request.
      */
@@ -50,6 +56,7 @@ final class TransactionSource implements \Stringable
     {
         return self::getInstance('view');
     }
+
     /**
      * Named after a software component, such as a function or class name.
      */
@@ -57,6 +64,7 @@ final class TransactionSource implements \Stringable
     {
         return self::getInstance('component');
     }
+
     /**
      * Name of a background task (e.g. a Celery task).
      */
@@ -64,15 +72,18 @@ final class TransactionSource implements \Stringable
     {
         return self::getInstance('task');
     }
+
     public function __toString(): string
     {
         return $this->value;
     }
+
     private static function getInstance(string $value): self
     {
         if (!isset(self::$instances[$value])) {
             self::$instances[$value] = new self($value);
         }
+
         return self::$instances[$value];
     }
 }

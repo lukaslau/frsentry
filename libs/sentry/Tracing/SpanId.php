@@ -1,9 +1,11 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Tracing;
 
 use FrSentry\Sentry\Util\SentryUid;
+
 /**
  * This class represents an span ID.
  */
@@ -13,6 +15,7 @@ final class SpanId implements \Stringable
      * @var string The ID
      */
     private $value;
+
     /**
      * Class constructor.
      *
@@ -25,6 +28,7 @@ final class SpanId implements \Stringable
         }
         $this->value = $value;
     }
+
     /**
      * Generates a new span ID.
      */
@@ -32,6 +36,7 @@ final class SpanId implements \Stringable
     {
         return new self(substr(SentryUid::generate(), 0, 16));
     }
+
     /**
      * Compares whether two objects are equals.
      *
@@ -41,6 +46,7 @@ final class SpanId implements \Stringable
     {
         return $this->value === $other->value;
     }
+
     public function __toString(): string
     {
         return $this->value;

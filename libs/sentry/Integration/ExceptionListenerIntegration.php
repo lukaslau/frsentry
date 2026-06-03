@@ -1,10 +1,12 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Integration;
 
 use FrSentry\Sentry\ErrorHandler;
 use FrSentry\Sentry\SentrySdk;
+
 /**
  * This integration hooks into the global error handlers and emits events to
  * Sentry.

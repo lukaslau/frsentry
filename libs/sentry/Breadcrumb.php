@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry;
 
 /**
@@ -79,15 +80,16 @@ final class Breadcrumb
      * @var float The timestamp of the breadcrumb
      */
     private $timestamp;
+
     /**
      * Constructor.
      *
-     * @param string               $level     The error level of the breadcrumb
-     * @param string               $type      The type of the breadcrumb
-     * @param string               $category  The category of the breadcrumb
-     * @param string|null          $message   Optional text message
-     * @param array<string, mixed> $metadata  Additional information about the breadcrumb
-     * @param float|null           $timestamp Optional timestamp of the breadcrumb
+     * @param string $level The error level of the breadcrumb
+     * @param string $type The type of the breadcrumb
+     * @param string $category The category of the breadcrumb
+     * @param string|null $message Optional text message
+     * @param array<string, mixed> $metadata Additional information about the breadcrumb
+     * @param float|null $timestamp Optional timestamp of the breadcrumb
      */
     public function __construct(string $level, string $type, string $category, ?string $message = null, array $metadata = [], ?float $timestamp = null)
     {
@@ -101,6 +103,7 @@ final class Breadcrumb
         $this->metadata = $metadata;
         $this->timestamp = $timestamp ?? microtime(\true);
     }
+
     /**
      * Gets the breadcrumb type.
      */
@@ -108,6 +111,7 @@ final class Breadcrumb
     {
         return $this->type;
     }
+
     /**
      * Sets the type of the breadcrumb.
      *
@@ -122,8 +126,10 @@ final class Breadcrumb
         }
         $new = clone $this;
         $new->type = $type;
+
         return $new;
     }
+
     /**
      * Gets the breadcrumb level.
      */
@@ -131,6 +137,7 @@ final class Breadcrumb
     {
         return $this->level;
     }
+
     /**
      * Sets the error level of the breadcrumb.
      *
@@ -148,8 +155,10 @@ final class Breadcrumb
         }
         $new = clone $this;
         $new->level = $level;
+
         return $new;
     }
+
     /**
      * Gets the breadcrumb category.
      */
@@ -157,6 +166,7 @@ final class Breadcrumb
     {
         return $this->category;
     }
+
     /**
      * Sets the breadcrumb category.
      *
@@ -171,8 +181,10 @@ final class Breadcrumb
         }
         $new = clone $this;
         $new->category = $category;
+
         return $new;
     }
+
     /**
      * Gets the breadcrumb message.
      */
@@ -180,6 +192,7 @@ final class Breadcrumb
     {
         return $this->message;
     }
+
     /**
      * Sets the breadcrumb message.
      *
@@ -194,8 +207,10 @@ final class Breadcrumb
         }
         $new = clone $this;
         $new->message = $message;
+
         return $new;
     }
+
     /**
      * Gets the breadcrumb meta data.
      *
@@ -205,12 +220,13 @@ final class Breadcrumb
     {
         return $this->metadata;
     }
+
     /**
      * Returns an instance of this class with the provided metadata, replacing
      * any existing values of any metadata with the same name.
      *
-     * @param string $name  The name of the metadata
-     * @param mixed  $value The value
+     * @param string $name The name of the metadata
+     * @param mixed $value The value
      *
      * @return static
      */
@@ -221,8 +237,10 @@ final class Breadcrumb
         }
         $new = clone $this;
         $new->metadata[$name] = $value;
+
         return $new;
     }
+
     /**
      * Returns an instance of this class without the specified metadata
      * information.
@@ -238,8 +256,10 @@ final class Breadcrumb
         }
         $new = clone $this;
         unset($new->metadata[$name]);
+
         return $new;
     }
+
     /**
      * Gets the breadcrumb timestamp.
      */
@@ -247,6 +267,7 @@ final class Breadcrumb
     {
         return $this->timestamp;
     }
+
     /**
      * Sets the breadcrumb timestamp.
      *
@@ -261,8 +282,10 @@ final class Breadcrumb
         }
         $new = clone $this;
         $new->timestamp = $timestamp;
+
         return $new;
     }
+
     /**
      * Helper method to create an instance of this class from an array of data.
      *

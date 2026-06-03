@@ -1,12 +1,14 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Metrics\Types;
 
 use FrSentry\Sentry\Attributes\AttributeBag;
 use FrSentry\Sentry\Tracing\SpanId;
 use FrSentry\Sentry\Tracing\TraceId;
 use FrSentry\Sentry\Unit;
+
 abstract class Metric
 {
     /**
@@ -33,6 +35,7 @@ abstract class Metric
      * @var Unit|null
      */
     private $unit;
+
     /**
      * @param array<string, int|float|string|bool> $attributes
      */
@@ -48,35 +51,44 @@ abstract class Metric
             $this->attributes->set($key, $value);
         }
     }
+
     /**
      * @param int|float $value
      */
     abstract public function setValue($value): void;
+
     abstract public function getType(): string;
+
     /**
      * @return int|float
      */
     abstract public function getValue();
+
     public function getName(): string
     {
         return $this->name;
     }
+
     public function getUnit(): ?Unit
     {
         return $this->unit;
     }
+
     public function getTraceId(): TraceId
     {
         return $this->traceId;
     }
+
     public function getSpanId(): SpanId
     {
         return $this->spanId;
     }
+
     public function getAttributes(): AttributeBag
     {
         return $this->attributes;
     }
+
     public function getTimestamp(): float
     {
         return $this->timestamp;

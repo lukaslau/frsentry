@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry;
 
 use FrSentry\Sentry\ClientReport\DiscardedEvent;
@@ -10,6 +11,7 @@ use FrSentry\Sentry\Logs\Log;
 use FrSentry\Sentry\Metrics\Types\Metric;
 use FrSentry\Sentry\Profiling\Profile;
 use FrSentry\Sentry\Tracing\Span;
+
 /**
  * This is the base class for classes containing event data.
  *
@@ -173,12 +175,14 @@ final class Event
      * @var DiscardedEvent[]
      */
     private $clientReports = [];
+
     private function __construct(?EventId $eventId, EventType $eventType)
     {
         $this->id = $eventId ?? EventId::generate();
         $this->timestamp = microtime(\true);
         $this->type = $eventType;
     }
+
     /**
      * Creates a new event.
      *
@@ -188,6 +192,7 @@ final class Event
     {
         return new self($eventId, EventType::event());
     }
+
     /**
      * Creates a new transaction event.
      *
@@ -197,22 +202,27 @@ final class Event
     {
         return new self($eventId, EventType::transaction());
     }
+
     public static function createCheckIn(?EventId $eventId = null): self
     {
         return new self($eventId, EventType::checkIn());
     }
+
     public static function createLogs(?EventId $eventId = null): self
     {
         return new self($eventId, EventType::logs());
     }
+
     public static function createMetrics(?EventId $eventId = null): self
     {
         return new self($eventId, EventType::metrics());
     }
+
     public static function createClientReport(?EventId $eventId = null): self
     {
         return new self($eventId, EventType::clientReport());
     }
+
     /**
      * Gets the ID of this event.
      */
@@ -220,6 +230,7 @@ final class Event
     {
         return $this->id;
     }
+
     /**
      * Gets the identifier of the SDK package that generated this event.
      *
@@ -229,6 +240,7 @@ final class Event
     {
         return $this->sdkIdentifier;
     }
+
     /**
      * Sets the identifier of the SDK package that generated this event.
      *
@@ -237,8 +249,10 @@ final class Event
     public function setSdkIdentifier(string $sdkIdentifier): self
     {
         $this->sdkIdentifier = $sdkIdentifier;
+
         return $this;
     }
+
     /**
      * Gets the version of the SDK package that generated this Event.
      *
@@ -248,6 +262,7 @@ final class Event
     {
         return $this->sdkVersion;
     }
+
     /**
      * Sets the version of the SDK package that generated this Event.
      *
@@ -256,8 +271,10 @@ final class Event
     public function setSdkVersion(string $sdkVersion): self
     {
         $this->sdkVersion = $sdkVersion;
+
         return $this;
     }
+
     /**
      * Append a package to the list of SDK packages.
      *
@@ -270,8 +287,10 @@ final class Event
     public function appendSdkPackage(array $package): self
     {
         $this->sdkPackages[] = $package;
+
         return $this;
     }
+
     /**
      * Gets the SDK playload that will be sent to Sentry.
      *
@@ -285,6 +304,7 @@ final class Event
     {
         return ['name' => $this->sdkIdentifier, 'version' => $this->sdkVersion, 'packages' => $this->sdkPackages];
     }
+
     /**
      * Gets the timestamp of when this event was generated.
      */
@@ -292,14 +312,17 @@ final class Event
     {
         return $this->timestamp;
     }
+
     /**
      * Sets the timestamp of when the Event was created.
      */
     public function setTimestamp(?float $timestamp): self
     {
         $this->timestamp = $timestamp;
+
         return $this;
     }
+
     /**
      * Gets the severity of this event.
      */
@@ -307,6 +330,7 @@ final class Event
     {
         return $this->level;
     }
+
     /**
      * Sets the severity of this event.
      *
@@ -315,8 +339,10 @@ final class Event
     public function setLevel(?Severity $level): self
     {
         $this->level = $level;
+
         return $this;
     }
+
     /**
      * Gets the name of the logger which created the event.
      */
@@ -324,6 +350,7 @@ final class Event
     {
         return $this->logger;
     }
+
     /**
      * Sets the name of the logger which created the event.
      *
@@ -332,8 +359,10 @@ final class Event
     public function setLogger(?string $logger): self
     {
         $this->logger = $logger;
+
         return $this;
     }
+
     /**
      * Gets the name of the transaction (or culprit) which caused this
      * exception.
@@ -342,6 +371,7 @@ final class Event
     {
         return $this->transaction;
     }
+
     /**
      * Sets the name of the transaction (or culprit) which caused this
      * exception.
@@ -351,17 +381,22 @@ final class Event
     public function setTransaction(?string $transaction): self
     {
         $this->transaction = $transaction;
+
         return $this;
     }
+
     public function getCheckIn(): ?CheckIn
     {
         return $this->checkIn;
     }
+
     public function setCheckIn(?CheckIn $checkIn): self
     {
         $this->checkIn = $checkIn;
+
         return $this;
     }
+
     /**
      * @return Log[]
      */
@@ -369,14 +404,17 @@ final class Event
     {
         return $this->logs;
     }
+
     /**
      * @param Log[] $logs
      */
     public function setLogs(array $logs): self
     {
         $this->logs = $logs;
+
         return $this;
     }
+
     /**
      * @return Metric[]
      */
@@ -384,14 +422,17 @@ final class Event
     {
         return $this->metrics;
     }
+
     /**
      * @param Metric[] $metrics
      */
     public function setMetrics(array $metrics): self
     {
         $this->metrics = $metrics;
+
         return $this;
     }
+
     /**
      * @deprecated Metrics are no longer supported. Metrics API is a no-op and will be removed in 5.x.
      */
@@ -399,6 +440,7 @@ final class Event
     {
         return [];
     }
+
     /**
      * @deprecated Metrics are no longer supported. Metrics API is a no-op and will be removed in 5.x.
      */
@@ -406,6 +448,7 @@ final class Event
     {
         return $this;
     }
+
     /**
      * Gets the name of the server.
      */
@@ -413,6 +456,7 @@ final class Event
     {
         return $this->serverName;
     }
+
     /**
      * Sets the name of the server.
      *
@@ -421,8 +465,10 @@ final class Event
     public function setServerName(?string $serverName): self
     {
         $this->serverName = $serverName;
+
         return $this;
     }
+
     /**
      * Gets the release of the program.
      */
@@ -430,6 +476,7 @@ final class Event
     {
         return $this->release;
     }
+
     /**
      * Sets the release of the program.
      *
@@ -438,8 +485,10 @@ final class Event
     public function setRelease(?string $release): self
     {
         $this->release = $release;
+
         return $this;
     }
+
     /**
      * Gets the error message.
      */
@@ -447,6 +496,7 @@ final class Event
     {
         return $this->message;
     }
+
     /**
      * Gets the formatted message.
      */
@@ -454,6 +504,7 @@ final class Event
     {
         return $this->messageFormatted;
     }
+
     /**
      * Gets the parameters to use to format the message.
      *
@@ -463,11 +514,12 @@ final class Event
     {
         return $this->messageParams;
     }
+
     /**
      * Sets the error message.
      *
-     * @param string      $message   The message
-     * @param string[]    $params    The parameters to use to format the message
+     * @param string $message The message
+     * @param string[] $params The parameters to use to format the message
      * @param string|null $formatted The formatted message
      */
     public function setMessage(string $message, array $params = [], ?string $formatted = null): self
@@ -475,8 +527,10 @@ final class Event
         $this->message = $message;
         $this->messageParams = $params;
         $this->messageFormatted = $formatted;
+
         return $this;
     }
+
     /**
      * Gets a list of relevant modules and their versions.
      *
@@ -486,6 +540,7 @@ final class Event
     {
         return $this->modules;
     }
+
     /**
      * Sets a list of relevant modules and their versions.
      *
@@ -494,8 +549,10 @@ final class Event
     public function setModules(array $modules): self
     {
         $this->modules = $modules;
+
         return $this;
     }
+
     /**
      * Gets the request data.
      *
@@ -505,6 +562,7 @@ final class Event
     {
         return $this->request;
     }
+
     /**
      * Sets the request data.
      *
@@ -513,8 +571,10 @@ final class Event
     public function setRequest(array $request): self
     {
         $this->request = $request;
+
         return $this;
     }
+
     /**
      * Gets an arbitrary mapping of additional contexts.
      *
@@ -524,10 +584,11 @@ final class Event
     {
         return $this->contexts;
     }
+
     /**
      * Sets data to the context by a given name.
      *
-     * @param string               $name The name that uniquely identifies the context
+     * @param string $name The name that uniquely identifies the context
      * @param array<string, mixed> $data The data of the context
      */
     public function setContext(string $name, array $data): self
@@ -535,8 +596,10 @@ final class Event
         if (!empty($data)) {
             $this->contexts[$name] = $data;
         }
+
         return $this;
     }
+
     /**
      * Gets an arbitrary mapping of additional metadata.
      *
@@ -546,6 +609,7 @@ final class Event
     {
         return $this->extra;
     }
+
     /**
      * Sets an arbitrary mapping of additional metadata.
      *
@@ -554,8 +618,10 @@ final class Event
     public function setExtra(array $extra): self
     {
         $this->extra = $extra;
+
         return $this;
     }
+
     /**
      * Gets a list of tags associated to this event.
      *
@@ -565,6 +631,7 @@ final class Event
     {
         return $this->tags;
     }
+
     /**
      * Sets a list of tags associated to this event.
      *
@@ -573,19 +640,23 @@ final class Event
     public function setTags(array $tags): self
     {
         $this->tags = $tags;
+
         return $this;
     }
+
     /**
      * Sets or updates a tag in this event.
      *
-     * @param string $key   The key that uniquely identifies the tag
+     * @param string $key The key that uniquely identifies the tag
      * @param string $value The value
      */
     public function setTag(string $key, string $value): self
     {
         $this->tags[$key] = $value;
+
         return $this;
     }
+
     /**
      * Removes a given tag from the event.
      *
@@ -594,8 +665,10 @@ final class Event
     public function removeTag(string $key): self
     {
         unset($this->tags[$key]);
+
         return $this;
     }
+
     /**
      * Gets the user context.
      */
@@ -603,6 +676,7 @@ final class Event
     {
         return $this->user;
     }
+
     /**
      * Sets the user context.
      *
@@ -611,8 +685,10 @@ final class Event
     public function setUser(?UserDataBag $user): self
     {
         $this->user = $user;
+
         return $this;
     }
+
     /**
      * Gets the server OS context.
      */
@@ -620,6 +696,7 @@ final class Event
     {
         return $this->osContext;
     }
+
     /**
      * Sets the server OS context.
      *
@@ -628,8 +705,10 @@ final class Event
     public function setOsContext(?OsContext $osContext): self
     {
         $this->osContext = $osContext;
+
         return $this;
     }
+
     /**
      * Gets the runtime context data.
      */
@@ -637,6 +716,7 @@ final class Event
     {
         return $this->runtimeContext;
     }
+
     /**
      * Sets the runtime context data.
      *
@@ -645,8 +725,10 @@ final class Event
     public function setRuntimeContext(?RuntimeContext $runtimeContext): self
     {
         $this->runtimeContext = $runtimeContext;
+
         return $this;
     }
+
     /**
      * Gets an array of strings used to dictate the deduplication of this
      * event.
@@ -657,6 +739,7 @@ final class Event
     {
         return $this->fingerprint;
     }
+
     /**
      * Sets an array of strings used to dictate the deduplication of this
      * event.
@@ -666,8 +749,10 @@ final class Event
     public function setFingerprint(array $fingerprint): self
     {
         $this->fingerprint = $fingerprint;
+
         return $this;
     }
+
     /**
      * Gets the environment in which this event was generated.
      */
@@ -675,6 +760,7 @@ final class Event
     {
         return $this->environment;
     }
+
     /**
      * Sets the environment in which this event was generated.
      *
@@ -683,8 +769,10 @@ final class Event
     public function setEnvironment(?string $environment): self
     {
         $this->environment = $environment;
+
         return $this;
     }
+
     /**
      * Gets the breadcrumbs.
      *
@@ -694,6 +782,7 @@ final class Event
     {
         return $this->breadcrumbs;
     }
+
     /**
      * Set new breadcrumbs to the event.
      *
@@ -702,8 +791,10 @@ final class Event
     public function setBreadcrumb(array $breadcrumbs): self
     {
         $this->breadcrumbs = $breadcrumbs;
+
         return $this;
     }
+
     /**
      * Gets the exception.
      *
@@ -713,6 +804,7 @@ final class Event
     {
         return $this->exceptions;
     }
+
     /**
      * Sets the exceptions.
      *
@@ -726,8 +818,10 @@ final class Event
             }
         }
         $this->exceptions = $exceptions;
+
         return $this;
     }
+
     /**
      * Gets the stacktrace that generated this event.
      */
@@ -735,6 +829,7 @@ final class Event
     {
         return $this->stacktrace;
     }
+
     /**
      * Sets the stacktrace that generated this event.
      *
@@ -743,23 +838,28 @@ final class Event
     public function setStacktrace(?Stacktrace $stacktrace): self
     {
         $this->stacktrace = $stacktrace;
+
         return $this;
     }
+
     public function getType(): EventType
     {
         return $this->type;
     }
+
     /**
      * Sets the SDK metadata with the given name.
      *
      * @param string $name The name that uniquely identifies the SDK metadata
-     * @param mixed  $data The data of the SDK metadata
+     * @param mixed $data The data of the SDK metadata
      */
     public function setSdkMetadata(string $name, $data): self
     {
         $this->sdkMetadata[$name] = $data;
+
         return $this;
     }
+
     /**
      * Gets the SDK metadata.
      *
@@ -776,8 +876,10 @@ final class Event
         if ($name !== null) {
             return $this->sdkMetadata[$name] ?? null;
         }
+
         return $this->sdkMetadata;
     }
+
     /**
      * Gets a timestamp representing when the measuring of a transaction started.
      */
@@ -785,6 +887,7 @@ final class Event
     {
         return $this->startTimestamp;
     }
+
     /**
      * Sets a timestamp representing when the measuring of a transaction started.
      *
@@ -793,8 +896,10 @@ final class Event
     public function setStartTimestamp(?float $startTimestamp): self
     {
         $this->startTimestamp = $startTimestamp;
+
         return $this;
     }
+
     /**
      * A list of timed application events that have a start and end time.
      *
@@ -804,6 +909,7 @@ final class Event
     {
         return $this->spans;
     }
+
     /**
      * Sets a list of timed application events that have a start and end time.
      *
@@ -812,33 +918,42 @@ final class Event
     public function setSpans(array $spans): self
     {
         $this->spans = $spans;
+
         return $this;
     }
+
     public function getProfile(): ?Profile
     {
         return $this->profile;
     }
+
     public function setProfile(?Profile $profile): self
     {
         $this->profile = $profile;
+
         return $this;
     }
+
     public function getTraceId(): ?string
     {
         $traceId = $this->getContexts()['trace']['trace_id'];
         if (\is_string($traceId) && !empty($traceId)) {
             return $traceId;
         }
+
         return null;
     }
+
     /**
      * @param DiscardedEvent[] $clientReports
      */
     public function setClientReports(array $clientReports): self
     {
         $this->clientReports = $clientReports;
+
         return $this;
     }
+
     /**
      * @return DiscardedEvent[]
      */

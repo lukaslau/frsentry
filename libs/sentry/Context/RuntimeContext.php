@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Context;
 
 /**
@@ -22,12 +23,13 @@ final class RuntimeContext
      * @var string|null The SAPI (Server API) name
      */
     private $sapi;
+
     /**
      * Constructor.
      *
-     * @param string      $name    The name of the runtime
+     * @param string $name The name of the runtime
      * @param string|null $version The version of the runtime
-     * @param string|null $sapi    The SAPI name of the runtime
+     * @param string|null $sapi The SAPI name of the runtime
      */
     public function __construct(string $name, ?string $version = null, ?string $sapi = null)
     {
@@ -38,6 +40,7 @@ final class RuntimeContext
         $this->version = $version;
         $this->sapi = $sapi;
     }
+
     /**
      * Gets the name of the runtime.
      */
@@ -45,6 +48,7 @@ final class RuntimeContext
     {
         return $this->name;
     }
+
     /**
      * Sets the name of the runtime.
      *
@@ -57,6 +61,7 @@ final class RuntimeContext
         }
         $this->name = $name;
     }
+
     /**
      * Gets the version of the runtime.
      */
@@ -64,6 +69,7 @@ final class RuntimeContext
     {
         return $this->version;
     }
+
     /**
      * Sets the version of the runtime.
      *
@@ -73,6 +79,7 @@ final class RuntimeContext
     {
         $this->version = $version;
     }
+
     /**
      * Gets the SAPI of the runtime.
      */
@@ -80,6 +87,7 @@ final class RuntimeContext
     {
         return $this->sapi;
     }
+
     /**
      * Sets the SAPI of the runtime.
      *

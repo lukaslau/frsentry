@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry;
 
 /**
@@ -61,20 +62,21 @@ final class Frame
      *                           this frame (usually context-locals)
      */
     private $vars = [];
+
     /**
      * Initializes a new instance of this class using the provided information.
      *
-     * @param string|null          $functionName     The name of the function being called
-     * @param string               $file             The file where the frame originated
-     * @param string|null          $rawFunctionName  The original function name, if the function
-     *                                               name is shortened or demangled
-     * @param string|null          $absoluteFilePath The absolute path to the source file
-     * @param int                  $line             The line at which the frame originated
-     * @param array<string, mixed> $vars             A mapping of variables which were available
-     *                                               within the frame
-     * @param bool                 $inApp            Whether the frame is related to the
-     *                                               execution of code relevant to the
-     *                                               application
+     * @param string|null $functionName The name of the function being called
+     * @param string $file The file where the frame originated
+     * @param string|null $rawFunctionName The original function name, if the function
+     *                                     name is shortened or demangled
+     * @param string|null $absoluteFilePath The absolute path to the source file
+     * @param int $line The line at which the frame originated
+     * @param array<string, mixed> $vars A mapping of variables which were available
+     *                                   within the frame
+     * @param bool $inApp Whether the frame is related to the
+     *                    execution of code relevant to the
+     *                    application
      */
     public function __construct(?string $functionName, string $file, int $line, ?string $rawFunctionName = null, ?string $absoluteFilePath = null, array $vars = [], bool $inApp = \true)
     {
@@ -86,6 +88,7 @@ final class Frame
         $this->vars = $vars;
         $this->inApp = $inApp;
     }
+
     /**
      * Gets the name of the function being called.
      */
@@ -93,6 +96,7 @@ final class Frame
     {
         return $this->functionName;
     }
+
     /**
      * Gets the original function name, if the function name is shortened or
      * demangled.
@@ -101,6 +105,7 @@ final class Frame
     {
         return $this->rawFunctionName;
     }
+
     /**
      * Gets the file where the frame originated.
      */
@@ -108,6 +113,7 @@ final class Frame
     {
         return $this->file;
     }
+
     /**
      * Gets the absolute path to the source file.
      */
@@ -115,6 +121,7 @@ final class Frame
     {
         return $this->absoluteFilePath;
     }
+
     /**
      * Gets the line at which the frame originated.
      */
@@ -122,6 +129,7 @@ final class Frame
     {
         return $this->line;
     }
+
     /**
      * Gets a list of source code lines before the one where the frame originated.
      *
@@ -131,6 +139,7 @@ final class Frame
     {
         return $this->preContext;
     }
+
     /**
      * Sets a list of source code lines before the one where the frame originated.
      *
@@ -139,8 +148,10 @@ final class Frame
     public function setPreContext(array $preContext): self
     {
         $this->preContext = $preContext;
+
         return $this;
     }
+
     /**
      * Gets the source code written at the line number of the file that originated
      * this frame.
@@ -149,6 +160,7 @@ final class Frame
     {
         return $this->contextLine;
     }
+
     /**
      * Sets the source code written at the line number of the file that originated
      * this frame.
@@ -158,8 +170,10 @@ final class Frame
     public function setContextLine(?string $contextLine): self
     {
         $this->contextLine = $contextLine;
+
         return $this;
     }
+
     /**
      * Gets a list of source code lines after the one where the frame originated.
      *
@@ -169,6 +183,7 @@ final class Frame
     {
         return $this->postContext;
     }
+
     /**
      * Sets a list of source code lines after the one where the frame originated.
      *
@@ -177,8 +192,10 @@ final class Frame
     public function setPostContext(array $postContext): self
     {
         $this->postContext = $postContext;
+
         return $this;
     }
+
     /**
      * Gets whether the frame is related to the execution of the relevant code
      * in this stacktrace.
@@ -187,6 +204,7 @@ final class Frame
     {
         return $this->inApp;
     }
+
     /**
      * Sets whether the frame is related to the execution of the relevant code
      * in this stacktrace.
@@ -196,8 +214,10 @@ final class Frame
     public function setIsInApp(bool $inApp): self
     {
         $this->inApp = $inApp;
+
         return $this;
     }
+
     /**
      * Gets a mapping of variables which were available within this frame
      * (usually context-locals).
@@ -208,6 +228,7 @@ final class Frame
     {
         return $this->vars;
     }
+
     /**
      * Sets a mapping of variables which were available within this frame
      * (usually context-locals).
@@ -217,8 +238,10 @@ final class Frame
     public function setVars(array $vars): self
     {
         $this->vars = $vars;
+
         return $this;
     }
+
     /**
      * Gets whether the frame is internal.
      */

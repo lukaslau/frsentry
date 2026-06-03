@@ -1,19 +1,21 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Integration;
 
 use FrSentry\Sentry\Event;
 use FrSentry\Sentry\ExceptionMechanism;
 use FrSentry\Sentry\State\HubInterface;
 use FrSentry\Sentry\State\Scope;
+
 abstract class AbstractErrorListenerIntegration implements IntegrationInterface
 {
     /**
      * Captures the exception using the given hub instance.
      *
-     * @param HubInterface $hub       The hub instance
-     * @param \Throwable   $exception The exception instance
+     * @param HubInterface $hub The hub instance
+     * @param \Throwable $exception The exception instance
      */
     protected function captureException(HubInterface $hub, \Throwable $exception): void
     {
@@ -22,6 +24,7 @@ abstract class AbstractErrorListenerIntegration implements IntegrationInterface
             $hub->captureException($exception);
         });
     }
+
     /**
      * Adds the exception mechanism to the event.
      *
@@ -38,6 +41,7 @@ abstract class AbstractErrorListenerIntegration implements IntegrationInterface
             }
             $exception->setMechanism(new ExceptionMechanism(ExceptionMechanism::TYPE_GENERIC, \false, $data));
         }
+
         return $event;
     }
 }

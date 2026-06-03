@@ -1,9 +1,11 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Util;
 
 use FrSentry\Sentry\Exception\JsonException;
+
 /**
  * This class provides some utility methods to encode/decode JSON data.
  *
@@ -16,9 +18,9 @@ final class JSON
     /**
      * Encodes the given data into JSON.
      *
-     * @param mixed $data     The data to encode
-     * @param int   $options  Bitmask consisting of JSON_* constants
-     * @param int   $maxDepth The maximum depth allowed for serializing $data
+     * @param mixed $data The data to encode
+     * @param int $options Bitmask consisting of JSON_* constants
+     * @param int $maxDepth The maximum depth allowed for serializing $data
      *
      * @throws JsonException If the encoding failed
      */
@@ -37,8 +39,10 @@ final class JSON
         if ($encounteredAnyError && ($encodedData === 'null' || $encodedData === \false) || !\in_array(json_last_error(), $allowedErrors, \true)) {
             throw new JsonException(\sprintf('Could not encode value into JSON format. Error was: "%s".', json_last_error_msg()));
         }
+
         return $encodedData;
     }
+
     /**
      * Decodes the given data from JSON.
      *
@@ -54,6 +58,7 @@ final class JSON
         if (json_last_error() !== \JSON_ERROR_NONE) {
             throw new JsonException(\sprintf('Could not decode value from JSON format. Error was: "%s".', json_last_error_msg()));
         }
+
         return $decodedData;
     }
 }

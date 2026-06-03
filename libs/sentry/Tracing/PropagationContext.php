@@ -1,11 +1,13 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Tracing;
 
 use FrSentry\Sentry\SentrySdk;
 use FrSentry\Sentry\State\Scope;
 use FrSentry\Sentry\Tracing\Traits\TraceHeaderParserTrait;
+
 final class PropagationContext
 {
     use TraceHeaderParserTrait;
@@ -33,9 +35,11 @@ final class PropagationContext
      * @var DynamicSamplingContext|null The dynamic sampling context
      */
     private $dynamicSamplingContext;
+
     private function __construct()
     {
     }
+
     public static function fromDefaults(): self
     {
         $context = new self();
@@ -45,16 +49,20 @@ final class PropagationContext
         $context->parentSampled = null;
         $context->sampleRand = round(mt_rand(0, mt_getrandmax() - 1) / mt_getrandmax(), 6);
         $context->dynamicSamplingContext = null;
+
         return $context;
     }
+
     public static function fromHeaders(string $sentryTraceHeader, string $baggageHeader): self
     {
         return self::parseTraceparentAndBaggage($sentryTraceHeader, $baggageHeader);
     }
+
     public static function fromEnvironment(string $sentryTrace, string $baggage): self
     {
         return self::parseTraceparentAndBaggage($sentryTrace, $baggage);
     }
+
     /**
      * Returns a string that can be used for the `sentry-trace` header & meta tag.
      */
@@ -62,6 +70,7 @@ final class PropagationContext
     {
         return \sprintf('%s-%s', (string) $this->traceId, (string) $this->spanId);
     }
+
     /**
      * Returns a string that can be used for the W3C `traceparent` header & meta tag.
      *
@@ -71,6 +80,7 @@ final class PropagationContext
     {
         return '';
     }
+
     /**
      * Returns a string that can be used for the `baggage` header & meta tag.
      */
@@ -88,8 +98,10 @@ final class PropagationContext
                 }
             }
         }
+
         return (string) $this->dynamicSamplingContext;
     }
+
     /**
      * @return array{trace_id: string, span_id: string, parent_span_id?: string}
      */
@@ -99,51 +111,66 @@ final class PropagationContext
         if ($this->parentSpanId !== null) {
             $result['parent_span_id'] = (string) $this->parentSpanId;
         }
+
         return $result;
     }
+
     public function getTraceId(): TraceId
     {
         return $this->traceId;
     }
+
     public function setTraceId(TraceId $traceId): void
     {
         $this->traceId = $traceId;
     }
+
     public function getParentSpanId(): ?SpanId
     {
         return $this->parentSpanId;
     }
+
     public function setParentSpanId(?SpanId $parentSpanId): void
     {
         $this->parentSpanId = $parentSpanId;
     }
+
     public function getSpanId(): SpanId
     {
         return $this->spanId;
     }
+
     public function setSpanId(SpanId $spanId): self
     {
         $this->spanId = $spanId;
+
         return $this;
     }
+
     public function getDynamicSamplingContext(): ?DynamicSamplingContext
     {
         return $this->dynamicSamplingContext;
     }
+
     public function setDynamicSamplingContext(DynamicSamplingContext $dynamicSamplingContext): self
     {
         $this->dynamicSamplingContext = $dynamicSamplingContext;
+
         return $this;
     }
+
     public function getSampleRand(): ?float
     {
         return $this->sampleRand;
     }
+
     public function setSampleRand(?float $sampleRand): self
     {
         $this->sampleRand = $sampleRand;
+
         return $this;
     }
+
     private static function parseTraceparentAndBaggage(string $traceparent, string $baggage): self
     {
         $context = self::fromDefaults();
@@ -163,6 +190,7 @@ final class PropagationContext
         if ($parsedData['sampleRand'] !== null) {
             $context->sampleRand = $parsedData['sampleRand'];
         }
+
         return $context;
     }
 }

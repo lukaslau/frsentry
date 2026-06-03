@@ -1,10 +1,12 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\State;
 
 use FrSentry\Sentry\Logs\LogsAggregator;
 use FrSentry\Sentry\Metrics\MetricsAggregator;
+
 /**
  * Holds runtime-local state for a single unit of work.
  *
@@ -31,6 +33,7 @@ final class RuntimeContext
      * @var MetricsAggregator
      */
     private $metricsAggregator;
+
     public function __construct(string $id, HubInterface $hub)
     {
         $this->id = $id;
@@ -38,22 +41,27 @@ final class RuntimeContext
         $this->logsAggregator = new LogsAggregator();
         $this->metricsAggregator = new MetricsAggregator();
     }
+
     public function getId(): string
     {
         return $this->id;
     }
+
     public function getHub(): HubInterface
     {
         return $this->hub;
     }
+
     public function setHub(HubInterface $hub): void
     {
         $this->hub = $hub;
     }
+
     public function getLogsAggregator(): LogsAggregator
     {
         return $this->logsAggregator;
     }
+
     public function getMetricsAggregator(): MetricsAggregator
     {
         return $this->metricsAggregator;

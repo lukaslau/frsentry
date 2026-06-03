@@ -1,10 +1,12 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry;
 
 use FrSentry\Sentry\Exception\FatalErrorException;
 use FrSentry\Sentry\Exception\SilencedErrorException;
+
 /**
  * This class implements a simple error handler that catches all configured
  * error types and relays them to all configured listeners. Registering this
@@ -125,6 +127,7 @@ final class ErrorHandler
         \E_ERROR => 'Error',
         \E_CORE_ERROR => 'Core Error',
     ];
+
     /**
      * Constructor.
      *
@@ -138,6 +141,7 @@ final class ErrorHandler
             $this->exceptionReflection->setAccessible(\true);
         }
     }
+
     /**
      * Registers the error handler once and returns its instance.
      */
@@ -161,8 +165,10 @@ final class ErrorHandler
             // one in the chain of handlers
             set_error_handler($errorHandlerCallback, \E_ALL);
         }
+
         return self::$handlerInstance;
     }
+
     /**
      * Registers the fatal error handler and reserves a certain amount of memory
      * that will be reclaimed to handle the errors (to prevent out of memory
@@ -185,8 +191,10 @@ final class ErrorHandler
         self::$handlerInstance->isFatalErrorHandlerRegistered = \true;
         self::$reservedMemory = str_repeat('x', $reservedMemorySize);
         register_shutdown_function(\Closure::fromCallable([self::$handlerInstance, 'handleFatalError']));
+
         return self::$handlerInstance;
     }
+
     /**
      * Registers the exception handler, effectively replacing the current one
      * and returns its instance. The previous one will be saved anyway and
@@ -202,8 +210,10 @@ final class ErrorHandler
         }
         self::$handlerInstance->isExceptionHandlerRegistered = \true;
         self::$handlerInstance->previousExceptionHandler = set_exception_handler(\Closure::fromCallable([self::$handlerInstance, 'handleException']));
+
         return self::$handlerInstance;
     }
+
     /**
      * Adds a listener to the current error handler that will be called every
      * time an error is captured.
@@ -218,6 +228,7 @@ final class ErrorHandler
     {
         $this->errorListeners[] = $listener;
     }
+
     /**
      * Adds a listener to the current error handler that will be called every
      * time a fatal error handler is captured.
@@ -232,6 +243,7 @@ final class ErrorHandler
     {
         $this->fatalErrorListeners[] = $listener;
     }
+
     /**
      * Adds a listener to the current error handler that will be called every
      * time an exception is captured.
@@ -246,6 +258,7 @@ final class ErrorHandler
     {
         $this->exceptionListeners[] = $listener;
     }
+
     /**
      * Sets the amount of memory to increase the memory limit by when we are capturing a out of memory error.
      *
@@ -258,15 +271,16 @@ final class ErrorHandler
         }
         $this->memoryLimitIncreaseOnOutOfMemoryErrorValue = $valueInBytes;
     }
+
     /**
      * Handles errors by capturing them through the client according to the
      * configured bit field.
      *
-     * @param int                       $level      The level of the error raised, represented by
-     *                                              one of the E_* constants
-     * @param string                    $message    The error message
-     * @param string                    $file       The filename the error was raised in
-     * @param int                       $line       The line number the error was raised at
+     * @param int $level The level of the error raised, represented by
+     *                   one of the E_* constants
+     * @param string $message The error message
+     * @param string $file The filename the error was raised in
+     * @param int $line The line number the error was raised at
      * @param array<string, mixed>|null $errcontext The error context (deprecated since PHP 7.2)
      *
      * @return bool If the function returns `false` then the PHP native error
@@ -303,8 +317,10 @@ final class ErrorHandler
         if ($this->previousErrorHandler !== null) {
             return \false !== ($this->previousErrorHandler)($level, $message, $file, $line, $errcontext);
         }
+
         return \false;
     }
+
     private function shouldHandleError(int $level, bool $silenced): bool
     {
         // If we were not given any options, we should handle all errors
@@ -314,8 +330,10 @@ final class ErrorHandler
         if ($silenced) {
             return $this->options->shouldCaptureSilencedErrors();
         }
+
         return ($this->options->getErrorTypes() & $level) !== 0;
     }
+
     /**
      * Tries to handle a fatal error if any and relay them to the listeners.
      * It only tries to do this if we still have some reserved memory at
@@ -348,6 +366,7 @@ final class ErrorHandler
             $this->invokeListeners($this->fatalErrorListeners, $errorAsException);
         }
     }
+
     /**
      * Handles the given exception by passing it to all the listeners,
      * then forwarding it to another handler.
@@ -367,6 +386,7 @@ final class ErrorHandler
         try {
             if ($previousExceptionHandler !== null) {
                 $previousExceptionHandler($exception);
+
                 return;
             }
         } catch (\Throwable $previousExceptionHandlerException) {
@@ -384,6 +404,7 @@ final class ErrorHandler
         }
         $this->handleException($previousExceptionHandlerException);
     }
+
     /**
      * Set the memory_limit while having no real error handler so that a warning emitted
      * will not get reported.
@@ -399,13 +420,14 @@ final class ErrorHandler
             restore_error_handler();
         }
     }
+
     /**
      * Cleans and returns the backtrace without the first frames that belong to
      * this error handler.
      *
      * @param array<int, array<string, mixed>> $backtrace The backtrace to clear
-     * @param string                           $file      The filename the backtrace was raised in
-     * @param int                              $line      The line number the backtrace was raised at
+     * @param string $file The filename the backtrace was raised in
+     * @param int $line The line number the backtrace was raised at
      *
      * @phpstan-param list<StacktraceFrame> $backtrace
      *
@@ -422,8 +444,10 @@ final class ErrorHandler
             }
             ++$index;
         }
+
         return $cleanedBacktrace;
     }
+
     /**
      * Invokes all the listeners and pass the exception to all of them.
      *

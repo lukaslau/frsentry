@@ -1,12 +1,14 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Agent\Transport;
 
 use FrSentry\Sentry\HttpClient\HttpClientInterface;
 use FrSentry\Sentry\HttpClient\Request;
 use FrSentry\Sentry\HttpClient\Response;
 use FrSentry\Sentry\Options;
+
 class AgentClient implements HttpClientInterface
 {
     private const SOCKET_TIMEOUT_SECONDS = 0.01;
@@ -38,6 +40,7 @@ class AgentClient implements HttpClientInterface
      * @var string
      */
     private $lastSendError = '';
+
     /**
      * @phpstan-param (callable(): HttpClientInterface)|null $fallbackClientFactory
      */
@@ -47,10 +50,12 @@ class AgentClient implements HttpClientInterface
         $this->port = $port;
         $this->fallbackClientFactory = $fallbackClientFactory;
     }
+
     public function __destruct()
     {
         $this->disconnect();
     }
+
     /**
      * @phpstan-assert-if-true resource $this->socket
      */
@@ -65,13 +70,16 @@ class AgentClient implements HttpClientInterface
         $socket = @fsockopen($this->host, $this->port, $errorNo, $errorMsg, self::SOCKET_TIMEOUT_SECONDS);
         if ($socket === \false) {
             $this->lastSendError = \sprintf('Failed to connect to the local Sentry agent at %s:%d. [%d] %s', $this->host, $this->port, $errorNo, $errorMsg);
+
             return \false;
         }
         // Use non-blocking writes with stream_select() so a hung agent cannot block the caller indefinitely.
         stream_set_blocking($socket, \false);
         $this->socket = $socket;
+
         return \true;
     }
+
     private function disconnect(): void
     {
         if ($this->socket === null) {
@@ -80,6 +88,7 @@ class AgentClient implements HttpClientInterface
         fclose($this->socket);
         $this->socket = null;
     }
+
     private function send(string $message): bool
     {
         $this->lastSendError = '';
@@ -96,8 +105,10 @@ class AgentClient implements HttpClientInterface
             $this->disconnect();
         }
         $this->lastSendError = \sprintf('Failed to write envelope to the local Sentry agent at %s:%d.', $this->host, $this->port);
+
         return \false;
     }
+
     private function writePayload(string $payload): bool
     {
         if ($this->socket === null) {
@@ -117,8 +128,10 @@ class AgentClient implements HttpClientInterface
             }
             $totalWrittenBytes += $bytesWritten;
         }
+
         return \true;
     }
+
     /**
      * @param resource $socket
      */
@@ -132,8 +145,10 @@ class AgentClient implements HttpClientInterface
         $writeSockets = [$socket];
         $exceptSockets = null;
         $selectedSockets = @stream_select($readSockets, $writeSockets, $exceptSockets, 0, (int) ceil($remainingSeconds * 1000000));
+
         return $selectedSockets !== \false && $selectedSockets > 0;
     }
+
     private function getFallbackClient(): ?HttpClientInterface
     {
         if ($this->fallbackClient !== null) {
@@ -147,16 +162,20 @@ class AgentClient implements HttpClientInterface
         } catch (\Throwable $exception) {
             $this->fallbackClientFactory = null;
             $this->fallbackClientError = \sprintf('Failed to initialize fallback HTTP client. Reason: "%s". Fallback delivery has been disabled.', $exception->getMessage());
+
             return null;
         }
         if (!$fallbackClient instanceof HttpClientInterface) {
             $this->fallbackClientFactory = null;
             $this->fallbackClientError = 'The fallback client factory did not return an instance of HttpClientInterface. Fallback delivery has been disabled.';
+
             return null;
         }
         $this->fallbackClient = $fallbackClient;
+
         return $this->fallbackClient;
     }
+
     public function sendRequest(Request $request, Options $options): Response
     {
         $body = $request->getStringBody();
@@ -179,6 +198,7 @@ class AgentClient implements HttpClientInterface
                 return $fallbackClient->sendRequest($request, $options);
             } catch (\Throwable $exception) {
                 $options->getLoggerOrNullLogger()->debug('Fallback HTTP client failed while sending envelope.', array_merge($logContext, ['exception' => $exception]));
+
                 return new Response(502, [], \sprintf('Failed to send envelope using fallback HTTP client. Reason: "%s".', $exception->getMessage()));
             }
         }
@@ -186,6 +206,7 @@ class AgentClient implements HttpClientInterface
             $options->getLoggerOrNullLogger()->debug($this->fallbackClientError, $logContext);
             $this->fallbackClientError = null;
         }
+
         return new Response(502, [], 'Failed to send envelope to the local Sentry agent and no fallback client is available.');
     }
 }

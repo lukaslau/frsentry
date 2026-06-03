@@ -1,9 +1,11 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Serializer\Traits;
 
 use FrSentry\Sentry\Breadcrumb;
+
 /**
  * @internal
  */
@@ -30,6 +32,7 @@ trait BreadcrumbSeralizerTrait
         if (!empty($breadcrumb->getMetadata())) {
             $result['data'] = (object) $breadcrumb->getMetadata();
         }
+
         return $result;
     }
 }

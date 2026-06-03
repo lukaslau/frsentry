@@ -1,10 +1,12 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Spotlight;
 
 use FrSentry\Sentry\HttpClient\Request;
 use FrSentry\Sentry\HttpClient\Response;
+
 /**
  * @internal
  */
@@ -37,12 +39,14 @@ class SpotlightClient
                 curl_close($curlHandle);
             }
             $message = 'cURL Error (' . $errorCode . ') ' . $error;
+
             return new Response(0, [], $message);
         }
         $statusCode = curl_getinfo($curlHandle, \CURLINFO_HTTP_CODE);
         if (\PHP_MAJOR_VERSION < 8) {
             curl_close($curlHandle);
         }
+
         return new Response($statusCode, [], '');
     }
 }

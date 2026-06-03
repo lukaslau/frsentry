@@ -1,10 +1,12 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Serializer\EnvelopItems;
 
 use FrSentry\Sentry\Event;
 use FrSentry\Sentry\Util\JSON;
+
 /**
  * @internal
  */
@@ -24,6 +26,7 @@ class CheckInItem implements EnvelopeItemInterface
                 $payload['contexts']['trace'] = $event->getContexts()['trace'];
             }
         }
+
         return \sprintf("%s\n%s", JSON::encode($header), JSON::encode($payload));
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry;
 
 final class MonitorSchedule
@@ -19,10 +20,11 @@ final class MonitorSchedule
     private $unit;
     public const TYPE_CRONTAB = 'crontab';
     public const TYPE_INTERVAL = 'interval';
+
     /**
-     * @param string                   $type  The type of the schedule
-     * @param string|int               $value The value of the schedule
-     * @param MonitorScheduleUnit|null $unit  The unit of the schedule
+     * @param string $type The type of the schedule
+     * @param string|int $value The value of the schedule
+     * @param MonitorScheduleUnit|null $unit The unit of the schedule
      */
     public function __construct(string $type, $value, ?MonitorScheduleUnit $unit = null)
     {
@@ -30,23 +32,29 @@ final class MonitorSchedule
         $this->value = $value;
         $this->unit = $unit;
     }
+
     public static function crontab(string $value): self
     {
         return new self(self::TYPE_CRONTAB, $value);
     }
+
     public static function interval(int $value, MonitorScheduleUnit $unit): self
     {
         return new self(self::TYPE_INTERVAL, $value, $unit);
     }
+
     public function getType(): string
     {
         return $this->type;
     }
+
     public function setType(string $type): self
     {
         $this->type = $type;
+
         return $this;
     }
+
     /**
      * @return string|int
      */
@@ -54,23 +62,29 @@ final class MonitorSchedule
     {
         return $this->value;
     }
+
     /**
      * @param string|int $value
      */
     public function setValue($value): self
     {
         $this->value = $value;
+
         return $this;
     }
+
     public function getUnit(): ?MonitorScheduleUnit
     {
         return $this->unit;
     }
+
     public function setUnit(?MonitorScheduleUnit $unit): self
     {
         $this->unit = $unit;
+
         return $this;
     }
+
     /**
      * @return array<string, string|int>
      */

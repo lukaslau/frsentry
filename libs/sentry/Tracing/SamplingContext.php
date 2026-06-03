@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Tracing;
 
 final class SamplingContext
@@ -21,6 +22,7 @@ final class SamplingContext
      * @var array<string, mixed>|null Additional context, depending on where the SDK runs
      */
     private $additionalContext;
+
     /**
      * Returns an instance populated with the data of the transaction context.
      */
@@ -30,12 +32,15 @@ final class SamplingContext
         $context->transactionContext = $transactionContext;
         $context->parentSampled = $transactionContext->getParentSampled();
         $context->sampleRand = $transactionContext->getMetadata()->getSampleRand();
+
         return $context;
     }
+
     public function getTransactionContext(): ?TransactionContext
     {
         return $this->transactionContext;
     }
+
     /**
      * Gets the sampling decision from the parent transaction, if any.
      */
@@ -43,18 +48,22 @@ final class SamplingContext
     {
         return $this->parentSampled;
     }
+
     public function getSampleRand(): ?float
     {
         return $this->sampleRand;
     }
+
     /**
      * Sets the sampling decision from the parent transaction, if any.
      */
     public function setParentSampled(?bool $parentSampled): self
     {
         $this->parentSampled = $parentSampled;
+
         return $this;
     }
+
     /**
      * Sets additional data that will be provided as a second argument to {@link \Sentry\startTransaction()}.
      *
@@ -63,8 +72,10 @@ final class SamplingContext
     public function setAdditionalContext(?array $additionalContext): self
     {
         $this->additionalContext = $additionalContext;
+
         return $this;
     }
+
     /**
      * Gets the additional data that will be provided as a second argument to {@link \Sentry\startTransaction()}.
      *

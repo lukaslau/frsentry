@@ -1,9 +1,11 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Tracing;
 
 use FrSentry\Sentry\Util\SentryUid;
+
 /**
  * This class represents an trace ID.
  */
@@ -13,6 +15,7 @@ final class TraceId implements \Stringable
      * @var string The ID
      */
     private $value;
+
     /**
      * Class constructor.
      *
@@ -25,6 +28,7 @@ final class TraceId implements \Stringable
         }
         $this->value = $value;
     }
+
     /**
      * Generates a new trace ID.
      */
@@ -32,6 +36,7 @@ final class TraceId implements \Stringable
     {
         return new self(SentryUid::generate());
     }
+
     public function __toString(): string
     {
         return $this->value;

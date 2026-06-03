@@ -1,12 +1,14 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Transport;
 
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use FrSentry\Sentry\EventType;
 use FrSentry\Sentry\HttpClient\Response;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+
 final class RateLimiter
 {
     /**
@@ -48,10 +50,12 @@ final class RateLimiter
      * @var LoggerInterface A PSR-3 logger
      */
     private $logger;
+
     public function __construct(?LoggerInterface $logger = null)
     {
         $this->logger = $logger ?? new NullLogger();
     }
+
     public function handleResponse(Response $response): bool
     {
         $now = time();
@@ -71,16 +75,20 @@ final class RateLimiter
                     $this->logger->warning(\sprintf('Rate limited exceeded for category "%s", backing off until "%s".', $category, gmdate(\DATE_ATOM, $retryAfter)));
                 }
             }
+
             return $this->rateLimits !== [];
         }
         if ($response->hasHeader(self::RETRY_AFTER_HEADER)) {
             $retryAfter = $now + $this->parseRetryAfterHeader($now, $response->getHeaderLine(self::RETRY_AFTER_HEADER));
             $this->rateLimits['all'] = $retryAfter;
             $this->logger->warning(\sprintf('Rate limited exceeded for all categories, backing off until "%s".', gmdate(\DATE_ATOM, $retryAfter)));
+
             return \true;
         }
+
         return \false;
     }
+
     /**
      * @param string|EventType $eventType
      */
@@ -88,6 +96,7 @@ final class RateLimiter
     {
         return $this->getDisabledUntil($eventType) > time();
     }
+
     /**
      * @param string|EventType $eventType
      */
@@ -101,8 +110,10 @@ final class RateLimiter
         } elseif ($eventType === 'check_in') {
             $eventType = self::DATA_CATEGORY_CHECK_IN;
         }
+
         return max($this->rateLimits['all'] ?? 0, $this->rateLimits[$eventType] ?? 0);
     }
+
     private function parseRetryAfterHeader(int $currentTime, string $header): int
     {
         if (preg_match('/^\d+$/', $header) === 1) {
@@ -112,6 +123,7 @@ final class RateLimiter
         if ($headerDate !== \false && $headerDate->getTimestamp() >= $currentTime) {
             return $headerDate->getTimestamp() - $currentTime;
         }
+
         return self::DEFAULT_RETRY_AFTER_SECONDS;
     }
 }

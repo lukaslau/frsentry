@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry;
 
 /**
@@ -32,6 +33,7 @@ final class EventHint
      * @var array<string, mixed>
      */
     public $extra = [];
+
     /**
      * Create a EventHint instance from an array of values.
      *
@@ -65,6 +67,7 @@ final class EventHint
         $hint->mechanism = $mechanism;
         $hint->stacktrace = $stacktrace;
         $hint->extra = $extra;
+
         return $hint;
     }
 }

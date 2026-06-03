@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Util;
 
 /**
@@ -22,6 +23,7 @@ class TelemetryStorage implements \Countable
      * @var T[]|RingBuffer<T>
      */
     private $data;
+
     private function __construct(?int $size = null)
     {
         if ($size !== null) {
@@ -30,10 +32,12 @@ class TelemetryStorage implements \Countable
             $this->data = [];
         }
     }
+
     public function count(): int
     {
         return \count($this->data);
     }
+
     /**
      * @param T $value
      */
@@ -45,6 +49,7 @@ class TelemetryStorage implements \Countable
             $this->data[] = $value;
         }
     }
+
     /**
      * @return T[]
      */
@@ -55,8 +60,10 @@ class TelemetryStorage implements \Countable
         }
         $data = $this->data;
         $this->data = [];
+
         return $data;
     }
+
     /**
      * @return T[]
      */
@@ -65,15 +72,19 @@ class TelemetryStorage implements \Countable
         if ($this->data instanceof RingBuffer) {
             return $this->data->toArray();
         }
+
         return $this->data;
     }
+
     public function isEmpty(): bool
     {
         if ($this->data instanceof RingBuffer) {
             return $this->data->isEmpty();
         }
+
         return empty($this->data);
     }
+
     /**
      * Creates a new TelemetryStorage that is not bounded in size. This version should only be used if there
      * is another flushing signal available.
@@ -84,6 +95,7 @@ class TelemetryStorage implements \Countable
     {
         return new self();
     }
+
     /**
      * Creates a TelemetryStorage that has an upper bound of $size. It will drop the oldest items when new items
      * are added while being at capacity.

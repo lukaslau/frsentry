@@ -1,12 +1,14 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Integration;
 
 use FrSentry\Sentry\ErrorHandler;
 use FrSentry\Sentry\Exception\SilencedErrorException;
 use FrSentry\Sentry\Options;
 use FrSentry\Sentry\SentrySdk;
+
 /**
  * This integration hooks into the global error handlers and emits events to
  * Sentry.
@@ -17,10 +19,12 @@ final class ErrorListenerIntegration extends AbstractErrorListenerIntegration im
      * @var Options
      */
     private $options;
+
     public function setOptions(Options $options): void
     {
         $this->options = $options;
     }
+
     /**
      * {@inheritdoc}
      */
@@ -44,6 +48,7 @@ final class ErrorListenerIntegration extends AbstractErrorListenerIntegration im
             $integration->captureException($currentHub, $exception);
         });
     }
+
     /**
      * @internal this is a convenience method to create an instance of this integration for tests
      */
@@ -51,6 +56,7 @@ final class ErrorListenerIntegration extends AbstractErrorListenerIntegration im
     {
         $integration = new self();
         $integration->setOptions($options);
+
         return $integration;
     }
 }

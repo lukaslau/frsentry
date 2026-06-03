@@ -1,11 +1,13 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Metrics\Types;
 
 use FrSentry\Sentry\Tracing\SpanId;
 use FrSentry\Sentry\Tracing\TraceId;
 use FrSentry\Sentry\Unit;
+
 /**
  * @internal
  */
@@ -19,8 +21,9 @@ final class GaugeMetric extends Metric
      * @var int|float
      */
     private $value;
+
     /**
-     * @param int|float                            $value
+     * @param int|float $value
      * @param array<string, int|float|string|bool> $attributes
      */
     public function __construct(string $name, $value, TraceId $traceId, SpanId $spanId, array $attributes, float $timestamp, ?Unit $unit)
@@ -28,6 +31,7 @@ final class GaugeMetric extends Metric
         parent::__construct($name, $traceId, $spanId, $timestamp, $attributes, $unit);
         $this->value = $value;
     }
+
     /**
      * @param int|float $value
      */
@@ -35,6 +39,7 @@ final class GaugeMetric extends Metric
     {
         $this->value = $value;
     }
+
     /**
      * @return int|float
      */
@@ -42,6 +47,7 @@ final class GaugeMetric extends Metric
     {
         return $this->value;
     }
+
     public function getType(): string
     {
         return self::TYPE;

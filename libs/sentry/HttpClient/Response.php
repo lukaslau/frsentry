@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\HttpClient;
 
 final class Response
@@ -21,6 +22,7 @@ final class Response
      * @var string The cURL error and error message
      */
     private $error;
+
     /**
      * @param string[][] $headers
      */
@@ -33,18 +35,22 @@ final class Response
             $this->headerNames[strtolower($name)] = $name;
         }
     }
+
     public function getStatusCode(): int
     {
         return $this->statusCode;
     }
+
     public function isSuccess(): bool
     {
         return $this->statusCode >= 200 && $this->statusCode <= 299;
     }
+
     public function hasHeader(string $name): bool
     {
         return isset($this->headerNames[strtolower($name)]);
     }
+
     /**
      * @return string[]
      */
@@ -54,20 +60,25 @@ final class Response
             return [];
         }
         $header = $this->headerNames[strtolower($header)];
+
         return $this->headers[$header];
     }
+
     public function getHeaderLine(string $name): string
     {
         $value = $this->getHeader($name);
         if (empty($value)) {
             return '';
         }
+
         return implode(',', $value);
     }
+
     public function getError(): string
     {
         return $this->error;
     }
+
     public function hasError(): bool
     {
         return $this->error !== '';

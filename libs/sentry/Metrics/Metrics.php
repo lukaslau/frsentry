@@ -1,12 +1,15 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Metrics;
 
 use FrSentry\Sentry\EventId;
 use FrSentry\Sentry\Tracing\SpanContext;
 use FrSentry\Sentry\Unit;
+
 use function FrSentry\Sentry\trace;
+
 class_alias(Unit::class, 'FrSentry\Sentry\Metrics\MetricsUnit');
 /**
  * @deprecated use TraceMetrics instead
@@ -17,13 +20,16 @@ class Metrics
      * @var self|null
      */
     private static $instance;
+
     public static function getInstance(): self
     {
         if (self::$instance === null) {
             self::$instance = new self();
         }
+
         return self::$instance;
     }
+
     /**
      * @param array<string, string> $tags
      *
@@ -32,6 +38,7 @@ class Metrics
     public function increment(string $key, float $value, ?Unit $unit = null, array $tags = [], ?int $timestamp = null, int $stackLevel = 0): void
     {
     }
+
     /**
      * @param array<string, string> $tags
      *
@@ -40,6 +47,7 @@ class Metrics
     public function distribution(string $key, float $value, ?Unit $unit = null, array $tags = [], ?int $timestamp = null, int $stackLevel = 0): void
     {
     }
+
     /**
      * @param array<string, string> $tags
      *
@@ -48,8 +56,9 @@ class Metrics
     public function gauge(string $key, float $value, ?Unit $unit = null, array $tags = [], ?int $timestamp = null, int $stackLevel = 0): void
     {
     }
+
     /**
-     * @param int|string            $value
+     * @param int|string $value
      * @param array<string, string> $tags
      *
      * @deprecated Metrics are no longer supported. Metrics API is a no-op and will be removed in 5.x.
@@ -57,10 +66,11 @@ class Metrics
     public function set(string $key, $value, ?Unit $unit = null, array $tags = [], ?int $timestamp = null, int $stackLevel = 0): void
     {
     }
+
     /**
      * @template T
      *
-     * @param callable(): T         $callback
+     * @param callable(): T $callback
      * @param array<string, string> $tags
      *
      * @return T
@@ -73,6 +83,7 @@ class Metrics
             return $callback();
         }, SpanContext::make()->setOp('metric.timing')->setOrigin('auto.measure.metrics.timing')->setDescription($key));
     }
+
     /**
      * @deprecated Metrics are no longer supported. Metrics API is a no-op and will be removed in 5.x.
      */

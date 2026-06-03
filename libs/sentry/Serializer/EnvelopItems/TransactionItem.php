@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Serializer\EnvelopItems;
 
 use FrSentry\Sentry\Event;
@@ -9,6 +10,7 @@ use FrSentry\Sentry\Serializer\Traits\BreadcrumbSeralizerTrait;
 use FrSentry\Sentry\Tracing\Span;
 use FrSentry\Sentry\Tracing\TransactionMetadata;
 use FrSentry\Sentry\Util\JSON;
+
 /**
  * @internal
  *
@@ -23,6 +25,7 @@ use FrSentry\Sentry\Util\JSON;
 class TransactionItem implements EnvelopeItemInterface
 {
     use BreadcrumbSeralizerTrait;
+
     public static function toEnvelopeItem(Event $event): string
     {
         $header = ['type' => (string) EventType::transaction(), 'content_type' => 'application/json'];
@@ -83,8 +86,10 @@ class TransactionItem implements EnvelopeItemInterface
         if ($transactionMetadata instanceof TransactionMetadata) {
             $payload['transaction_info']['source'] = (string) $transactionMetadata->getSource();
         }
+
         return \sprintf("%s\n%s", JSON::encode($header), JSON::encode($payload));
     }
+
     /**
      * @return array<string, mixed>
      *
@@ -126,6 +131,7 @@ class TransactionItem implements EnvelopeItemInterface
         if (!empty($span->getTags())) {
             $result['tags'] = $span->getTags();
         }
+
         return $result;
     }
 }

@@ -1,10 +1,12 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Integration;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use Psr\Http\Message\ServerRequestInterface;
+
 /**
  * Default implementation for RequestFetcherInterface. Creates a request object
  * from the PHP superglobals.
@@ -19,6 +21,7 @@ final class RequestFetcher implements RequestFetcherInterface
         if (!isset($_SERVER['REQUEST_METHOD']) || \PHP_SAPI === 'cli') {
             return null;
         }
+
         return ServerRequest::fromGlobals();
     }
 }

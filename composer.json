@@ -25,9 +25,6 @@
       "src"
     ]
   },
-  "scripts": {
-    "cs-fix": "@php vendor/bin/php-cs-fixer fix --config=do_not_include/.php-cs-fixer.dist.php --allow-risky=yes"
-  },
   "config": {
     "optimize-autoloader": true,
     "prepend-autoloader": false,

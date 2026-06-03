@@ -1,10 +1,12 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Attributes;
 
 use FrSentry\Sentry\Serializer\SerializableInterface;
 use FrSentry\Sentry\Util\JSON;
+
 /**
  * @phpstan-type AttributeType 'string'|'boolean'|'integer'|'double'
  * @phpstan-type AttributeValue string|bool|int|float
@@ -19,15 +21,17 @@ class Attribute
      * @var AttributeValue
      */
     private $value;
+
     /**
      * @param AttributeValue $value
-     * @param AttributeType  $type
+     * @param AttributeType $type
      */
     public function __construct($value, string $type)
     {
         $this->value = $value;
         $this->type = $type;
     }
+
     /**
      * @return AttributeType
      */
@@ -35,6 +39,7 @@ class Attribute
     {
         return $this->type;
     }
+
     /**
      * @return AttributeValue
      */
@@ -42,6 +47,7 @@ class Attribute
     {
         return $this->value;
     }
+
     /**
      * @param mixed $value
      *
@@ -53,8 +59,10 @@ class Attribute
         if ($attribute === null) {
             throw new \InvalidArgumentException(\sprintf('Invalid attribute value, %s cannot be serialized', \gettype($value)));
         }
+
         return $attribute;
     }
+
     /**
      * @param mixed $value
      */
@@ -87,8 +95,10 @@ class Attribute
         } catch (\Throwable $e) {
             // Ignore the exception
         }
+
         return null;
     }
+
     public function __toString(): string
     {
         return "{$this->value} ({$this->type})";

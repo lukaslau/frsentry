@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry;
 
 /**
@@ -51,6 +52,7 @@ final class Severity implements \Stringable
      * @var string The value of this enum instance
      */
     private $value;
+
     /**
      * Constructor.
      *
@@ -63,6 +65,7 @@ final class Severity implements \Stringable
         }
         $this->value = $value;
     }
+
     /**
      * Translate a PHP Error constant into a Sentry log level group.
      *
@@ -95,6 +98,7 @@ final class Severity implements \Stringable
                 return self::error();
         }
     }
+
     /**
      * Creates a new instance of this enum for the "debug" value.
      */
@@ -102,6 +106,7 @@ final class Severity implements \Stringable
     {
         return new self(self::DEBUG);
     }
+
     /**
      * Creates a new instance of this enum for the "info" value.
      */
@@ -109,6 +114,7 @@ final class Severity implements \Stringable
     {
         return new self(self::INFO);
     }
+
     /**
      * Creates a new instance of this enum for the "warning" value.
      */
@@ -116,6 +122,7 @@ final class Severity implements \Stringable
     {
         return new self(self::WARNING);
     }
+
     /**
      * Creates a new instance of this enum for the "error" value.
      */
@@ -123,6 +130,7 @@ final class Severity implements \Stringable
     {
         return new self(self::ERROR);
     }
+
     /**
      * Creates a new instance of this enum for the "fatal" value.
      */
@@ -130,6 +138,7 @@ final class Severity implements \Stringable
     {
         return new self(self::FATAL);
     }
+
     /**
      * Returns whether two object instances of this class are equal.
      *
@@ -139,6 +148,7 @@ final class Severity implements \Stringable
     {
         return $this->value === (string) $other;
     }
+
     /**
      * @see https://www.php.net/manual/en/language.oop5.magic.php#object.tostring
      */

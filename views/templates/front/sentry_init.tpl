@@ -28,7 +28,6 @@
             {/if}
             {if $profilingFrontend}Sentry.browserProfilingIntegration(){/if}
         {literal}],
-        allowUrls: [/https?:\/\/((cdn|www)\.)?{/literal}{$shopUrl|escape:'javascript'}{literal}/],
         tracesSampleRate:   {/literal}{$frontendTracingRate|floatval}{literal},
         profilesSampleRate: {/literal}{$frontendProfilingRate|floatval}{literal},
         beforeSend: function (event) {
@@ -41,7 +40,10 @@
                 && exception.stacktrace.frames.length
             ) {
                 var firstFrame = exception.stacktrace.frames[0];
-                if (firstFrame && firstFrame.filename) {
+                // Only filter when the filename is a real HTTP URL from another domain.
+                // Frames with '<anonymous>', 'eval', or no filename are left through —
+                // those originate from inline scripts or manual captures, not third parties.
+                if (firstFrame && firstFrame.filename && /^https?:\/\//.test(firstFrame.filename)) {
                     var internalUrl = /^https?:\/\/((cdn|www)\.)?{/literal}{$shopUrl|escape:'javascript'}{literal}/;
                     if (!internalUrl.test(firstFrame.filename)) {
                         return null;

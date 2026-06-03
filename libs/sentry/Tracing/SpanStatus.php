@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Tracing;
 
 final class SpanStatus implements \Stringable
@@ -13,6 +14,7 @@ final class SpanStatus implements \Stringable
      * @var array<string, self>
      */
     private static $instances = [];
+
     /**
      * Constructor.
      *
@@ -22,6 +24,7 @@ final class SpanStatus implements \Stringable
     {
         $this->value = $value;
     }
+
     /**
      * Gets an instance of this enum representing the fact that the server returned
      * 401 Unauthorized (actually does mean unauthenticated according to RFC 7235).
@@ -30,6 +33,7 @@ final class SpanStatus implements \Stringable
     {
         return self::getInstance('unauthenticated');
     }
+
     /**
      * Gets an instance of this enum representing the fact that the server returned
      * 403 Forbidden.
@@ -38,6 +42,7 @@ final class SpanStatus implements \Stringable
     {
         return self::getInstance('permission_denied');
     }
+
     /**
      * Gets an instance of this enum representing the fact that the server returned
      * 404 Not Found.
@@ -46,6 +51,7 @@ final class SpanStatus implements \Stringable
     {
         return self::getInstance('not_found');
     }
+
     /**
      * Gets an instance of this enum representing the fact that the server returned
      * 409 Already exists.
@@ -54,6 +60,7 @@ final class SpanStatus implements \Stringable
     {
         return self::getInstance('already_exists');
     }
+
     /**
      * Gets an instance of this enum representing the fact that the operation
      * was rejected because the system is not in a state required for the
@@ -63,6 +70,7 @@ final class SpanStatus implements \Stringable
     {
         return self::getInstance('failed_precondition');
     }
+
     /**
      * Gets an instance of this enum representing the fact that the server returned
      * 429 Too Many Requests.
@@ -71,6 +79,7 @@ final class SpanStatus implements \Stringable
     {
         return self::getInstance('resource_exhausted');
     }
+
     /**
      * Gets an instance of this enum representing the fact that the server returned
      * 429 Too Many Requests.
@@ -81,6 +90,7 @@ final class SpanStatus implements \Stringable
     {
         return self::resourceExhausted();
     }
+
     /**
      * Gets an instance of this enum representing the fact that the server returned
      * 501 Not Implemented.
@@ -89,6 +99,7 @@ final class SpanStatus implements \Stringable
     {
         return self::getInstance('unimplemented');
     }
+
     /**
      * Gets an instance of this enum representing the fact that the server returned
      * 503 Service Unavailable.
@@ -97,6 +108,7 @@ final class SpanStatus implements \Stringable
     {
         return self::getInstance('unavailable');
     }
+
     /**
      * Gets an instance of this enum representing the fact that the deadline
      * expired before operation could complete.
@@ -105,6 +117,7 @@ final class SpanStatus implements \Stringable
     {
         return self::getInstance('deadline_exceeded');
     }
+
     /**
      * Gets an instance of this enum representing the fact that the operation
      * completed successfully.
@@ -113,6 +126,7 @@ final class SpanStatus implements \Stringable
     {
         return self::getInstance('ok');
     }
+
     /**
      * Gets an instance of this enum representing the fact that the server returned
      * 4xx as response status code.
@@ -121,6 +135,7 @@ final class SpanStatus implements \Stringable
     {
         return self::getInstance('invalid_argument');
     }
+
     /**
      * Gets an instance of this enum representing the fact that the server returned
      * 5xx as response status code.
@@ -129,6 +144,7 @@ final class SpanStatus implements \Stringable
     {
         return self::getInstance('internal_error');
     }
+
     /**
      * Gets an instance of this enum representing the fact that the server returned
      * with any non-standard HTTP status code.
@@ -137,6 +153,7 @@ final class SpanStatus implements \Stringable
     {
         return self::getInstance('unknown_error');
     }
+
     /**
      * Returns an instance of this enum according to the given HTTP status code.
      *
@@ -173,15 +190,18 @@ final class SpanStatus implements \Stringable
                 return self::unknownError();
         }
     }
+
     public function __toString(): string
     {
         return $this->value;
     }
+
     private static function getInstance(string $value): self
     {
         if (!isset(self::$instances[$value])) {
             self::$instances[$value] = new self($value);
         }
+
         return self::$instances[$value];
     }
 }

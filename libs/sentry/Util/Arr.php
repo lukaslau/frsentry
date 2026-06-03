@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Util;
 
 /**
@@ -34,8 +35,10 @@ class Arr
             }
         };
         $flatten($array);
+
         return $results;
     }
+
     /**
      * Checks whether a given array is a list.
      *
@@ -53,6 +56,7 @@ class Arr
                 return \false;
             }
         }
+
         return \true;
     }
 }

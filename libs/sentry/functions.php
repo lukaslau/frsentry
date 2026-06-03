@@ -1,9 +1,9 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry;
 
-use Psr\Log\LoggerInterface;
 use FrSentry\Sentry\HttpClient\HttpClientInterface;
 use FrSentry\Sentry\Integration\IntegrationInterface;
 use FrSentry\Sentry\Integration\OTLPIntegration;
@@ -16,6 +16,8 @@ use FrSentry\Sentry\Tracing\SpanContext;
 use FrSentry\Sentry\Tracing\Transaction;
 use FrSentry\Sentry\Tracing\TransactionContext;
 use FrSentry\Sentry\Transport\TransportInterface;
+use Psr\Log\LoggerInterface;
+
 /**
  * Creates a new Client and Hub which will be set as current.
  *
@@ -80,9 +82,9 @@ function init(array $options = []): void
 /**
  * Captures a message event and sends it to Sentry.
  *
- * @param string         $message The message
- * @param Severity|null  $level   The severity level of the message
- * @param EventHint|null $hint    Object that can contain additional information about the event
+ * @param string $message The message
+ * @param Severity|null $level The severity level of the message
+ * @param EventHint|null $hint Object that can contain additional information about the event
  */
 function captureMessage(string $message, ?Severity $level = null, ?EventHint $hint = null): ?EventId
 {
@@ -91,8 +93,8 @@ function captureMessage(string $message, ?Severity $level = null, ?EventHint $hi
 /**
  * Captures an exception event and sends it to Sentry.
  *
- * @param \Throwable     $exception The exception
- * @param EventHint|null $hint      Object that can contain additional information about the event
+ * @param \Throwable $exception The exception
+ * @param EventHint|null $hint Object that can contain additional information about the event
  */
 function captureException(\Throwable $exception, ?EventHint $hint = null): ?EventId
 {
@@ -101,8 +103,8 @@ function captureException(\Throwable $exception, ?EventHint $hint = null): ?Even
 /**
  * Captures a new event using the provided data.
  *
- * @param Event          $event The event being captured
- * @param EventHint|null $hint  May contain additional information about the event
+ * @param Event $event The event being captured
+ * @param EventHint|null $hint May contain additional information about the event
  */
 function captureEvent(Event $event, ?EventHint $hint = null): ?EventId
 {
@@ -120,11 +122,11 @@ function captureLastError(?EventHint $hint = null): ?EventId
 /**
  * Captures a check-in and sends it to Sentry.
  *
- * @param string             $slug          Identifier of the Monitor
- * @param CheckInStatus      $status        The status of the check-in
- * @param int|float|null     $duration      The duration of the check-in
+ * @param string $slug Identifier of the Monitor
+ * @param CheckInStatus $status The status of the check-in
+ * @param int|float|null $duration The duration of the check-in
  * @param MonitorConfig|null $monitorConfig Configuration of the Monitor
- * @param string|null        $checkInId     A check-in ID from the previous check-in
+ * @param string|null $checkInId A check-in ID from the previous check-in
  */
 function captureCheckIn(string $slug, CheckInStatus $status, $duration = null, ?MonitorConfig $monitorConfig = null, ?string $checkInId = null): ?string
 {
@@ -133,8 +135,8 @@ function captureCheckIn(string $slug, CheckInStatus $status, $duration = null, ?
 /**
  * Execute the given callable while wrapping it in a monitor check-in.
  *
- * @param string             $slug          Identifier of the Monitor
- * @param callable           $callback      The callable that is going to be monitored
+ * @param string $slug Identifier of the Monitor
+ * @param callable $callback The callable that is going to be monitored
  * @param MonitorConfig|null $monitorConfig Configuration of the Monitor
  *
  * @return mixed
@@ -148,6 +150,7 @@ function withMonitor(string $slug, callable $callback, ?MonitorConfig $monitorCo
         $start = microtime(\true);
         $result = $callback();
         $duration = microtime(\true) - $start;
+
         return $result;
     } catch (\Throwable $e) {
         $status = CheckInStatus::error();
@@ -161,12 +164,12 @@ function withMonitor(string $slug, callable $callback, ?MonitorConfig $monitorCo
  * will be added to subsequent events to provide more context on user's
  * actions prior to an error or crash.
  *
- * @param Breadcrumb|string    $category  The category of the breadcrumb, can be a Breadcrumb instance as well (in which case the other parameters are ignored)
- * @param string|null          $message   Breadcrumb message
- * @param array<string, mixed> $metadata  Additional information about the breadcrumb
- * @param string               $level     The error level of the breadcrumb
- * @param string               $type      The type of the breadcrumb
- * @param float|null           $timestamp Optional timestamp of the breadcrumb
+ * @param Breadcrumb|string $category The category of the breadcrumb, can be a Breadcrumb instance as well (in which case the other parameters are ignored)
+ * @param string|null $message Breadcrumb message
+ * @param array<string, mixed> $metadata Additional information about the breadcrumb
+ * @param string $level The error level of the breadcrumb
+ * @param string $type The type of the breadcrumb
+ * @param float|null $timestamp Optional timestamp of the breadcrumb
  */
 function addBreadcrumb($category, ?string $message = null, array $metadata = [], string $level = Breadcrumb::LEVEL_INFO, string $type = Breadcrumb::TYPE_DEFAULT, ?float $timestamp = null): void
 {
@@ -214,7 +217,7 @@ function endContext(?int $timeout = null): void
  * If a context is already active for the current execution key, it is reused.
  *
  * @param callable $callback The callback to execute
- * @param int|null $timeout  The maximum number of seconds to wait while flushing the client transport
+ * @param int|null $timeout The maximum number of seconds to wait while flushing the client transport
  *
  * @phpstan-template T
  *
@@ -243,7 +246,7 @@ function withContext(callable $callback, ?int $timeout = null)
  * which point the transaction with all its finished child spans will be sent to
  * Sentry.
  *
- * @param TransactionContext   $context               Properties of the new transaction
+ * @param TransactionContext $context Properties of the new transaction
  * @param array<string, mixed> $customSamplingContext Additional context that will be passed to the {@see Tracing\SamplingContext}
  */
 function startTransaction(TransactionContext $context, array $customSamplingContext = []): Transaction
@@ -256,8 +259,8 @@ function startTransaction(TransactionContext $context, array $customSamplingCont
  *
  * @template T
  *
- * @param callable(Scope): T $trace   The callable that is going to be traced
- * @param SpanContext        $context The context of the span to be created
+ * @param callable(Scope): T $trace The callable that is going to be traced
+ * @param SpanContext $context The context of the span to be created
  *
  * @return T
  */
@@ -301,6 +304,7 @@ function getOtlpTracesEndpointUrl(): ?string
     if ($dsn === null) {
         return null;
     }
+
     return $dsn->getOtlpTracesEndpointUrl();
 }
 /**
@@ -329,6 +333,7 @@ function getTraceparent(): string
         }
         $traceParent = $scope->getPropagationContext()->toTraceparent();
     });
+
     return $traceParent;
 }
 /**
@@ -369,6 +374,7 @@ function getBaggage(): string
         }
         $baggage = $scope->getPropagationContext()->toBaggage();
     });
+
     return $baggage;
 }
 /**
@@ -399,6 +405,7 @@ function continueTrace(string $sentryTrace, string $baggage): TransactionContext
     $hub->configureScope(static function (Scope $scope) use ($propagationContext): void {
         $scope->setPropagationContext($propagationContext);
     });
+
     return $transactionContext;
 }
 /**

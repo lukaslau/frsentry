@@ -99,39 +99,63 @@ you'd trigger an exception through any admin page, e.g. by visiting a bad URL.)
 
 ### Snippets
 
-#### Generic JS error
+> **Note:** Errors thrown directly from the DevTools console have `<anonymous>` as
+> their filename, which does not match the shop's `allowUrls` regex — they are
+> silently dropped. Use the DOM-script technique or manual capture calls instead.
+
+#### Verify SDK is working (always succeeds)
 
 ```js
-throw new Error('FrSentry test :: generic Error');
+Sentry.captureMessage('FrSentry test :: SDK check', 'info')
 ```
 
-#### TypeError
+#### Manual exception capture (bypasses allowUrls — no real stack frames)
 
 ```js
-null.someMethod();
+Sentry.captureException(new Error('FrSentry test :: manual captureException'));
 ```
 
-#### ReferenceError
+#### Generic JS error — inject via DOM script so it originates from the shop URL
 
 ```js
-nonExistentVariable.foo;
+const s = document.createElement('script');
+s.textContent = 'throw new Error("FrSentry test :: generic Error")';
+document.head.appendChild(s);
 ```
 
-#### Synchronous error inside a function call
+#### TypeError via DOM script
 
 ```js
-(function () {
+const s = document.createElement('script');
+s.textContent = 'null.someMethod()';
+document.head.appendChild(s);
+```
+
+#### ReferenceError via DOM script
+
+```js
+const s = document.createElement('script');
+s.textContent = 'nonExistentVariable.foo';
+document.head.appendChild(s);
+```
+
+#### Synchronous error inside a function call (via DOM script)
+
+```js
+const s = document.createElement('script');
+s.textContent = `(function () {
     function deep() { throw new Error('FrSentry test :: nested call stack'); }
     function mid()  { deep(); }
     function top()  { mid(); }
     top();
-})();
+})();`;
+document.head.appendChild(s);
 ```
 
 #### Unhandled promise rejection
 
 ```js
-new Promise((_, reject) => reject(new Error('FrSentry test :: unhandled rejection')));
+Promise.reject(new Error('FrSentry test :: unhandled rejection'));
 ```
 
 #### Handled promise rejection (should NOT appear in Sentry by default)
@@ -139,12 +163,6 @@ new Promise((_, reject) => reject(new Error('FrSentry test :: unhandled rejectio
 ```js
 new Promise((_, reject) => reject(new Error('Should be ignored')))
     .catch(() => console.log('handled — Sentry should not capture this'));
-```
-
-#### Manual exception capture
-
-```js
-Sentry.captureException(new Error('FrSentry test :: manual captureException'));
 ```
 
 #### Manual message capture

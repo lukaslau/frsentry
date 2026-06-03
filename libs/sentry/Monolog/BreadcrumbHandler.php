@@ -1,17 +1,19 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Monolog;
 
 use FrSentry\Monolog\Handler\AbstractProcessingHandler;
 use FrSentry\Monolog\Level;
 use FrSentry\Monolog\Logger;
 use FrSentry\Monolog\LogRecord;
-use Psr\Log\LogLevel;
 use FrSentry\Sentry\Breadcrumb;
 use FrSentry\Sentry\Event;
 use FrSentry\Sentry\State\HubInterface;
 use FrSentry\Sentry\State\Scope;
+use Psr\Log\LogLevel;
+
 /**
  * This Monolog handler logs every message as a {@see Breadcrumb} into the current {@see Scope},
  * to enrich any event sent to Sentry.
@@ -22,12 +24,13 @@ final class BreadcrumbHandler extends AbstractProcessingHandler
      * @var HubInterface
      */
     private $hub;
+
     /**
-     * @param HubInterface $hub    The hub to which errors are reported
-     * @param int|string   $level  The minimum logging level at which this
-     *                             handler will be triggered
-     * @param bool         $bubble Whether the messages that are handled can
-     *                             bubble up the stack or not
+     * @param HubInterface $hub The hub to which errors are reported
+     * @param int|string $level The minimum logging level at which this
+     *                          handler will be triggered
+     * @param bool $bubble Whether the messages that are handled can
+     *                     bubble up the stack or not
      *
      * @phpstan-param int|string|Level|LogLevel::* $level
      */
@@ -36,6 +39,7 @@ final class BreadcrumbHandler extends AbstractProcessingHandler
         $this->hub = $hub;
         parent::__construct($level, $bubble);
     }
+
     /**
      * @param LogRecord|array{
      *      level: int,
@@ -52,6 +56,7 @@ final class BreadcrumbHandler extends AbstractProcessingHandler
         $breadcrumb = new Breadcrumb($this->getBreadcrumbLevel($record['level']), $this->getBreadcrumbType($record['level']), $record['channel'], $record['message'], ($record['context'] ?? []) + ($record['extra'] ?? []), $timestamp);
         $this->hub->addBreadcrumb($breadcrumb);
     }
+
     /**
      * @param Level|int $level
      */
@@ -74,11 +79,13 @@ final class BreadcrumbHandler extends AbstractProcessingHandler
                 return Breadcrumb::LEVEL_FATAL;
         }
     }
+
     private function getBreadcrumbType(int $level): string
     {
         if ($level >= Logger::ERROR) {
             return Breadcrumb::TYPE_ERROR;
         }
+
         return Breadcrumb::TYPE_DEFAULT;
     }
 }

@@ -1,9 +1,11 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Tracing;
 
 use FrSentry\Sentry\Tracing\Traits\TraceHeaderParserTrait;
+
 final class TransactionContext extends SpanContext
 {
     use TraceHeaderParserTrait;
@@ -20,12 +22,13 @@ final class TransactionContext extends SpanContext
      * @var TransactionMetadata The transaction metadata
      */
     private $metadata;
+
     /**
      * Constructor.
      *
-     * @param string                   $name          The name of the transaction
-     * @param bool|null                $parentSampled The parent's sampling decision
-     * @param TransactionMetadata|null $metadata      The transaction metadata
+     * @param string $name The name of the transaction
+     * @param bool|null $parentSampled The parent's sampling decision
+     * @param TransactionMetadata|null $metadata The transaction metadata
      */
     public function __construct(string $name = self::DEFAULT_NAME, ?bool $parentSampled = null, ?TransactionMetadata $metadata = null)
     {
@@ -33,6 +36,7 @@ final class TransactionContext extends SpanContext
         $this->parentSampled = $parentSampled;
         $this->metadata = $metadata ?? new TransactionMetadata();
     }
+
     /**
      * @return self
      */
@@ -40,6 +44,7 @@ final class TransactionContext extends SpanContext
     {
         return new self();
     }
+
     /**
      * Gets the name of the transaction.
      */
@@ -47,6 +52,7 @@ final class TransactionContext extends SpanContext
     {
         return $this->name;
     }
+
     /**
      * Sets the name of the transaction.
      *
@@ -55,8 +61,10 @@ final class TransactionContext extends SpanContext
     public function setName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
+
     /**
      * Gets the parent's sampling decision.
      */
@@ -64,6 +72,7 @@ final class TransactionContext extends SpanContext
     {
         return $this->parentSampled;
     }
+
     /**
      * Sets the parent's sampling decision.
      *
@@ -72,8 +81,10 @@ final class TransactionContext extends SpanContext
     public function setParentSampled(?bool $parentSampled): self
     {
         $this->parentSampled = $parentSampled;
+
         return $this;
     }
+
     /**
      * Gets the transaction metadata.
      */
@@ -81,6 +92,7 @@ final class TransactionContext extends SpanContext
     {
         return $this->metadata;
     }
+
     /**
      * Sets the transaction metadata.
      *
@@ -89,8 +101,10 @@ final class TransactionContext extends SpanContext
     public function setMetadata(TransactionMetadata $metadata): self
     {
         $this->metadata = $metadata;
+
         return $this;
     }
+
     /**
      * Sets the transaction source.
      *
@@ -99,28 +113,32 @@ final class TransactionContext extends SpanContext
     public function setSource(TransactionSource $transactionSource): self
     {
         $this->metadata->setSource($transactionSource);
+
         return $this;
     }
+
     /**
      * Returns a context populated with the data of the given environment variables.
      *
      * @param string $sentryTrace The sentry-trace value from the environment
-     * @param string $baggage     The baggage header value from the environment
+     * @param string $baggage The baggage header value from the environment
      */
     public static function fromEnvironment(string $sentryTrace, string $baggage): self
     {
         return self::parseTraceAndBaggage($sentryTrace, $baggage);
     }
+
     /**
      * Returns a context populated with the data of the given headers.
      *
      * @param string $sentryTraceHeader The sentry-trace header from an incoming request
-     * @param string $baggageHeader     The baggage header from an incoming request
+     * @param string $baggageHeader The baggage header from an incoming request
      */
     public static function fromHeaders(string $sentryTraceHeader, string $baggageHeader): self
     {
         return self::parseTraceAndBaggage($sentryTraceHeader, $baggageHeader);
     }
+
     private static function parseTraceAndBaggage(string $sentryTrace, string $baggage): self
     {
         $context = new self();
@@ -143,6 +161,7 @@ final class TransactionContext extends SpanContext
         if ($parsedData['sampleRand'] !== null) {
             $context->getMetadata()->setSampleRand($parsedData['sampleRand']);
         }
+
         return $context;
     }
 }

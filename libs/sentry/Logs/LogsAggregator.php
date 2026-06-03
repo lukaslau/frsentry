@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Logs;
 
 use FrSentry\Sentry\Attributes\Attribute;
@@ -13,6 +14,7 @@ use FrSentry\Sentry\State\Scope;
 use FrSentry\Sentry\Util\Arr;
 use FrSentry\Sentry\Util\Str;
 use FrSentry\Sentry\Util\TelemetryStorage;
+
 /**
  * @internal
  */
@@ -23,10 +25,11 @@ final class LogsAggregator
      * @var TelemetryStorage<Log>|null
      */
     private $logs;
+
     /**
-     * @param string                       $message    see sprintf for a description of format
-     * @param array<int, string|int|float> $values     see sprintf for a description of values
-     * @param array<string, mixed>         $attributes additional attributes to add to the log
+     * @param string $message see sprintf for a description of format
+     * @param array<int, string|int|float> $values see sprintf for a description of values
+     * @param array<string, mixed> $attributes additional attributes to add to the log
      */
     public function add(LogLevel $level, string $message, array $values = [], array $attributes = []): void
     {
@@ -43,6 +46,7 @@ final class LogsAggregator
             if ($sdkLogger !== null) {
                 $sdkLogger->info('Log will be discarded because "enable_logs" is "false".');
             }
+
             return;
         }
         $formattedMessage = Str::vsprintfOrNull($message, $values);
@@ -103,6 +107,7 @@ final class LogsAggregator
             if ($sdkLogger !== null) {
                 $sdkLogger->info('Log will be discarded because the "before_send_log" callback returned "null".', ['log' => $log]);
             }
+
             return;
         }
         if ($sdkLogger !== null) {
@@ -115,6 +120,7 @@ final class LogsAggregator
             $this->flush($hub);
         }
     }
+
     public function flush(?HubInterface $hub = null): ?EventId
     {
         if ($this->logs === null || $this->logs->isEmpty()) {
@@ -122,8 +128,10 @@ final class LogsAggregator
         }
         $hub = $hub ?? SentrySdk::getCurrentHub();
         $event = Event::createLogs()->setLogs($this->logs->drain());
+
         return $hub->captureEvent($event);
     }
+
     /**
      * @return Log[]
      */
@@ -131,6 +139,7 @@ final class LogsAggregator
     {
         return $this->logs !== null ? $this->logs->toArray() : [];
     }
+
     /**
      * @return array{trace_id: string, parent_span_id: string|null}
      */
@@ -145,13 +154,16 @@ final class LogsAggregator
             $externalPropagationContext = Scope::getExternalPropagationContext();
             if ($externalPropagationContext !== null) {
                 $traceData = ['trace_id' => $externalPropagationContext['trace_id'], 'parent_span_id' => $externalPropagationContext['span_id']];
+
                 return;
             }
             $traceData = ['trace_id' => (string) $scope->getPropagationContext()->getTraceId(), 'parent_span_id' => null];
         });
-        /** @var array{trace_id: string, parent_span_id: string|null} $traceData */
+
+        /* @var array{trace_id: string, parent_span_id: string|null} $traceData */
         return $traceData;
     }
+
     /**
      * @return TelemetryStorage<Log>
      */
@@ -162,6 +174,7 @@ final class LogsAggregator
             $logs = $logFlushThreshold !== null ? TelemetryStorage::unbounded() : TelemetryStorage::bounded(self::LOGS_BUFFER_SIZE);
             $this->logs = $logs;
         }
+
         return $this->logs;
     }
 }

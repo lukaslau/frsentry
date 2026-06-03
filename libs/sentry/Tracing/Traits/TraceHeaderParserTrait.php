@@ -1,12 +1,14 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Tracing\Traits;
 
 use FrSentry\Sentry\SentrySdk;
 use FrSentry\Sentry\Tracing\DynamicSamplingContext;
 use FrSentry\Sentry\Tracing\SpanId;
 use FrSentry\Sentry\Tracing\TraceId;
+
 /**
  * @internal
  */
@@ -16,11 +18,12 @@ trait TraceHeaderParserTrait
      * @var string The regex for parsing the sentry-trace header
      */
     private static $sentryTraceparentHeaderRegex = '/^[ \t]*(?<trace_id>[0-9a-f]{32})?-?(?<span_id>[0-9a-f]{16})?-?(?<sampled>[01])?[ \t]*$/i';
+
     /**
      * Parses the sentry-trace and baggage headers and returns the extracted data.
      *
      * @param string $sentryTrace The sentry-trace header value
-     * @param string $baggage     The baggage header value
+     * @param string $baggage The baggage header value
      *
      * @return array{
      *     traceId: TraceId|null,
@@ -54,6 +57,7 @@ trait TraceHeaderParserTrait
             $result['traceId'] = null;
             $result['parentSpanId'] = null;
             $result['parentSampled'] = null;
+
             return $result;
         }
         if ($hasSentryTrace) {
@@ -88,8 +92,10 @@ trait TraceHeaderParserTrait
                 $result['sampleRand'] = round(mt_rand(0, mt_getrandmax() - 1) / mt_getrandmax(), 6);
             }
         }
+
         return $result;
     }
+
     private static function parseSampleRand(DynamicSamplingContext $samplingContext): ?float
     {
         $sampleRand = $samplingContext->get('sample_rand');
@@ -107,8 +113,10 @@ trait TraceHeaderParserTrait
         if ($client !== null) {
             $client->getOptions()->getLoggerOrNullLogger()->debug('Ignoring invalid sentry-sample_rand baggage value because it must be a numeric value in the range [0, 1).', ['sample_rand' => $sampleRand]);
         }
+
         return null;
     }
+
     private static function shouldContinueTrace(DynamicSamplingContext $samplingContext): bool
     {
         $hub = SentrySdk::getCurrentHub();
@@ -126,13 +134,16 @@ trait TraceHeaderParserTrait
         // both org IDs are set but are not equals
         if ($clientOrgId !== null && $baggageOrgId !== null && (string) $clientOrgId !== $baggageOrgId) {
             $logger->debug(\sprintf("Starting a new trace because org IDs don't match (incoming baggage org_id: %s, SDK org_id: %s)", $baggageOrgId, $clientOrgId));
+
             return \false;
         }
         // One org ID is not set and strict trace continuation is enabled
         if ($options->isStrictTraceContinuationEnabled() && ($clientOrgId === null) !== ($baggageOrgId === null)) {
             $logger->debug(\sprintf('Starting a new trace because strict trace continuation is enabled and one org ID is missing (incoming baggage org_id: %s, SDK org_id: %s)', $baggageOrgId !== null ? $baggageOrgId : 'none', $clientOrgId !== null ? (string) $clientOrgId : 'none'));
+
             return \false;
         }
+
         return \true;
     }
 }

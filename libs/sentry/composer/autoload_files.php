@@ -5,6 +5,6 @@
 $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
-return array(
+return [
     'deb593300338a86c956ca04fd88dc289' => $vendorDir . '/functions.php',
-);
+];

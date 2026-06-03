@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Attributes;
 
 /**
@@ -12,6 +13,7 @@ class AttributeBag
      * @var array<string, Attribute>
      */
     private $attributes = [];
+
     /**
      * @param mixed $value
      */
@@ -21,17 +23,22 @@ class AttributeBag
         if ($attribute !== null) {
             $this->attributes[$key] = $attribute;
         }
+
         return $this;
     }
+
     public function get(string $key): ?Attribute
     {
         return $this->attributes[$key] ?? null;
     }
+
     public function forget(string $key): self
     {
         unset($this->attributes[$key]);
+
         return $this;
     }
+
     /**
      * @return array<string, Attribute>
      */
@@ -39,6 +46,7 @@ class AttributeBag
     {
         return $this->attributes;
     }
+
     /**
      * Get a simplified representation of the attributes as a key-value array, main purpose is for logging output.
      *

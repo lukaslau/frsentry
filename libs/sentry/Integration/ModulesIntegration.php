@@ -1,14 +1,16 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Integration;
 
 use Composer\InstalledVersions;
-use Jean85\PrettyVersions;
-use PackageVersions\Versions;
 use FrSentry\Sentry\Event;
 use FrSentry\Sentry\SentrySdk;
 use FrSentry\Sentry\State\Scope;
+use Jean85\PrettyVersions;
+use PackageVersions\Versions;
+
 /**
  * This integration logs with the event details all the versions of the packages
  * installed with Composer; the root project is included too.
@@ -19,6 +21,7 @@ final class ModulesIntegration implements IntegrationInterface
      * @var array<string, string> The list of installed vendors
      */
     private static $packages = [];
+
     /**
      * {@inheritdoc}
      */
@@ -31,9 +34,11 @@ final class ModulesIntegration implements IntegrationInterface
             if ($integration !== null) {
                 $event->setModules(self::getComposerPackages());
             }
+
             return $event;
         });
     }
+
     /**
      * @return array<string, string>
      */
@@ -48,8 +53,10 @@ final class ModulesIntegration implements IntegrationInterface
                 }
             }
         }
+
         return self::$packages;
     }
+
     /**
      * @return string[]
      */
@@ -62,8 +69,10 @@ final class ModulesIntegration implements IntegrationInterface
             // BC layer for Composer 1, using a transient dependency
             /** @var string[] $packages */
             $packages = array_keys(Versions::VERSIONS);
+
             return $packages;
         }
+
         // this should not happen
         return ['sentry/sentry'];
     }

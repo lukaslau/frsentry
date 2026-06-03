@@ -1,12 +1,14 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Monolog;
 
 use FrSentry\Monolog\Level;
 use FrSentry\Monolog\Logger;
 use FrSentry\Monolog\LogRecord;
 use FrSentry\Sentry\Severity;
+
 if (Logger::API >= 3) {
     /**
      * Logic which is used if monolog >= 3 is installed.
@@ -19,6 +21,7 @@ if (Logger::API >= 3) {
          * @param array<string, mixed>|LogRecord $record
          */
         abstract protected function doWrite($record): void;
+
         /**
          * {@inheritdoc}
          */
@@ -26,6 +29,7 @@ if (Logger::API >= 3) {
         {
             $this->doWrite($record);
         }
+
         /**
          * Translates the Monolog level into the Sentry severity.
          */
@@ -62,6 +66,7 @@ if (Logger::API >= 3) {
          * @param array<string, mixed>|LogRecord $record
          */
         abstract protected function doWrite($record): void;
+
         /**
          * {@inheritdoc}
          */
@@ -69,6 +74,7 @@ if (Logger::API >= 3) {
         {
             $this->doWrite($record);
         }
+
         /**
          * Translates the Monolog level into the Sentry severity.
          *

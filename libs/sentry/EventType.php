@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry;
 
 /**
@@ -19,34 +20,42 @@ final class EventType implements \Stringable
      * @var array<string, self> A list of cached enum instances
      */
     private static $instances = [];
+
     private function __construct(string $value)
     {
         $this->value = $value;
     }
+
     public static function event(): self
     {
         return self::getInstance('event');
     }
+
     public static function transaction(): self
     {
         return self::getInstance('transaction');
     }
+
     public static function checkIn(): self
     {
         return self::getInstance('check_in');
     }
+
     public static function logs(): self
     {
         return self::getInstance('log');
     }
+
     public static function metrics(): self
     {
         return self::getInstance('trace_metric');
     }
+
     public static function clientReport(): self
     {
         return self::getInstance('client_report');
     }
+
     /**
      * List of all cases on the enum.
      *
@@ -56,6 +65,7 @@ final class EventType implements \Stringable
     {
         return [self::event(), self::transaction(), self::checkIn(), self::logs(), self::metrics(), self::clientReport()];
     }
+
     public function requiresEventId(): bool
     {
         switch ($this) {
@@ -67,6 +77,7 @@ final class EventType implements \Stringable
                 return \true;
         }
     }
+
     /**
      * Returns false if rate limiting should not be applied.
      */
@@ -74,15 +85,18 @@ final class EventType implements \Stringable
     {
         return $this !== self::clientReport();
     }
+
     public function __toString(): string
     {
         return $this->value;
     }
+
     private static function getInstance(string $value): self
     {
         if (!isset(self::$instances[$value])) {
             self::$instances[$value] = new self($value);
         }
+
         return self::$instances[$value];
     }
 }

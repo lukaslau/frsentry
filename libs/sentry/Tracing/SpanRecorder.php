@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Tracing;
 
 final class SpanRecorder
@@ -13,6 +14,7 @@ final class SpanRecorder
      * @var Span[] List of spans managed by this recorder
      */
     private $spans = [];
+
     /**
      * Constructor.
      *
@@ -23,6 +25,7 @@ final class SpanRecorder
     {
         $this->maxSpans = $maxSpans;
     }
+
     /**
      * Adds a span to the list of recorded spans or detaches the recorder if the
      * maximum number of spans to store has been reached.
@@ -34,8 +37,10 @@ final class SpanRecorder
         } else {
             $this->spans[] = $span;
         }
+
         return $this;
     }
+
     /**
      * Gets all the spans managed by this recorder.
      *

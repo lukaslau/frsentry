@@ -1,18 +1,21 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Tracing;
 
 use FrSentry\GuzzleHttp\Exception\RequestException as GuzzleRequestException;
-use GuzzleHttp\Psr7\Uri;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
 use FrSentry\Sentry\Breadcrumb;
 use FrSentry\Sentry\ClientInterface;
 use FrSentry\Sentry\SentrySdk;
 use FrSentry\Sentry\State\HubInterface;
+use GuzzleHttp\Psr7\Uri;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+
 use function FrSentry\Sentry\getBaggage;
 use function FrSentry\Sentry\getTraceparent;
+
 /**
  * This handler traces each outgoing HTTP request by recording performance data.
  */
@@ -88,18 +91,22 @@ final class GuzzleTracingMiddleware
                     if ($responseOrException instanceof \Throwable) {
                         throw $responseOrException;
                     }
+
                     return $responseOrException;
                 };
+
                 return $handler($request, $options)->then($handlerPromiseCallback, $handlerPromiseCallback);
             };
         };
     }
+
     private static function shouldAttachTracingHeaders(?ClientInterface $client, RequestInterface $request): bool
     {
         if ($client === null) {
             return \false;
         }
         $sdkOptions = $client->getOptions();
+
         // Check if the request destination is allow listed in the trace_propagation_targets option.
         return $sdkOptions->getTracePropagationTargets() === null || \in_array($request->getUri()->getHost(), $sdkOptions->getTracePropagationTargets());
     }

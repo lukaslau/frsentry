@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Util;
 
 class PHPConfiguration
@@ -11,6 +12,7 @@ class PHPConfiguration
         if (empty($value)) {
             return \false;
         }
+
         // https://www.php.net/manual/en/function.ini-get.php#refsect1-function.ini-get-notes
         return \in_array(strtolower($value), ['1', 'on', 'true'], \true);
     }

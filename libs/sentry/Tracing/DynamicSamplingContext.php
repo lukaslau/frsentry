@@ -1,11 +1,13 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Tracing;
 
 use FrSentry\Sentry\Options;
 use FrSentry\Sentry\State\HubInterface;
 use FrSentry\Sentry\State\Scope;
+
 /**
  * This class represents the Dynamic Sampling Context (dsc).
  *
@@ -22,16 +24,18 @@ final class DynamicSamplingContext
      * @var bool Indicates if the dsc is mutable or immutable
      */
     private $isFrozen = \false;
+
     /**
      * Construct a new dsc object.
      */
     private function __construct()
     {
     }
+
     /**
      * Set a new key value pair on the dsc.
      *
-     * @param string $key   the list member key
+     * @param string $key the list member key
      * @param string $value the list member value
      */
     public function set(string $key, string $value, bool $forceOverwrite = \false): self
@@ -40,8 +44,10 @@ final class DynamicSamplingContext
             return $this;
         }
         $this->entries[$key] = $value;
+
         return $this;
     }
+
     /**
      * Check if a key value pair is set on the dsc.
      *
@@ -51,24 +57,28 @@ final class DynamicSamplingContext
     {
         return isset($this->entries[$key]);
     }
+
     /**
      * Get a value from the dsc.
      *
-     * @param string      $key     the list member key
+     * @param string $key the list member key
      * @param string|null $default the default value to return if no value exists
      */
     public function get(string $key, ?string $default = null): ?string
     {
         return $this->entries[$key] ?? $default;
     }
+
     /**
      * Mark the dsc as frozen.
      */
     public function freeze(): self
     {
         $this->isFrozen = \true;
+
         return $this;
     }
+
     /**
      * Indicates that the dsc is frozen and cannot be mutated.
      */
@@ -76,6 +86,7 @@ final class DynamicSamplingContext
     {
         return $this->isFrozen;
     }
+
     /**
      * Check if there are any entries set.
      */
@@ -83,6 +94,7 @@ final class DynamicSamplingContext
     {
         return !empty($this->entries);
     }
+
     /**
      * Gets the dsc entries.
      *
@@ -92,6 +104,7 @@ final class DynamicSamplingContext
     {
         return $this->entries;
     }
+
     /**
      * Parse the baggage header.
      *
@@ -118,8 +131,10 @@ final class DynamicSamplingContext
         // we freeze the contents so it cannot be mutated anymore by this SDK.
         // It should only be propagated to the next downstream SDK or the Sentry server itself.
         $samplingContext->isFrozen = $samplingContext->hasEntries();
+
         return $samplingContext;
     }
+
     /**
      * Create a dsc object.
      *
@@ -148,8 +163,10 @@ final class DynamicSamplingContext
             $samplingContext->set('sample_rand', (string) $transaction->getMetadata()->getSampleRand());
         }
         $samplingContext->freeze();
+
         return $samplingContext;
     }
+
     public static function fromOptions(Options $options, Scope $scope): self
     {
         $samplingContext = new self();
@@ -160,8 +177,10 @@ final class DynamicSamplingContext
         }
         self::setOrgOptions($options, $samplingContext);
         $samplingContext->freeze();
+
         return $samplingContext;
     }
+
     private static function setOrgOptions(Options $options, DynamicSamplingContext $samplingContext): void
     {
         if ($options->getDsn() !== null && $options->getDsn()->getPublicKey() !== null) {
@@ -179,6 +198,7 @@ final class DynamicSamplingContext
             $samplingContext->set('environment', $options->getEnvironment());
         }
     }
+
     /**
      * Serialize the dsc as a string.
      */
@@ -188,6 +208,7 @@ final class DynamicSamplingContext
         foreach ($this->entries as $key => $value) {
             $result[] = rawurlencode(self::SENTRY_ENTRY_PREFIX . $key) . '=' . rawurlencode($value);
         }
+
         return implode(',', $result);
     }
 }

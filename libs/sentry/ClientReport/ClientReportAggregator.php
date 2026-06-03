@@ -1,11 +1,13 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\ClientReport;
 
 use FrSentry\Sentry\Event;
 use FrSentry\Sentry\State\HubAdapter;
 use FrSentry\Sentry\Transport\DataCategory;
+
 class ClientReportAggregator
 {
     /**
@@ -26,6 +28,7 @@ class ClientReportAggregator
      * @var array<array<string, int>>
      */
     private $reports = [];
+
     public function add(DataCategory $category, Reason $reason, int $quantity): void
     {
         $category = $category->getValue();
@@ -36,10 +39,12 @@ class ClientReportAggregator
                 $logger = $client->getOptions()->getLoggerOrNullLogger();
                 $logger->debug('Dropping Client report with category={category} and reason={reason} because quantity is zero or negative ({quantity})', ['category' => $category, 'reason' => $reason, 'quantity' => $quantity]);
             }
+
             return;
         }
         $this->reports[$category][$reason] = ($this->reports[$category][$reason] ?? 0) + $quantity;
     }
+
     public function flush(): void
     {
         if (empty($this->reports)) {
@@ -60,11 +65,13 @@ class ClientReportAggregator
             $this->reports = [];
         }
     }
+
     public static function getInstance(): self
     {
         if (self::$instance === null) {
             self::$instance = new self();
         }
+
         return self::$instance;
     }
 }

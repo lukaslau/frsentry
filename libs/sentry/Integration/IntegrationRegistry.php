@@ -1,10 +1,12 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Integration;
 
-use Psr\Log\LoggerInterface;
 use FrSentry\Sentry\Options;
+use Psr\Log\LoggerInterface;
+
 /**
  * @internal
  */
@@ -18,9 +20,11 @@ final class IntegrationRegistry
      * @var array<class-string<IntegrationInterface>, bool> The registered integrations
      */
     private $integrations = [];
+
     private function __construct()
     {
     }
+
     /**
      * Gets the current singleton instance or creates a new one if it didn't
      * exists yet.
@@ -30,8 +34,10 @@ final class IntegrationRegistry
         if (self::$instance === null) {
             self::$instance = new self();
         }
+
         return self::$instance;
     }
+
     /**
      * Setups the integrations according to the given options. For each integration
      * the {@see IntegrationInterface::setupOnce()} method will be called only once
@@ -55,8 +61,10 @@ final class IntegrationRegistry
         if (\count($installed) > 0) {
             $logger->debug(\sprintf('The "%s" integration(s) have been installed.', implode(', ', $installed)));
         }
+
         return $integrations;
     }
+
     private function setupIntegration(IntegrationInterface $integration, Options $options): bool
     {
         $integrationName = \get_class($integration);
@@ -68,8 +76,10 @@ final class IntegrationRegistry
         }
         $integration->setupOnce();
         $this->integrations[$integrationName] = \true;
+
         return \true;
     }
+
     /**
      * @return IntegrationInterface[]
      */
@@ -101,8 +111,10 @@ final class IntegrationRegistry
                 throw new \UnexpectedValueException(\sprintf('Expected the callback set for the "integrations" option to return a list of integrations. Got: "%s".', get_debug_type($integrations)));
             }
         }
+
         return $integrations;
     }
+
     /**
      * @return IntegrationInterface[]
      */
@@ -115,6 +127,7 @@ final class IntegrationRegistry
         if ($options->getDsn() !== null || $options->isSpotlightEnabled()) {
             array_unshift($integrations, new ExceptionListenerIntegration(), new ErrorListenerIntegration(), new FatalErrorListenerIntegration());
         }
+
         return $integrations;
     }
 }

@@ -1,9 +1,11 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry;
 
 use FrSentry\Sentry\Util\SentryUid;
+
 /**
  * This class represents an event ID.
  *
@@ -15,6 +17,7 @@ final class EventId implements \Stringable
      * @var string The ID
      */
     private $value;
+
     /**
      * Class constructor.
      *
@@ -27,6 +30,7 @@ final class EventId implements \Stringable
         }
         $this->value = $value;
     }
+
     /**
      * Generates a new event ID.
      *
@@ -36,6 +40,7 @@ final class EventId implements \Stringable
     {
         return new self(SentryUid::generate());
     }
+
     public function __toString(): string
     {
         return $this->value;

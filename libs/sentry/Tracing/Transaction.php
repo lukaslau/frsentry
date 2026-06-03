@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 namespace FrSentry\Sentry\Tracing;
 
 use FrSentry\Sentry\Event;
@@ -8,6 +9,7 @@ use FrSentry\Sentry\EventId;
 use FrSentry\Sentry\Profiling\Profiler;
 use FrSentry\Sentry\SentrySdk;
 use FrSentry\Sentry\State\HubInterface;
+
 /**
  * This class stores all the information about a Transaction.
  */
@@ -33,11 +35,12 @@ final class Transaction extends Span
      * @var Profiler|null Reference instance to the {@see Profiler}
      */
     protected $profiler;
+
     /**
      * Span constructor.
      *
      * @param TransactionContext $context The context to create the transaction with
-     * @param HubInterface|null  $hub     Instance of a hub to flush the transaction
+     * @param HubInterface|null $hub Instance of a hub to flush the transaction
      *
      * @internal
      */
@@ -49,6 +52,7 @@ final class Transaction extends Span
         $this->metadata = $context->getMetadata();
         $this->transaction = $this;
     }
+
     /**
      * Gets the name of this transaction.
      */
@@ -56,6 +60,7 @@ final class Transaction extends Span
     {
         return $this->name;
     }
+
     /**
      * Sets the name of this transaction.
      *
@@ -66,8 +71,10 @@ final class Transaction extends Span
     public function setName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
+
     /**
      * Gets the transaction metadata.
      */
@@ -75,6 +82,7 @@ final class Transaction extends Span
     {
         return $this->metadata;
     }
+
     /**
      * Gets the transaction dynamic sampling context.
      */
@@ -85,8 +93,10 @@ final class Transaction extends Span
         }
         $samplingContext = DynamicSamplingContext::fromTransaction($this->transaction, $this->hub);
         $this->getMetadata()->setDynamicSamplingContext($samplingContext);
+
         return $samplingContext;
     }
+
     /**
      * Attaches a {@see SpanRecorder} to the transaction itself.
      *
@@ -98,8 +108,10 @@ final class Transaction extends Span
             $this->spanRecorder = new SpanRecorder($maxSpans);
         }
         $this->spanRecorder->add($this);
+
         return $this;
     }
+
     public function initProfiler(): Profiler
     {
         if ($this->profiler === null) {
@@ -107,17 +119,22 @@ final class Transaction extends Span
             $options = $client !== null ? $client->getOptions() : null;
             $this->profiler = new Profiler($options);
         }
+
         return $this->profiler;
     }
+
     public function getProfiler(): ?Profiler
     {
         return $this->profiler;
     }
+
     public function detachProfiler(): self
     {
         $this->profiler = null;
+
         return $this;
     }
+
     /**
      * {@inheritdoc}
      */
@@ -157,6 +174,7 @@ final class Transaction extends Span
                 $event->setSdkMetadata('profile', $profile);
             }
         }
+
         return $this->hub->captureEvent($event);
     }
 }

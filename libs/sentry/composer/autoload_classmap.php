@@ -5,7 +5,7 @@
 $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
-return array(
+return [
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'FrSentry\\Sentry\\Agent\\Transport\\AgentClient' => $vendorDir . '/Agent/Transport/AgentClient.php',
     'FrSentry\\Sentry\\Agent\\Transport\\AgentClientBuilder' => $vendorDir . '/Agent/Transport/AgentClientBuilder.php',
@@ -145,4 +145,4 @@ return array(
     'FrSentry\\Sentry\\Util\\SentryUid' => $vendorDir . '/Util/SentryUid.php',
     'FrSentry\\Sentry\\Util\\Str' => $vendorDir . '/Util/Str.php',
     'FrSentry\\Sentry\\Util\\TelemetryStorage' => $vendorDir . '/Util/TelemetryStorage.php',
-);
+];
