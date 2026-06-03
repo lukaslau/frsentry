@@ -31,18 +31,19 @@ class frsentryJsModuleFrontController extends ModuleFrontController
     public function initContent()
     {
         $context = Context::getContext();
-        $config = Frento\FrSentry\src\Prestashop\FrConfiguration::getConfiguration();
+        $config = Frento\FrSentry\FrConfiguration::getConfiguration();
+        $frontend = $config['frontend'];
 
-        if (empty($config['frontendKey'])) {
+        if (empty($frontend['dsn'])) {
             return;
         }
 
         $data = [
-            'frsentryApikey' => $config['frontendKey'],
-            'insightsFrontend' => (int) ($config['backend']['insightsFrontend'] ?? false),
-            'profilingFrontend' => (int) ($config['backend']['profilingFrontend'] ?? false),
-            'frontendTracingRate' => round((int) ($config['backend']['frontendTracingRate'] ?? 20) / 100, 2),
-            'frontendProfilingRate' => round((int) ($config['backend']['frontendProfilingRate'] ?? 20) / 100, 2),
+            'frsentryApikey' => $frontend['dsn'],
+            'insightsFrontend' => (int) ($frontend['insights'] ?? false),
+            'profilingFrontend' => (int) ($frontend['profiling'] ?? false),
+            'frontendTracingRate' => round((int) ($frontend['tracingRate'] ?? 20) / 100, 2),
+            'frontendProfilingRate' => round((int) ($frontend['profilingRate'] ?? 20) / 100, 2),
             'ipAddress' => Tools::getRemoteAddr(),
             'shopUrl' => preg_quote((string) ($context->shop->domain ?? ''), '/'),
         ];

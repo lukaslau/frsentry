@@ -21,9 +21,9 @@
     "friendsofphp/php-cs-fixer": "^3.4"
   },
   "autoload": {
-    "classmap": [
-      "src"
-    ]
+    "psr-4": {
+      "Frento\\FrSentry\\": "src/"
+    }
   },
   "config": {
     "optimize-autoloader": true,

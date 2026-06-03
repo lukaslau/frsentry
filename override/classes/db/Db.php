@@ -43,7 +43,7 @@ abstract class Db extends DbCore
     /**
      * Forwards a database exception to Sentry, including the offending query
      * as additional context. Deduplication (same SQL in one request) is handled
-     * inside FrSentry::capture() via a per-request SQL hash store.
+     * inside SentryReporter::capture() via a per-request SQL hash store.
      * Silently swallowed if reporting fails — the try/catch also covers the
      * case where the module is not installed and the FrSentry class does not exist.
      *
@@ -55,7 +55,7 @@ abstract class Db extends DbCore
     private function forwardException(PrestaShopException $exception, string $sql): void
     {
         try {
-            Frento\FrSentry\src\Libs\FrSentry::capture(
+            Frento\FrSentry\Core\SentryReporter::capture(
                 $exception,
                 ['type' => 'MYSQL', 'sqlQuery' => $sql]
             );

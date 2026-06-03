@@ -24,8 +24,8 @@ require_once __DIR__ . '/libs/sentry/autoload.php';
 // Load dependencies: Symfony\OptionsResolver, Psr\Log, etc.
 require_once __DIR__ . '/vendor/autoload.php';
 
-use Frento\FrSentry\src\Prestashop\FrConfiguration;
-use Frento\FrSentry\src\Prestashop\Hooks\FrontHook;
+use Frento\FrSentry\FrConfiguration;
+use Frento\FrSentry\Hooks\FrontHook;
 
 class FrSentry extends Module
 {
@@ -62,7 +62,7 @@ class FrSentry extends Module
      */
     public function captureException($exception, $tags = [])
     {
-        Frento\FrSentry\src\Libs\FrSentry::capture($exception, $tags);
+        Frento\FrSentry\Core\SentryReporter::capture($exception, $tags);
     }
 
     public function install()
@@ -85,14 +85,13 @@ class FrSentry extends Module
     {
         $prefix = FrConfiguration::$configPrefix;
 
-        Configuration::deleteByName($prefix . 'BACKEND_KEY');
-        Configuration::deleteByName($prefix . 'FRONTEND_KEY');
+        $keys = array_merge(
+            FrConfiguration::$dsnKeys,
+            FrConfiguration::toggleKeys(),
+            FrConfiguration::rateKeys()
+        );
 
-        foreach (FrConfiguration::$booleanKeys as $key) {
-            Configuration::deleteByName($prefix . $key);
-        }
-
-        foreach (FrConfiguration::$rateKeys as $key) {
+        foreach ($keys as $key) {
             Configuration::deleteByName($prefix . $key);
         }
 
@@ -166,16 +165,14 @@ class FrSentry extends Module
         if (Tools::isSubmit('submit_frsentry')) {
             $prefix = FrConfiguration::$configPrefix;
 
-            Configuration::updateValue(
-                $prefix . 'BACKEND_KEY',
-                trim(Tools::getValue($prefix . 'BACKEND_KEY'))
-            );
-            Configuration::updateValue(
-                $prefix . 'FRONTEND_KEY',
-                trim(Tools::getValue($prefix . 'FRONTEND_KEY'))
-            );
+            foreach (FrConfiguration::$dsnKeys as $key) {
+                Configuration::updateValue(
+                    $prefix . $key,
+                    trim(Tools::getValue($prefix . $key))
+                );
+            }
 
-            foreach (FrConfiguration::$booleanKeys as $key) {
+            foreach (FrConfiguration::toggleKeys() as $key) {
                 Configuration::updateValue(
                     $prefix . $key,
                     (int) Tools::getValue($prefix . $key)
@@ -183,7 +180,7 @@ class FrSentry extends Module
             }
 
             // Sampling rates: clamp to 0–100 before saving.
-            foreach (FrConfiguration::$rateKeys as $key) {
+            foreach (FrConfiguration::rateKeys() as $key) {
                 $rate = (int) Tools::getValue($prefix . $key);
                 Configuration::updateValue($prefix . $key, max(0, min(100, $rate)));
             }
@@ -210,22 +207,25 @@ class FrSentry extends Module
         $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG', 0);
         $helper->submit_action = 'submit_frsentry';
 
+        $backend = $config['backend'];
+        $frontend = $config['frontend'];
+
         $helper->fields_value = [
-            $prefix . 'BACKEND_KEY' => $config['backendKey'],
-            $prefix . 'FRONTEND_KEY' => $config['frontendKey'],
-            $prefix . 'PHP_IGNORE_USER' => (int) $config['backend']['phpIgnoreUser'],
-            $prefix . 'PHP_IGNORE_DEPRECATED' => (int) $config['backend']['phpIgnoreDeprecated'],
-            $prefix . 'PHP_IGNORE_WARNING' => (int) $config['backend']['phpIgnoreWarning'],
-            $prefix . 'PHP_IGNORE_NOTICED' => (int) $config['backend']['phpIgnoreNoticed'],
-            $prefix . 'USE_BACKOFFICE' => (int) $config['backend']['useBackoffice'],
-            $prefix . 'INSIGHTS_FRONTEND' => (int) $config['backend']['insightsFrontend'],
-            $prefix . 'PROFILING_FRONTEND' => (int) $config['backend']['profilingFrontend'],
-            $prefix . 'FRONTEND_TRACING_RATE' => $config['backend']['frontendTracingRate'],
-            $prefix . 'FRONTEND_PROFILING_RATE' => $config['backend']['frontendProfilingRate'],
-            $prefix . 'BACKEND_TRACING' => (int) $config['backend']['tracingEnabled'],
-            $prefix . 'BACKEND_TRACING_RATE' => $config['backend']['tracingRate'],
-            $prefix . 'BACKEND_PROFILING' => (int) $config['backend']['profilingEnabled'],
-            $prefix . 'BACKEND_PROFILING_RATE' => $config['backend']['profilingRate'],
+            $prefix . 'BACKEND_DSN' => $backend['dsn'],
+            $prefix . 'FRONTEND_DSN' => $frontend['dsn'],
+            $prefix . 'BACKEND_MONITOR_ADMIN' => (int) $backend['monitorAdmin'],
+            $prefix . 'BACKEND_TRACK_USER' => (int) $backend['track']['userErrors'],
+            $prefix . 'BACKEND_TRACK_DEPRECATION' => (int) $backend['track']['deprecation'],
+            $prefix . 'BACKEND_TRACK_WARNING' => (int) $backend['track']['warning'],
+            $prefix . 'BACKEND_TRACK_NOTICE' => (int) $backend['track']['notice'],
+            $prefix . 'BACKEND_TRACING' => (int) $backend['tracing']['enabled'],
+            $prefix . 'BACKEND_TRACING_RATE' => $backend['tracing']['sampleRate'],
+            $prefix . 'BACKEND_PROFILING' => (int) $backend['profiling']['enabled'],
+            $prefix . 'BACKEND_PROFILING_RATE' => $backend['profiling']['sampleRate'],
+            $prefix . 'FRONTEND_INSIGHTS' => (int) $frontend['insights'],
+            $prefix . 'FRONTEND_TRACING_RATE' => $frontend['tracingRate'],
+            $prefix . 'FRONTEND_PROFILING' => (int) $frontend['profiling'],
+            $prefix . 'FRONTEND_PROFILING_RATE' => $frontend['profilingRate'],
         ];
 
         $yesNoOptions = [
@@ -243,7 +243,7 @@ class FrSentry extends Module
                         [
                             'type' => 'text',
                             'label' => $this->l('Backend DSN Key'),
-                            'name' => $prefix . 'BACKEND_KEY',
+                            'name' => $prefix . 'BACKEND_DSN',
                             'size' => 90,
                             'required' => false,
                             'desc' => $this->l('Sentry DSN for server-side (PHP) error monitoring.'),
@@ -252,7 +252,7 @@ class FrSentry extends Module
                         [
                             'type' => 'text',
                             'label' => $this->l('Frontend DSN Key'),
-                            'name' => $prefix . 'FRONTEND_KEY',
+                            'name' => $prefix . 'FRONTEND_DSN',
                             'size' => 90,
                             'required' => false,
                             'desc' => $this->l('Sentry DSN for client-side (JavaScript) error monitoring.'),
@@ -269,36 +269,36 @@ class FrSentry extends Module
                         [
                             'type' => 'switch',
                             'label' => $this->l('Monitor back office'),
-                            'name' => $prefix . 'USE_BACKOFFICE',
+                            'name' => $prefix . 'BACKEND_MONITOR_ADMIN',
                             'desc' => $this->l('Enable Sentry error monitoring in the PrestaShop back office.'),
                             'values' => $yesNoOptions,
                         ],
                         [
                             'type' => 'switch',
-                            'label' => $this->l('Ignore user errors'),
-                            'name' => $prefix . 'PHP_IGNORE_USER',
-                            'desc' => $this->l('Ignore E_USER_ERROR, E_USER_WARNING and E_USER_NOTICE errors.'),
+                            'label' => $this->l('Track user errors'),
+                            'name' => $prefix . 'BACKEND_TRACK_USER',
+                            'desc' => $this->l('Capture E_USER_ERROR, E_USER_WARNING and E_USER_NOTICE errors.'),
                             'values' => $yesNoOptions,
                         ],
                         [
                             'type' => 'switch',
-                            'label' => $this->l('Ignore deprecated'),
-                            'name' => $prefix . 'PHP_IGNORE_DEPRECATED',
-                            'desc' => $this->l('Ignore E_DEPRECATED and E_USER_DEPRECATED errors.'),
+                            'label' => $this->l('Track deprecations'),
+                            'name' => $prefix . 'BACKEND_TRACK_DEPRECATION',
+                            'desc' => $this->l('Capture E_DEPRECATED and E_USER_DEPRECATED errors.'),
                             'values' => $yesNoOptions,
                         ],
                         [
                             'type' => 'switch',
-                            'label' => $this->l('Ignore warnings'),
-                            'name' => $prefix . 'PHP_IGNORE_WARNING',
-                            'desc' => $this->l('Ignore E_WARNING errors.'),
+                            'label' => $this->l('Track warnings'),
+                            'name' => $prefix . 'BACKEND_TRACK_WARNING',
+                            'desc' => $this->l('Capture E_WARNING errors.'),
                             'values' => $yesNoOptions,
                         ],
                         [
                             'type' => 'switch',
-                            'label' => $this->l('Ignore notices'),
-                            'name' => $prefix . 'PHP_IGNORE_NOTICED',
-                            'desc' => $this->l('Ignore E_NOTICE errors.'),
+                            'label' => $this->l('Track notices'),
+                            'name' => $prefix . 'BACKEND_TRACK_NOTICE',
+                            'desc' => $this->l('Capture E_NOTICE errors.'),
                             'values' => $yesNoOptions,
                         ],
                     ],
@@ -312,7 +312,7 @@ class FrSentry extends Module
                         [
                             'type' => 'switch',
                             'label' => $this->l('Performance insights (frontend)'),
-                            'name' => $prefix . 'INSIGHTS_FRONTEND',
+                            'name' => $prefix . 'FRONTEND_INSIGHTS',
                             'desc' => $this->l('Enable Sentry performance monitoring on the client side.'),
                             'values' => $yesNoOptions,
                         ],
@@ -328,7 +328,7 @@ class FrSentry extends Module
                         [
                             'type' => 'switch',
                             'label' => $this->l('Performance profiling (frontend)'),
-                            'name' => $prefix . 'PROFILING_FRONTEND',
+                            'name' => $prefix . 'FRONTEND_PROFILING',
                             'desc' => $this->l('Enable Sentry JS profiling. Requires Document-Policy: js-profiling header.'),
                             'values' => $yesNoOptions,
                         ],

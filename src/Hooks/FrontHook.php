@@ -15,14 +15,14 @@
  * @license   Commercial license
  */
 
-namespace Frento\FrSentry\src\Prestashop\Hooks;
+namespace Frento\FrSentry\Hooks;
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-use Frento\FrSentry\src\Libs\FrSentry;
-use Frento\FrSentry\src\Prestashop\FrConfiguration;
+use Frento\FrSentry\Core\SentryReporter;
+use Frento\FrSentry\FrConfiguration;
 
 class FrontHook
 {
@@ -57,23 +57,24 @@ class FrontHook
      * Injects Sentry JavaScript based on the active settings.
      *
      * Load order (lower priority = earlier):
-     *   -11  sentry.min.js             SDK — loaded when frontendKey is configured
+     *   -11  sentry.min.js             SDK — loaded when a frontend DSN is set
      *   -10  sentry-profiling.min.js   profiling integration — only when both
-     *                                  insightsFrontend AND profilingFrontend are on
+     *                                  frontend insights AND profiling are on
      *    -9  /frsentry/js              dynamic init config (DSN, integrations, user)
      */
     public static function handleSetMedia(): void
     {
         $context = \Context::getContext();
         $config = FrConfiguration::getConfiguration();
+        $frontend = $config['frontend'];
 
-        if (empty($config['frontendKey'])) {
+        if (empty($frontend['dsn'])) {
             return;
         }
 
         // JS Self-Profiling API requires this header to be present on the page
         // that loads the profiler. Must be sent before output starts.
-        if (!empty($config['backend']['profilingFrontend']) && !headers_sent()) {
+        if (!empty($frontend['profiling']) && !headers_sent()) {
             header('Document-Policy: js-profiling');
         }
 
@@ -85,8 +86,8 @@ class FrontHook
 
         // Profiling requires the tracing integration — only load the profiling
         // bundle when both features are explicitly enabled.
-        if (!empty($config['backend']['insightsFrontend'])
-            && !empty($config['backend']['profilingFrontend'])
+        if (!empty($frontend['insights'])
+            && !empty($frontend['profiling'])
         ) {
             $context->controller->registerJavascript(
                 'frsentry-profiling',
@@ -122,8 +123,8 @@ class FrontHook
     {
         $config = FrConfiguration::getConfiguration();
 
-        if (!empty($config['backendKey'])) {
-            FrSentry::registerHandlers();
+        if (!empty($config['backend']['dsn'])) {
+            SentryReporter::registerHandlers();
         }
     }
 }

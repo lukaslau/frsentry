@@ -15,15 +15,15 @@
  * @license   Commercial license
  */
 
-namespace Frento\FrSentry\src\Libs;
+namespace Frento\FrSentry\Core;
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-class FrSentry
+class SentryReporter
 {
-    /** @var FrSentryClient|null Lazily initialised per request */
+    /** @var SentryClient|null Lazily initialised per request */
     private static $client;
 
     /** @var bool Prevents registering handlers more than once */
@@ -60,7 +60,7 @@ class FrSentry
     {
         $config = self::config();
 
-        if (empty($config['backendKey'])) {
+        if (empty($config['backend']['dsn'])) {
             return;
         }
 
@@ -186,14 +186,14 @@ class FrSentry
         // request context, etc.) start collecting from this point forward,
         // rather than only from the moment the first error is captured.
         $config = self::config();
-        if (!empty($config['backendKey'])) {
+        if (!empty($config['backend']['dsn'])) {
             self::client();
 
             // Start a transaction when tracing is configured.
             // The transaction is stored in self::$transaction and finished in
             // onShutdown() — this ensures it wraps the entire request lifetime
             // and is flushed even on fatal errors.
-            if (!empty($config['backend']['tracingEnabled'])) {
+            if (!empty($config['backend']['tracing']['enabled'])) {
                 self::$transaction = self::startTransaction();
             }
         }
@@ -215,10 +215,10 @@ class FrSentry
     // Internals
     // -------------------------------------------------------------------------
 
-    private static function client(): FrSentryClient
+    private static function client(): SentryClient
     {
         if (self::$client === null) {
-            self::$client = new FrSentryClient(self::config());
+            self::$client = new SentryClient(self::config());
         }
 
         return self::$client;
@@ -260,7 +260,7 @@ class FrSentry
 
     private static function config(): array
     {
-        return \Frento\FrSentry\src\Prestashop\FrConfiguration::getConfiguration();
+        return \Frento\FrSentry\FrConfiguration::getConfiguration();
     }
 
     private static function isMonitoringEnabled(): bool
@@ -274,7 +274,7 @@ class FrSentry
 
         $config = self::config();
 
-        if (defined('_PS_ADMIN_DIR_') && empty($config['backend']['useBackoffice'])) {
+        if (defined('_PS_ADMIN_DIR_') && empty($config['backend']['monitorAdmin'])) {
             return false;
         }
 
@@ -318,20 +318,18 @@ class FrSentry
     }
 
     /**
-     * Returns the label for a PHP error constant, or null if it should be
-     * suppressed based on current module settings.
+     * Returns the label for a PHP error constant, or null when the current
+     * settings do not opt in to capturing it.
      *
-     * Uses a two-step approach: a static label map covering every handled
-     * constant, then a suppressed set derived from active settings. An error
-     * is captured when it appears in the label map but NOT in the suppressed
-     * set.
+     * Capture follows an allow-list ("track") model. A baseline set of hard
+     * errors — fatals, parse/compile failures and engine/compiler warnings — is
+     * always captured because those indicate broken code regardless of config.
+     * The softer categories are added to the allowed set only when their
+     * matching TRACK_* switch is enabled.
      *
-     * E_CORE_WARNING and E_COMPILE_WARNING are never suppressed — they come
-     * from PHP's engine/compiler, not from application code.
-     *
-     * E_USER_NOTICE and E_USER_DEPRECATED are suppressed when EITHER their
-     * primary category setting OR phpIgnoreUser is on (hence they appear in
-     * two groups in the suppressed set builder).
+     * E_USER_NOTICE is captured when EITHER "track notices" OR "track user
+     * errors" is on; E_USER_DEPRECATED likewise reacts to "track deprecations"
+     * OR "track user errors" — hence those constants appear in two groups.
      */
     private static function classifyError(int $errno): ?string
     {
@@ -357,15 +355,22 @@ class FrSentry
             return null;
         }
 
-        $backendConfig = self::config()['backend'] ?? [];
+        $track = self::config()['backend']['track'] ?? [];
 
-        $suppressed = array_merge(
-            !empty($backendConfig['phpIgnoreWarning']) ? [E_WARNING] : [],
-            !empty($backendConfig['phpIgnoreNoticed']) ? [E_NOTICE,     E_USER_NOTICE] : [],
-            !empty($backendConfig['phpIgnoreDeprecated']) ? [E_DEPRECATED, E_USER_DEPRECATED] : [],
-            !empty($backendConfig['phpIgnoreUser']) ? [E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE, E_USER_DEPRECATED] : []
+        // Hard errors are always captured; engine/compiler warnings too.
+        static $alwaysCaptured = [
+            E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR,
+            E_RECOVERABLE_ERROR, E_STRICT, E_CORE_WARNING, E_COMPILE_WARNING,
+        ];
+
+        $captured = array_merge(
+            $alwaysCaptured,
+            !empty($track['warning']) ? [E_WARNING] : [],
+            !empty($track['notice']) ? [E_NOTICE, E_USER_NOTICE] : [],
+            !empty($track['deprecation']) ? [E_DEPRECATED, E_USER_DEPRECATED] : [],
+            !empty($track['userErrors']) ? [E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE, E_USER_DEPRECATED] : []
         );
 
-        return in_array($errno, $suppressed, true) ? null : $labels[$errno];
+        return in_array($errno, $captured, true) ? $labels[$errno] : null;
     }
 }
