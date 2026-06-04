@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Copyright (c) 2026 Frento IT <info@frentoit.com>
  *
  * NOTICE OF LICENSE
@@ -14,7 +14,6 @@
  * @copyright Since 2024 Frento IT
  * @license   Commercial license
  */
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }

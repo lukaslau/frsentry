@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Copyright (c) 2026 Frento IT <info@frentoit.com>
  *
  * NOTICE OF LICENSE
@@ -29,6 +29,9 @@ class SentryReporter
     /** @var bool Prevents registering handlers more than once */
     private static $handlersRegistered = false;
 
+    /** @var bool True when booted via a direct PHP file call (HTTP cron without dispatcher) */
+    private static $isDirectCall = false;
+
     /** @var \FrSentry\Sentry\Tracing\Transaction|null Active transaction for the current request */
     private static $transaction;
 
@@ -46,6 +49,17 @@ class SentryReporter
     // -------------------------------------------------------------------------
 
     /**
+     * Marks the current request as a direct PHP file call (HTTP cron without
+     * the PrestaShop dispatcher). Called by FrontHook when actionFrontControllerInitBefore
+     * fires without a preceding moduleRoutes — so isMonitoringEnabled() treats
+     * it the same as CLI and checks monitorCli instead of monitorFront.
+     */
+    public static function markDirectCall(): void
+    {
+        self::$isDirectCall = true;
+    }
+
+    /**
      * Captures a throwable and forwards it to Sentry.
      *
      * Errors with the same signature raised more than once during a single
@@ -60,7 +74,7 @@ class SentryReporter
     {
         $config = self::config();
 
-        if (empty($config['backend']['dsn'])) {
+        if (empty($config['backend']['dsn']) || !self::isMonitoringEnabled()) {
             return;
         }
 
@@ -186,16 +200,23 @@ class SentryReporter
         // request context, etc.) start collecting from this point forward,
         // rather than only from the moment the first error is captured.
         $config = self::config();
-        if (!empty($config['backend']['dsn'])) {
-            self::client();
+        if (empty($config['backend']['dsn']) || !self::isMonitoringEnabled()) {
+            return;
+        }
 
-            // Start a transaction when tracing is configured.
-            // The transaction is stored in self::$transaction and finished in
-            // onShutdown() — this ensures it wraps the entire request lifetime
-            // and is flushed even on fatal errors.
-            if (!empty($config['backend']['tracing']['enabled'])) {
-                self::$transaction = self::startTransaction();
-            }
+        self::client();
+
+        // Start a transaction when tracing is configured.
+        // The transaction is stored in self::$transaction and finished in
+        // onShutdown() — this ensures it wraps the entire request lifetime
+        // and is flushed even on fatal errors.
+        $isAdmin = PHP_SAPI !== 'cli' && defined('_PS_ADMIN_DIR_');
+        $tracingEnabled = $isAdmin
+            ? !empty($config['backend']['tracing']['admin'])
+            : !empty($config['backend']['tracing']['front']);
+
+        if ($tracingEnabled && PHP_SAPI !== 'cli' && !self::$isDirectCall) {
+            self::$transaction = self::startTransaction();
         }
 
         register_shutdown_function([self::class, 'onShutdown']);
@@ -265,16 +286,21 @@ class SentryReporter
 
     private static function isMonitoringEnabled(): bool
     {
-        // CLI (cron jobs, test scripts) is treated as front-office context —
-        // _PS_ADMIN_DIR_ is always defined after PS bootstrap regardless of
-        // whether we are actually inside the admin panel.
-        if (PHP_SAPI === 'cli') {
-            return true;
+        // CLI cron scripts and HTTP direct calls (a PHP file included init.php
+        // without going through the PS dispatcher) share the same monitorCli toggle.
+        // _PS_ADMIN_DIR_ may be defined in CLI when bootstrapped from the admin
+        // directory, so we check SAPI and direct-call flag before the admin check.
+        if (PHP_SAPI === 'cli' || self::$isDirectCall) {
+            return !empty(self::config()['backend']['monitorCli']);
         }
 
         $config = self::config();
 
         if (defined('_PS_ADMIN_DIR_') && empty($config['backend']['monitorAdmin'])) {
+            return false;
+        }
+
+        if (!defined('_PS_ADMIN_DIR_') && empty($config['backend']['monitorFront'])) {
             return false;
         }
 
@@ -300,7 +326,6 @@ class SentryReporter
 
         if (!empty($context->customer->id)) {
             $tags['customerId'] = $context->customer->id;
-            $tags['customerEmail'] = $context->customer->email ?? null;
         }
 
         if (!empty($context->cart->id)) {

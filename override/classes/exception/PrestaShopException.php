@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Copyright (c) 2026 Frento IT <info@frentoit.com>
  *
  * NOTICE OF LICENSE

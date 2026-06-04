@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Copyright (c) 2026 Frento IT <info@frentoit.com>
  *
  * NOTICE OF LICENSE
@@ -49,18 +49,31 @@ class FrConfiguration
     ];
 
     /**
+     * Free-text (non-DSN) suffixes — multiline strings, etc.
+     *
+     * @var string[]
+     */
+    public static $textKeys = [
+        'FRONTEND_DENY_URLS',
+    ];
+
+    /**
      * Server-side boolean suffixes (stored as 0/1).
      *
      * @var string[]
      */
     public static $backendToggles = [
+        'BACKEND_MONITOR_FRONT',
         'BACKEND_MONITOR_ADMIN',
+        'BACKEND_MONITOR_CLI',
         'BACKEND_TRACK_WARNING',
         'BACKEND_TRACK_NOTICE',
         'BACKEND_TRACK_DEPRECATION',
         'BACKEND_TRACK_USER',
-        'BACKEND_TRACING',
-        'BACKEND_PROFILING',
+        'BACKEND_TRACING_FRONT',
+        'BACKEND_TRACING_ADMIN',
+        'BACKEND_PROFILING_FRONT',
+        'BACKEND_PROFILING_ADMIN',
     ];
 
     /**
@@ -69,6 +82,7 @@ class FrConfiguration
      * @var string[]
      */
     public static $frontendToggles = [
+        'FRONTEND_MONITOR',
         'FRONTEND_INSIGHTS',
         'FRONTEND_PROFILING',
     ];
@@ -119,13 +133,16 @@ class FrConfiguration
      * @return array{
      *   backend: array{
      *     dsn: string,
+     *     monitorFront: bool,
      *     monitorAdmin: bool,
+     *     monitorCli: bool,
      *     track: array{warning: bool, notice: bool, deprecation: bool, userErrors: bool},
-     *     tracing: array{enabled: bool, sampleRate: int},
-     *     profiling: array{enabled: bool, sampleRate: int}
+     *     tracing: array{front: bool, admin: bool, sampleRate: int},
+     *     profiling: array{front: bool, admin: bool, sampleRate: int}
      *   },
      *   frontend: array{
      *     dsn: string,
+     *     monitor: bool,
      *     insights: bool,
      *     tracingRate: int,
      *     profiling: bool,
@@ -144,7 +161,9 @@ class FrConfiguration
         return self::$cache = [
             'backend' => [
                 'dsn' => (string) (\Configuration::get($p . 'BACKEND_DSN') ?: ''),
+                'monitorFront' => self::getBool($p . 'BACKEND_MONITOR_FRONT', true),
                 'monitorAdmin' => self::getBool($p . 'BACKEND_MONITOR_ADMIN', false),
+                'monitorCli' => self::getBool($p . 'BACKEND_MONITOR_CLI', false),
                 'track' => [
                     'warning' => self::getBool($p . 'BACKEND_TRACK_WARNING', false),
                     'notice' => self::getBool($p . 'BACKEND_TRACK_NOTICE', false),
@@ -152,20 +171,24 @@ class FrConfiguration
                     'userErrors' => self::getBool($p . 'BACKEND_TRACK_USER', false),
                 ],
                 'tracing' => [
-                    'enabled' => self::getBool($p . 'BACKEND_TRACING', false),
+                    'front' => self::getBool($p . 'BACKEND_TRACING_FRONT', false),
+                    'admin' => self::getBool($p . 'BACKEND_TRACING_ADMIN', false),
                     'sampleRate' => self::getInt($p . 'BACKEND_TRACING_RATE', 100),
                 ],
                 'profiling' => [
-                    'enabled' => self::getBool($p . 'BACKEND_PROFILING', false),
+                    'front' => self::getBool($p . 'BACKEND_PROFILING_FRONT', false),
+                    'admin' => self::getBool($p . 'BACKEND_PROFILING_ADMIN', false),
                     'sampleRate' => self::getInt($p . 'BACKEND_PROFILING_RATE', 100),
                 ],
             ],
             'frontend' => [
                 'dsn' => (string) (\Configuration::get($p . 'FRONTEND_DSN') ?: ''),
+                'monitor' => self::getBool($p . 'FRONTEND_MONITOR', true),
                 'insights' => self::getBool($p . 'FRONTEND_INSIGHTS', false),
                 'tracingRate' => self::getInt($p . 'FRONTEND_TRACING_RATE', 20),
                 'profiling' => self::getBool($p . 'FRONTEND_PROFILING', false),
                 'profilingRate' => self::getInt($p . 'FRONTEND_PROFILING_RATE', 20),
+                'denyUrls' => (string) (\Configuration::get($p . 'FRONTEND_DENY_URLS') ?: ''),
             ],
         ];
     }

@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Copyright (c) 2026 Frento IT <info@frentoit.com>
  *
  * NOTICE OF LICENSE
@@ -52,10 +52,14 @@ class SentryClient
         $tracingRate = 0.0;
         $profilingRate = 0.0;
 
-        if (!empty($tracing['enabled'])) {
+        $isAdmin = PHP_SAPI !== 'cli' && defined('_PS_ADMIN_DIR_');
+        $tracingEnabled = $isAdmin ? !empty($tracing['admin']) : !empty($tracing['front']);
+        $profilingEnabled = $isAdmin ? !empty($profiling['admin']) : !empty($profiling['front']);
+
+        if ($tracingEnabled) {
             $tracingRate = (int) ($tracing['sampleRate'] ?? 100) / 100;
 
-            if (!empty($profiling['enabled']) && extension_loaded('excimer')) {
+            if ($profilingEnabled && extension_loaded('excimer')) {
                 $profilingRate = (int) ($profiling['sampleRate'] ?? 100) / 100;
             }
         }
@@ -265,11 +269,6 @@ class SentryClient
             if (!empty($tags['customerId'])) {
                 $user['id'] = $tags['customerId'];
                 unset($tags['customerId']);
-            }
-
-            if (!empty($tags['customerEmail'])) {
-                $user['email'] = $tags['customerEmail'];
-                unset($tags['customerEmail']);
             }
 
             $scope->setUser($user);
