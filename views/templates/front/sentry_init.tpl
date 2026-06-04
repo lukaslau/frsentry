@@ -23,12 +23,21 @@
  *   $shopUrl                -- escaped shop domain regex fragment
  *   $ipAddress              -- visitor IP (for Sentry user context)
  *   $trackUser              -- bool, set when customer is logged in
- *   $userId / $email        -- customer data (present only when $trackUser)
+ *   $userId                 -- customer ID (present only when $trackUser)
+ *   $denyUrlsJson           -- JSON array of admin-configured denylist domains
  *}
 
 {literal}
     Sentry.init({
         dsn: '{/literal}{$frsentryApikey|escape:'javascript'}{literal}',
+        ignoreErrors: [
+            // Facebook in-app browser (FBAN/FBIOS) injects JS that calls
+            // window.webkit.messageHandlers — not present in all WKWebView contexts.
+            /window\.webkit\.messageHandlers/,
+            // Other common Facebook/Instagram in-app browser injected noise.
+            /processLargestContentfulPaintEvent/,
+            /sendDataToNative/
+        ],
         integrations: [{/literal}
             {if $insightsFrontend}
                 Sentry.browserTracingIntegration({
@@ -71,12 +80,12 @@
             /facebook\.net/i,
             /connect\.facebook\.net/i,
             /doubleclick\.net/i
-        ]
+        ].concat({/literal}{$denyUrlsJson}{literal})
     });
 {/literal}
 
 {if $trackUser}
-{literal}Sentry.setUser({ ip_address: '{/literal}{$ipAddress|escape:'javascript'}{literal}', id: '{/literal}{$userId|intval}{literal}', email: '{/literal}{$email|escape:'javascript'}{literal}' });{/literal}
+{literal}Sentry.setUser({ ip_address: '{/literal}{$ipAddress|escape:'javascript'}{literal}', id_user: '{/literal}{$userId|intval}{literal}' });{/literal}
 {else}
 {literal}Sentry.setUser({ ip_address: '{/literal}{$ipAddress|escape:'javascript'}{literal}' });{/literal}
 {/if}

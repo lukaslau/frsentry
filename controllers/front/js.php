@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Copyright (c) 2026 Frento IT <info@frentoit.com>
  *
  * NOTICE OF LICENSE
@@ -34,8 +34,18 @@ class frsentryJsModuleFrontController extends ModuleFrontController
         $config = Frento\FrSentry\FrConfiguration::getConfiguration();
         $frontend = $config['frontend'];
 
-        if (empty($frontend['dsn'])) {
+        if (empty($frontend['dsn']) || empty($frontend['monitor'])) {
             return;
+        }
+
+        $denyUrlsList = [];
+        if (!empty($frontend['denyUrls'])) {
+            foreach (explode("\n", str_replace("\r", '', $frontend['denyUrls'])) as $line) {
+                $line = trim($line);
+                if ($line !== '') {
+                    $denyUrlsList[] = $line;
+                }
+            }
         }
 
         $data = [
@@ -46,14 +56,17 @@ class frsentryJsModuleFrontController extends ModuleFrontController
             'frontendProfilingRate' => round((int) ($frontend['profilingRate'] ?? 20) / 100, 2),
             'ipAddress' => Tools::getRemoteAddr(),
             'shopUrl' => preg_quote((string) ($context->shop->domain ?? ''), '/'),
+            'denyUrlsJson' => json_encode($denyUrlsList, JSON_UNESCAPED_UNICODE),
         ];
 
         if (!empty($context->customer->id)) {
             $data['trackUser'] = true;
             $data['userId'] = $context->customer->id;
-            $data['email'] = $context->customer->email ?? '';
         }
 
+        // This response contains session-specific data (customer ID, IP).
+        // Must never be stored by shared caches (CDN, Varnish, reverse proxies).
+        header('Cache-Control: no-store, private');
         header('Content-Type: application/javascript');
 
         $this->context->smarty->assign($data);

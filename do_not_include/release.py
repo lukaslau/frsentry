@@ -2,8 +2,8 @@
 """
 frsentry release script.
 Usage:
-  python do_not_include/release.py          # copy files to release/ folder only
-  python do_not_include/release.py --zip    # copy + create frsentry.zip
+  python do_not_include/release.py           # build zip (default)
+  python do_not_include/release.py --no-zip  # copy files to release/ folder only
 """
 
 import sys
@@ -21,7 +21,7 @@ ROOT        = os.path.dirname(SCRIPT_DIR)
 MODULE_NAME = 'frsentry'
 RELEASE_DIR = os.path.join(ROOT, 'release', MODULE_NAME)
 OUT_ZIP     = os.path.join(ROOT, f'{MODULE_NAME}.zip')
-CREATE_ZIP  = '--zip' in sys.argv
+CREATE_ZIP  = '--no-zip' not in sys.argv
 
 EXCLUDE_DIRS = {'.git', '.idea', '.claude', 'do_not_include', 'node_modules', 'release'}
 EXCLUDE_FILE_PATTERNS = [
@@ -62,6 +62,23 @@ def copy_tree(src, dst):
             shutil.copy2(src_path, dst_path)
 
 
+def normalize_line_endings(src_dir):
+    """Convert CRLF → LF in all text files under src_dir."""
+    text_extensions = {'.php', '.tpl', '.js', '.css', '.json', '.xml', '.txt', '.md', '.htaccess'}
+    for dirpath, _, files in os.walk(src_dir):
+        for fname in files:
+            if os.path.splitext(fname)[1].lower() in text_extensions or fname.startswith('.'):
+                abs_path = os.path.join(dirpath, fname)
+                try:
+                    with open(abs_path, 'rb') as f:
+                        data = f.read()
+                    if b'\r\n' in data or (b'\r' in data and b'\n' not in data):
+                        with open(abs_path, 'wb') as f:
+                            f.write(data.replace(b'\r\n', b'\n').replace(b'\r', b'\n'))
+                except (IOError, OSError):
+                    pass
+
+
 def create_zip(src_dir, zip_path, module_name):
     """Create a zip with forward-slash paths (ZIP spec compliant)."""
     if os.path.exists(zip_path):
@@ -89,26 +106,24 @@ if os.path.exists(os.path.dirname(RELEASE_DIR)):
     shutil.rmtree(os.path.dirname(RELEASE_DIR))
 
 print('[1/4] Running PHP CS Fixer...')
-run('php do_not_include/php-cs-fixer.phar fix --config=do_not_include/.php-cs-fixer.dist.php --allow-risky=yes')
+run('php do_not_include/php-cs-fixer.phar fix --config=do_not_include/.php-cs-fixer.dist.php')
 
 print('[2/4] Installing production dependencies...')
 run('composer install --no-dev --optimize-autoloader')
 
 print('[3/4] Copying module files...')
 copy_tree(ROOT, RELEASE_DIR)
+normalize_line_endings(RELEASE_DIR)
 print(f'  Copied to {RELEASE_DIR}')
 
 if CREATE_ZIP:
     print('[4/4] Creating zip...')
     create_zip(RELEASE_DIR, OUT_ZIP, MODULE_NAME)
-    shutil.rmtree(os.path.dirname(RELEASE_DIR))
     print(f'Release ready: {OUT_ZIP}')
 else:
-    print(f'[4/4] Skipping zip. Release folder: {RELEASE_DIR}')
+    print('[4/4] Skipping zip.')
 
-print()
-print('Restoring dev dependencies...')
-run('composer install')
+shutil.rmtree(os.path.dirname(RELEASE_DIR))
 
 print()
 print('Done.')

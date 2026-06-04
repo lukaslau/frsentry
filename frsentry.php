@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Copyright (c) 2023-2026 Frento IT <info@frentoit.com>
  *
  * NOTICE OF LICENSE
@@ -65,6 +65,24 @@ class FrSentry extends Module
         Frento\FrSentry\Core\SentryReporter::capture($exception, $tags);
     }
 
+    /**
+     * Manually registers PHP error/exception handlers for contexts where PrestaShop
+     * hooks do not fire automatically (e.g. CLI cron scripts that bootstrap PS via
+     * config/config.inc.php without going through the dispatcher or without including init.php).
+     *
+     * Usage in a cron script:
+     *   $sentry = Module::getInstanceByName('frsentry');
+     *   if ($sentry) { $sentry->boot(); }
+     */
+    public function boot(): void
+    {
+        // Mark as a direct call so isMonitoringEnabled() uses the monitorCli
+        // toggle rather than monitorFront — boot() is only for non-dispatch
+        // contexts (CLI or HTTP direct call) where hooks never fired.
+        Frento\FrSentry\Core\SentryReporter::markDirectCall();
+        Frento\FrSentry\Core\SentryReporter::registerHandlers();
+    }
+
     public function install()
     {
         return parent::install()
@@ -74,6 +92,11 @@ class FrSentry extends Module
     public function hookModuleRoutes(): array
     {
         return FrontHook::handleModuleRoutes();
+    }
+
+    public function hookActionFrontControllerInitBefore(): void
+    {
+        FrontHook::handleFrontControllerInitBefore();
     }
 
     public function hookActionFrontControllerSetMedia(): void
@@ -87,6 +110,7 @@ class FrSentry extends Module
 
         $keys = array_merge(
             FrConfiguration::$dsnKeys,
+            FrConfiguration::$textKeys,
             FrConfiguration::toggleKeys(),
             FrConfiguration::rateKeys()
         );
@@ -172,6 +196,13 @@ class FrSentry extends Module
                 );
             }
 
+            foreach (FrConfiguration::$textKeys as $key) {
+                Configuration::updateValue(
+                    $prefix . $key,
+                    trim(Tools::getValue($prefix . $key))
+                );
+            }
+
             foreach (FrConfiguration::toggleKeys() as $key) {
                 Configuration::updateValue(
                     $prefix . $key,
@@ -213,15 +244,21 @@ class FrSentry extends Module
         $helper->fields_value = [
             $prefix . 'BACKEND_DSN' => $backend['dsn'],
             $prefix . 'FRONTEND_DSN' => $frontend['dsn'],
+            $prefix . 'BACKEND_MONITOR_FRONT' => (int) $backend['monitorFront'],
             $prefix . 'BACKEND_MONITOR_ADMIN' => (int) $backend['monitorAdmin'],
+            $prefix . 'BACKEND_MONITOR_CLI' => (int) $backend['monitorCli'],
             $prefix . 'BACKEND_TRACK_USER' => (int) $backend['track']['userErrors'],
             $prefix . 'BACKEND_TRACK_DEPRECATION' => (int) $backend['track']['deprecation'],
             $prefix . 'BACKEND_TRACK_WARNING' => (int) $backend['track']['warning'],
             $prefix . 'BACKEND_TRACK_NOTICE' => (int) $backend['track']['notice'],
-            $prefix . 'BACKEND_TRACING' => (int) $backend['tracing']['enabled'],
+            $prefix . 'BACKEND_TRACING_FRONT' => (int) $backend['tracing']['front'],
+            $prefix . 'BACKEND_TRACING_ADMIN' => (int) $backend['tracing']['admin'],
             $prefix . 'BACKEND_TRACING_RATE' => $backend['tracing']['sampleRate'],
-            $prefix . 'BACKEND_PROFILING' => (int) $backend['profiling']['enabled'],
+            $prefix . 'BACKEND_PROFILING_FRONT' => (int) $backend['profiling']['front'],
+            $prefix . 'BACKEND_PROFILING_ADMIN' => (int) $backend['profiling']['admin'],
             $prefix . 'BACKEND_PROFILING_RATE' => $backend['profiling']['sampleRate'],
+            $prefix . 'FRONTEND_DENY_URLS' => $frontend['denyUrls'],
+            $prefix . 'FRONTEND_MONITOR' => (int) $frontend['monitor'],
             $prefix . 'FRONTEND_INSIGHTS' => (int) $frontend['insights'],
             $prefix . 'FRONTEND_TRACING_RATE' => $frontend['tracingRate'],
             $prefix . 'FRONTEND_PROFILING' => (int) $frontend['profiling'],
@@ -264,14 +301,33 @@ class FrSentry extends Module
             ],
             [
                 'form' => [
-                    'legend' => ['title' => $this->l('Backend Settings'), 'icon' => 'icon-cogs'],
+                    'legend' => ['title' => $this->l('Backend Settings (PHP)'), 'icon' => 'icon-cogs'],
                     'input' => [
                         [
                             'type' => 'switch',
-                            'label' => $this->l('Monitor back office'),
+                            'label' => $this->l('Monitor Front Office'),
+                            'name' => $prefix . 'BACKEND_MONITOR_FRONT',
+                            'desc' => $this->l('Enable Sentry PHP error monitoring in the storefront.'),
+                            'values' => $yesNoOptions,
+                        ],
+                        [
+                            'type' => 'switch',
+                            'label' => $this->l('Monitor Back Office'),
                             'name' => $prefix . 'BACKEND_MONITOR_ADMIN',
                             'desc' => $this->l('Enable Sentry error monitoring in the PrestaShop back office.'),
                             'values' => $yesNoOptions,
+                        ],
+                        [
+                            'type' => 'switch',
+                            'label' => $this->l('Monitor CLI / Cron Scripts'),
+                            'name' => $prefix . 'BACKEND_MONITOR_CLI',
+                            'desc' => $this->l('Capture errors in CLI and HTTP cron scripts that call PrestaShop directly. Requires init.php to be loaded. If the script loads init.php, Sentry initializes automatically. If not, call $module->boot() after loading config.inc.php.'),
+                            'values' => $yesNoOptions,
+                        ],
+                        [
+                            'type' => 'html',
+                            'name' => $prefix . 'SEPARATOR_TRACKING',
+                            'html_content' => '<hr style="margin:10px 0">',
                         ],
                         [
                             'type' => 'switch',
@@ -307,8 +363,24 @@ class FrSentry extends Module
             ],
             [
                 'form' => [
-                    'legend' => ['title' => $this->l('Frontend Settings'), 'icon' => 'icon-desktop'],
+                    'legend' => ['title' => $this->l('Frontend Settings (JS)'), 'icon' => 'icon-desktop'],
                     'input' => [
+                        [
+                            'type' => 'switch',
+                            'label' => $this->l('Monitor Front Office JavaScript'),
+                            'name' => $prefix . 'FRONTEND_MONITOR',
+                            'desc' => $this->l('Enable Sentry JavaScript error monitoring in the storefront. Turn this off to keep the Frontend DSN saved without loading the browser SDK.'),
+                            'values' => $yesNoOptions,
+                        ],
+                        [
+                            'type' => 'textarea',
+                            'label' => $this->l('Domain denylist'),
+                            'name' => $prefix . 'FRONTEND_DENY_URLS',
+                            'required' => false,
+                            'rows' => 5,
+                            'cols' => 60,
+                            'desc' => $this->l('Domains to exclude from Sentry JS error reporting. One domain per line (e.g. ads.example.com). Any error whose source URL contains a listed string will be silently dropped.'),
+                        ],
                         [
                             'type' => 'switch',
                             'label' => $this->l('Performance insights (frontend)'),
@@ -412,9 +484,16 @@ class FrSentry extends Module
         $inputs = [
             [
                 'type' => 'switch',
-                'label' => $this->l('Enable tracing'),
-                'name' => $prefix . 'BACKEND_TRACING',
-                'desc' => $this->l('Records a Sentry transaction for every sampled request. Shows request duration, controller, and child spans in the Sentry Performance tab. Requires a valid Backend DSN key.'),
+                'label' => $this->l('Enable Front Office tracing'),
+                'name' => $prefix . 'BACKEND_TRACING_FRONT',
+                'desc' => $this->l('Records a Sentry transaction for every sampled storefront request.'),
+                'values' => $yesNoOptions,
+            ],
+            [
+                'type' => 'switch',
+                'label' => $this->l('Enable Back Office tracing'),
+                'name' => $prefix . 'BACKEND_TRACING_ADMIN',
+                'desc' => $this->l('Records a Sentry transaction for every sampled admin panel request.'),
                 'values' => $yesNoOptions,
             ],
             [
@@ -424,7 +503,7 @@ class FrSentry extends Module
                 'class' => 'fixed-width-sm',
                 'suffix' => '%',
                 'required' => false,
-                'desc' => $this->l('Percentage of requests that create a Sentry transaction. 100 = every request; 10 = one in ten. Lower values reduce event volume and cost.'),
+                'desc' => $this->l('Shared rate for front and back office. Percentage of requests that create a Sentry transaction. 100 = every request; 10 = one in ten.'),
             ],
         ];
 
@@ -440,23 +519,32 @@ class FrSentry extends Module
         $inputs[] = [
             'type' => 'html',
             'name' => 'frsentry_excimer_status',
-            'html_content' => '<div class="form-group">
-                <label class="control-label col-lg-3">' . $this->l('Profiling (excimer)') . '</label>
-                <div class="col-lg-9">
-                    <span class="label ' . $badgeClass . '" style="font-size:13px;padding:5px 10px;">'
-                        . htmlspecialchars($badgeText) .
-                    '</span>
-                </div>
-            </div>',
+            'html_content' => '<div style="margin-left:-37.5%;width:150%;display:flex;align-items:baseline;">'
+                . '<label class="control-label" style="width:33.33%;padding-right:15px;text-align:right;">'
+                    . $this->l('Profiling (excimer)')
+                . '</label>'
+                . '<div>'
+                    . '<span class="label ' . $badgeClass . '" style="font-size:13px;padding:5px 10px;">'
+                        . htmlspecialchars($badgeText)
+                    . '</span>'
+                . '</div>'
+            . '</div>',
         ];
 
         if ($excimerLoaded) {
             // ── Profiling fields — only when excimer is loaded ────────────────
             $inputs[] = [
                 'type' => 'switch',
-                'label' => $this->l('Enable profiling'),
-                'name' => $prefix . 'BACKEND_PROFILING',
-                'desc' => $this->l('Attaches an excimer flame graph to each sampled transaction. Shows exactly which PHP functions consumed time during the request. Requires tracing to be enabled.'),
+                'label' => $this->l('Enable Front Office profiling'),
+                'name' => $prefix . 'BACKEND_PROFILING_FRONT',
+                'desc' => $this->l('Attaches an excimer flame graph to each sampled storefront transaction. Requires front office tracing to be enabled.'),
+                'values' => $yesNoOptions,
+            ];
+            $inputs[] = [
+                'type' => 'switch',
+                'label' => $this->l('Enable Back Office profiling'),
+                'name' => $prefix . 'BACKEND_PROFILING_ADMIN',
+                'desc' => $this->l('Attaches an excimer flame graph to each sampled admin panel transaction. Requires back office tracing to be enabled.'),
                 'values' => $yesNoOptions,
             ];
             $inputs[] = [
@@ -466,7 +554,7 @@ class FrSentry extends Module
                 'class' => 'fixed-width-sm',
                 'suffix' => '%',
                 'required' => false,
-                'desc' => $this->l('Percentage of traced requests that will also include a flame graph profile. Applied relative to the transaction sampling rate above. 100 = profile every traced request.'),
+                'desc' => $this->l('Shared rate for front and back office. Percentage of traced requests that will also include a flame graph profile. 100 = profile every traced request.'),
             ];
         } else {
             $inputs[] = [
@@ -481,7 +569,7 @@ class FrSentry extends Module
         return [
             'form' => [
                 'legend' => [
-                    'title' => $this->l('Backend Settings'),
+                    'title' => $this->l('PHP Profiling Settings'),
                     'icon' => 'icon-dashboard',
                 ],
                 'input' => $inputs,

@@ -42,9 +42,11 @@
     var PREFIX = 'FRSENTRY_';
 
     // Backend performance fields
-    var TRACING_FIELD   = PREFIX + 'BACKEND_TRACING';
+    var TRACING_FRONT   = PREFIX + 'BACKEND_TRACING_FRONT';
+    var TRACING_ADMIN   = PREFIX + 'BACKEND_TRACING_ADMIN';
     var TRACING_RATE    = PREFIX + 'BACKEND_TRACING_RATE';
-    var PROFILING_FIELD = PREFIX + 'BACKEND_PROFILING';
+    var PROFILING_FRONT = PREFIX + 'BACKEND_PROFILING_FRONT';
+    var PROFILING_ADMIN = PREFIX + 'BACKEND_PROFILING_ADMIN';
     var PROFILING_RATE  = PREFIX + 'BACKEND_PROFILING_RATE';
 
     // Frontend fields
@@ -96,18 +98,20 @@
     // -------------------------------------------------------------------------
 
     function applyBackendVisibility() {
-        var tracingOn   = isSwitchOn(TRACING_FIELD);
-        var profilingOn = tracingOn && isSwitchOn(PROFILING_FIELD);
+        var tracingOn   = isSwitchOn(TRACING_FRONT) || isSwitchOn(TRACING_ADMIN);
+        var profilingOn = tracingOn && (isSwitchOn(PROFILING_FRONT) || isSwitchOn(PROFILING_ADMIN));
 
-        // Force profiling off when tracing is disabled
+        // Force both profiling switches off when tracing is disabled entirely.
         if (!tracingOn) {
-            forceOff(PROFILING_FIELD);
+            forceOff(PROFILING_FRONT);
+            forceOff(PROFILING_ADMIN);
         }
 
         setFieldVisible(TRACING_RATE,    tracingOn);
-        // Profiling switch is only in the DOM when excimer is loaded;
+        // Profiling switches are only in the DOM when excimer is loaded;
         // setFieldVisible is a no-op when the element does not exist.
-        setFieldVisible(PROFILING_FIELD, tracingOn);
+        setFieldVisible(PROFILING_FRONT, tracingOn);
+        setFieldVisible(PROFILING_ADMIN, tracingOn);
         setFieldVisible(PROFILING_RATE,  profilingOn);
     }
 
@@ -277,10 +281,12 @@
     // -------------------------------------------------------------------------
 
     document.addEventListener('DOMContentLoaded', function () {
-        // Backend performance block — bind when tracing switch is present
-        if (document.querySelector('[name="' + TRACING_FIELD + '"]')) {
-            bindSwitch(TRACING_FIELD,   applyBackendVisibility);
-            bindSwitch(PROFILING_FIELD, applyBackendVisibility);
+        // Backend performance block — bind when at least one tracing switch is present
+        if (document.querySelector('[name="' + TRACING_FRONT + '"]')) {
+            bindSwitch(TRACING_FRONT,   applyBackendVisibility);
+            bindSwitch(TRACING_ADMIN,   applyBackendVisibility);
+            bindSwitch(PROFILING_FRONT, applyBackendVisibility);
+            bindSwitch(PROFILING_ADMIN, applyBackendVisibility);
             applyBackendVisibility();
         }
 

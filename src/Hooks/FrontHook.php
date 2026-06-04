@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Copyright (c) 2026 Frento IT <info@frentoit.com>
  *
  * NOTICE OF LICENSE
@@ -26,6 +26,9 @@ use Frento\FrSentry\FrConfiguration;
 
 class FrontHook
 {
+    /** @var bool True once moduleRoutes fires — signals a normal dispatch cycle. */
+    private static $routesFired = false;
+
     /**
      * Registers the hooks this module listens to.
      * Called once during module installation.
@@ -37,7 +40,8 @@ class FrontHook
     public static function registerHooks(\Module $module): bool
     {
         return $module->registerHook('actionFrontControllerSetMedia')
-            && $module->registerHook('moduleRoutes');
+            && $module->registerHook('moduleRoutes')
+            && $module->registerHook('actionFrontControllerInitBefore');
     }
 
     /**
@@ -48,9 +52,30 @@ class FrontHook
      */
     public static function handleModuleRoutes(): array
     {
+        self::$routesFired = true;
         self::bootSentry();
 
         return [];
+    }
+
+    /**
+     * Fallback boot for cron scripts (CLI or HTTP direct call) that bootstrap
+     * PS via init.php without going through the dispatcher. These contexts are
+     * treated as cron monitoring — monitorCli is the toggle. When moduleRoutes
+     * already fired this is a normal dispatch cycle and we skip.
+     */
+    public static function handleFrontControllerInitBefore(): void
+    {
+        if (self::$routesFired) {
+            return;
+        }
+
+        $config = FrConfiguration::getConfiguration();
+
+        if (!empty($config['backend']['monitorCli'])) {
+            SentryReporter::markDirectCall();
+            self::bootSentry();
+        }
     }
 
     /**
@@ -68,7 +93,7 @@ class FrontHook
         $config = FrConfiguration::getConfiguration();
         $frontend = $config['frontend'];
 
-        if (empty($frontend['dsn'])) {
+        if (empty($frontend['dsn']) || empty($frontend['monitor'])) {
             return;
         }
 

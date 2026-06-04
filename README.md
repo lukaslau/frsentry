@@ -23,7 +23,7 @@ Real-time error monitoring for PrestaShop. Automatically captures PHP exceptions
 - Database failures captured with the full offending SQL query (stored as a Sentry context block, not truncated as a tag)
 - JavaScript errors captured via the official Sentry Browser SDK; errors from browser extensions and third-party domains are filtered out automatically
 - Duplicate suppression: the same exception is reported at most once per request
-- Back-office monitoring can be enabled or disabled independently of the front office
+- Back-office and front-office JavaScript monitoring can be enabled or disabled independently
 
 ### Rich Context on Every Event
 
@@ -111,6 +111,7 @@ Use the **Send test event** button next to each field to verify the connection b
 
 | Setting | Default | Description |
 |---|---|---|
+| Monitor front office | On | Send PHP errors that occur in the storefront |
 | Monitor back office | Off | Send errors that occur in the PrestaShop admin panel |
 | Ignore user errors | On | Suppress `E_USER_ERROR`, `E_USER_WARNING`, `E_USER_NOTICE` |
 | Ignore deprecated | On | Suppress `E_DEPRECATED`, `E_USER_DEPRECATED` |
@@ -121,6 +122,7 @@ Use the **Send test event** button next to each field to verify the connection b
 
 | Setting | Default | Description |
 |---|---|---|
+| Monitor front office JavaScript | On | Load the Sentry Browser SDK and capture storefront JavaScript errors |
 | Performance insights | Off | Enable the Browser Tracing integration |
 | Tracing sample rate | 20 % | Percentage of page loads that create a Sentry transaction |
 | Performance profiling | Off | Enable the JS Self-Profiling integration |
