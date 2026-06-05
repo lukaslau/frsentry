@@ -8,11 +8,10 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo [2/2] Regenerating autoloader...
-cd libs\sentry
-composer dump-autoload --no-scripts --optimize
+echo [2/2] Updating Composer package...
+composer update frento/frsentry-scoped
 if %ERRORLEVEL% neq 0 (
-    echo ERROR: composer dump-autoload failed.
+    echo ERROR: composer update failed.
     exit /b 1
 )
 

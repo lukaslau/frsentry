@@ -8,8 +8,18 @@
       "email": "info@frentoit.com"
     }
   ],
+  "repositories": [
+    {
+      "type": "path",
+      "url": "do_not_include/sentry",
+      "options": {
+        "symlink": false
+      }
+    }
+  ],
   "require": {
     "php": ">=7.2.0",
+    "frento/frsentry-scoped": "*",
     "symfony/options-resolver": "^5.4",
     "symfony/deprecation-contracts": "^2.5",
     "psr/log": "^1.0",

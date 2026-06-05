@@ -31,7 +31,7 @@ if (!defined('_PS_VERSION_')) {
  */
 class PrestaShopException extends PrestaShopExceptionCore
 {
-    public function displayMessage()
+    public function displayMessage($dieAfterDisplay = true)
     {
         try {
             Frento\FrSentry\Core\SentryReporter::capture($this, ['type' => 'PrestaShopException']);
@@ -39,6 +39,6 @@ class PrestaShopException extends PrestaShopExceptionCore
             // Never let the error reporter itself crash the application
         }
 
-        parent::displayMessage();
+        parent::displayMessage($dieAfterDisplay);
     }
 }

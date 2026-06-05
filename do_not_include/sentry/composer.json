@@ -1,10 +1,9 @@
 {
     "name": "frento/frsentry-scoped",
+    "version": "1.0.0",
     "autoload": {
-        "classmap": ["vendor/"],
-        "files": [
-            "vendor/functions.php"
-        ]
+        "classmap": ["."],
+        "files": ["functions.php"]
     },
     "config": {
         "optimize-autoloader": true,

@@ -30,7 +30,6 @@ class frsentryJsModuleFrontController extends ModuleFrontController
 {
     public function initContent()
     {
-        $context = Context::getContext();
         $config = Frento\FrSentry\FrConfiguration::getConfiguration();
         $frontend = $config['frontend'];
 
@@ -50,18 +49,18 @@ class frsentryJsModuleFrontController extends ModuleFrontController
 
         $data = [
             'frsentryApikey' => $frontend['dsn'],
-            'insightsFrontend' => (int) ($frontend['insights'] ?? false),
-            'profilingFrontend' => (int) ($frontend['profiling'] ?? false),
-            'frontendTracingRate' => round((int) ($frontend['tracingRate'] ?? 20) / 100, 2),
-            'frontendProfilingRate' => round((int) ($frontend['profilingRate'] ?? 20) / 100, 2),
+            'insightsFrontend' => (int) $frontend['insights'],
+            'profilingFrontend' => (int) $frontend['profiling'],
+            'frontendTracingRate' => round($frontend['tracingRate'] / 100, 2),
+            'frontendProfilingRate' => round($frontend['profilingRate'] / 100, 2),
             'ipAddress' => Tools::getRemoteAddr(),
-            'shopUrl' => preg_quote((string) ($context->shop->domain ?? ''), '/'),
-            'denyUrlsJson' => json_encode($denyUrlsList, JSON_UNESCAPED_UNICODE),
+            'shopUrl' => preg_quote((string) ($this->context->shop->domain ?? ''), '/'),
+            'denyUrlsJson' => json_encode($denyUrlsList, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG),
         ];
 
-        if (!empty($context->customer->id)) {
+        if (!empty($this->context->customer->id)) {
             $data['trackUser'] = true;
-            $data['userId'] = $context->customer->id;
+            $data['userId'] = $this->context->customer->id;
         }
 
         // This response contains session-specific data (customer ID, IP).

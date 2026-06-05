@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4bbd04f18bc1cba94c8fbc5e8563fa0a",
+    "content-hash": "4867d15dccc990adbd8a55ffc90bce4a",
     "packages": [
         {
             "name": "composer/package-versions-deprecated",
@@ -79,6 +79,28 @@
             ],
             "abandoned": true,
             "time": "2022-01-17T14:14:24+00:00"
+        },
+        {
+            "name": "frento/frsentry-scoped",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "do_not_include/sentry",
+                "reference": "0703ab430530dc5cd1756656293a6888804bfa33"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "."
+                ],
+                "files": [
+                    "functions.php"
+                ]
+            },
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
         },
         {
             "name": "jean85/pretty-package-versions",
