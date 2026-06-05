@@ -87,9 +87,8 @@ class FrontHook
      *                                  frontend insights AND profiling are on
      *    -9  /frsentry/js              dynamic init config (DSN, integrations, user)
      */
-    public static function handleSetMedia(): void
+    public static function handleSetMedia(\FrontController $controller, \Link $link, int $shopId): void
     {
-        $context = \Context::getContext();
         $config = FrConfiguration::getConfiguration();
         $frontend = $config['frontend'];
 
@@ -103,7 +102,7 @@ class FrontHook
             header('Document-Policy: js-profiling');
         }
 
-        $context->controller->registerJavascript(
+        $controller->registerJavascript(
             'frsentry-sdk',
             'modules/frsentry/views/js/sentry.min.js',
             ['priority' => -11, 'position' => 'bottom']
@@ -114,21 +113,21 @@ class FrontHook
         if (!empty($frontend['insights'])
             && !empty($frontend['profiling'])
         ) {
-            $context->controller->registerJavascript(
+            $controller->registerJavascript(
                 'frsentry-profiling',
                 'modules/frsentry/views/js/sentry-profiling.min.js',
                 ['priority' => -10, 'position' => 'bottom']
             );
         }
 
-        $initUrl = $context->link->getModuleLink(
+        $initUrl = $link->getModuleLink(
             'frsentry',
             'js',
-            ['shop' => $context->shop->id],
+            ['shop' => $shopId],
             (bool) \Configuration::get('PS_SSL_ENABLED')
         );
 
-        $context->controller->registerJavascript(
+        $controller->registerJavascript(
             'frsentry-init',
             $initUrl,
             ['priority' => -9, 'position' => 'bottom', 'server' => 'remote']

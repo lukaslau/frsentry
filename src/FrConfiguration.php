@@ -146,7 +146,8 @@ class FrConfiguration
      *     insights: bool,
      *     tracingRate: int,
      *     profiling: bool,
-     *     profilingRate: int
+     *     profilingRate: int,
+     *     denyUrls: string
      *   }
      * }
      */

@@ -36,7 +36,7 @@ use Isolated\Symfony\Component\Finder\Finder;
 return [
     'prefix' => 'FrSentry',
 
-    'output-dir' => __DIR__ . '/../libs/sentry',
+    'output-dir' => __DIR__ . '/sentry',
 
     'finders' => [
         // Scope ONLY the Sentry SDK source files.

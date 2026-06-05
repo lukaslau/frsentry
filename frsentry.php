@@ -18,10 +18,6 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-// Load the scoped Sentry SDK library
-require_once __DIR__ . '/libs/sentry/autoload.php';
-
-// Load dependencies: Symfony\OptionsResolver, Psr\Log, etc.
 require_once __DIR__ . '/vendor/autoload.php';
 
 use Frento\FrSentry\FrConfiguration;
@@ -91,17 +87,36 @@ class FrSentry extends Module
 
     public function hookModuleRoutes(): array
     {
+        $this->passContextToReporter();
+
         return FrontHook::handleModuleRoutes();
     }
 
     public function hookActionFrontControllerInitBefore(): void
     {
+        $this->passContextToReporter();
         FrontHook::handleFrontControllerInitBefore();
     }
 
     public function hookActionFrontControllerSetMedia(): void
     {
-        FrontHook::handleSetMedia();
+        $this->passContextToReporter();
+        FrontHook::handleSetMedia(
+            $this->context->controller,
+            $this->context->link,
+            (int) $this->context->shop->id
+        );
+    }
+
+    private function passContextToReporter(): void
+    {
+        Frento\FrSentry\Core\SentryReporter::setContextTags([
+            'shopId' => $this->context->shop->id ?? null,
+            'languageId' => $this->context->language->id ?? null,
+            'controller' => $this->context->controller->php_self ?? null,
+            'customerId' => $this->context->customer->id ?? null,
+            'cartId' => $this->context->cart->id ?? null,
+        ]);
     }
 
     public function uninstall()
@@ -130,19 +145,14 @@ class FrSentry extends Module
 
             $dsn = trim((string) Tools::getValue('dsn'));
             if (empty($dsn)) {
-                die(json_encode(['success' => false, 'error' => 'No DSN provided']));
+                exit(json_encode(['success' => false, 'error' => 'No DSN provided']));
             }
             try {
                 // Collect transport-level error messages so we can return a
                 // meaningful error to the admin instead of a generic "failed".
-                $transportErrors = [];
-                $transportLogger = new class($transportErrors) extends Psr\Log\AbstractLogger {
-                    private $errors;
-
-                    public function __construct(array &$errors)
-                    {
-                        $this->errors = &$errors;
-                    }
+                $transportLogger = new class() extends Psr\Log\AbstractLogger {
+                    /** @var string[] */
+                    public array $errors = [];
 
                     public function log($level, $message, array $context = []): void
                     {
@@ -168,16 +178,16 @@ class FrSentry extends Module
                 $eventId = \FrSentry\Sentry\captureException(new Exception('FrSentry test'));
 
                 if ($eventId !== null) {
-                    die(json_encode(['success' => true, 'eventId' => (string) $eventId]));
+                    exit(json_encode(['success' => true, 'eventId' => (string) $eventId]));
                 }
 
-                $error = !empty($transportErrors)
-                    ? implode(' | ', $transportErrors)
+                $error = !empty($transportLogger->errors)
+                    ? implode(' | ', $transportLogger->errors)
                     : 'Event was not accepted by Sentry (check DSN and project settings)';
 
-                die(json_encode(['success' => false, 'error' => $error]));
+                exit(json_encode(['success' => false, 'error' => $error]));
             } catch (Throwable $e) {
-                die(json_encode(['success' => false, 'error' => $e->getMessage()]));
+                exit(json_encode(['success' => false, 'error' => $e->getMessage()]));
             }
         }
 
@@ -439,23 +449,18 @@ class FrSentry extends Module
      */
     private function renderTestButton(string $target, string $adminUrl): array
     {
-        $html = '<div class="form-group frsentry-test-row" data-target="' . $target . '"
-                      style="display:none;">
-            <div class="col-lg-9 col-lg-offset-3" style="display:flex;align-items:center;gap:12px;">
-                <button type="button"
-                        class="btn btn-default frsentry-test-btn"
-                        data-target="' . $target . '"
-                        data-url="' . htmlspecialchars($adminUrl) . '">
-                    <i class="icon-paper-plane"></i>&nbsp;' . $this->l('Send test event') . '
-                </button>
-                <span class="frsentry-test-result"></span>
-            </div>
-        </div>';
+        $this->context->smarty->assign([
+            'target' => $target,
+            'adminUrl' => $adminUrl,
+            'label_send_test' => $this->l('Send test event'),
+        ]);
 
         return [
             'type' => 'html',
             'name' => 'frsentry_test_btn_' . $target,
-            'html_content' => $html,
+            'html_content' => $this->context->smarty->fetch(
+                _PS_MODULE_DIR_ . $this->name . '/views/templates/admin/test_button.tpl'
+            ),
         ];
     }
 
@@ -516,19 +521,17 @@ class FrSentry extends Module
             $badgeText = $this->l('excimer extension: not loaded');
         }
 
+        $this->context->smarty->assign([
+            'badgeClass' => $badgeClass,
+            'badgeText' => $badgeText,
+            'label_profiling' => $this->l('Profiling (excimer)'),
+        ]);
         $inputs[] = [
             'type' => 'html',
             'name' => 'frsentry_excimer_status',
-            'html_content' => '<div style="margin-left:-37.5%;width:150%;display:flex;align-items:baseline;">'
-                . '<label class="control-label" style="width:33.33%;padding-right:15px;text-align:right;">'
-                    . $this->l('Profiling (excimer)')
-                . '</label>'
-                . '<div>'
-                    . '<span class="label ' . $badgeClass . '" style="font-size:13px;padding:5px 10px;">'
-                        . htmlspecialchars($badgeText)
-                    . '</span>'
-                . '</div>'
-            . '</div>',
+            'html_content' => $this->context->smarty->fetch(
+                _PS_MODULE_DIR_ . $this->name . '/views/templates/admin/excimer_status.tpl'
+            ),
         ];
 
         if ($excimerLoaded) {
@@ -557,12 +560,15 @@ class FrSentry extends Module
                 'desc' => $this->l('Shared rate for front and back office. Percentage of traced requests that will also include a flame graph profile. 100 = profile every traced request.'),
             ];
         } else {
+            $this->context->smarty->assign([
+                'label_install_excimer' => $this->l('Install the excimer PHP extension to enable flame graph profiling for backend requests (apt install php-excimer).'),
+            ]);
             $inputs[] = [
                 'type' => 'html',
                 'name' => 'frsentry_profiling_note',
-                'html_content' => '<div class="form-group"><div class="col-lg-9 col-lg-offset-3">'
-                    . '<p class="help-block">' . $this->l('Install the excimer PHP extension to enable flame graph profiling for backend requests (apt install php-excimer).') . '</p>'
-                    . '</div></div>',
+                'html_content' => $this->context->smarty->fetch(
+                    _PS_MODULE_DIR_ . $this->name . '/views/templates/admin/profiling_note.tpl'
+                ),
             ];
         }
 

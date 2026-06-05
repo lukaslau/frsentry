@@ -35,6 +35,9 @@ class SentryReporter
     /** @var \FrSentry\Sentry\Tracing\Transaction|null Active transaction for the current request */
     private static $transaction;
 
+    /** @var array<string, mixed> Request context tags set by the module class before handler registration */
+    private static $contextTags = [];
+
     /** @var array<string, true> Hashes of exceptions already sent this request */
     private static $sentErrors = [];
 
@@ -54,6 +57,19 @@ class SentryReporter
      * fires without a preceding moduleRoutes — so isMonitoringEnabled() treats
      * it the same as CLI and checks monitorCli instead of monitorFront.
      */
+    /**
+     * Stores request-level context data for use in buildTags().
+     * Called by the module class (which owns $this->context) before each hook.
+     *
+     * @param array<string, mixed> $tags
+     */
+    public static function setContextTags(array $tags): void
+    {
+        self::$contextTags = array_filter($tags, static function ($v) {
+            return $v !== null && $v !== 0 && $v !== '';
+        });
+    }
+
     public static function markDirectCall(): void
     {
         self::$isDirectCall = true;
@@ -312,28 +328,15 @@ class SentryReporter
      */
     private static function buildTags(): array
     {
-        $context = \Context::getContext();
-        $tags = [
+        $tags = array_merge([
             'phpVersion' => PHP_VERSION,
             'psVersion' => defined('_PS_VERSION_') ? _PS_VERSION_ : null,
-            'shopId' => $context->shop->id ?? null,
-            'languageId' => $context->language->id ?? null,
-        ];
+        ], self::$contextTags);
 
-        if (!empty($context->controller->php_self)) {
-            $tags['controller'] = $context->controller->php_self;
-        }
-
-        if (!empty($context->customer->id)) {
-            $tags['customerId'] = $context->customer->id;
-        }
-
-        if (!empty($context->cart->id)) {
-            $tags['cartId'] = $context->cart->id;
-
+        if (!empty(self::$contextTags['cartId'])) {
             // Resolve order ID when the cart has already been converted
             // (e.g. on the order-confirmation page or during post-payment hooks).
-            $orderId = (int) \Order::getIdByCartId($context->cart->id);
+            $orderId = (int) \Order::getIdByCartId(self::$contextTags['cartId']);
             if ($orderId > 0) {
                 $tags['orderId'] = $orderId;
             }

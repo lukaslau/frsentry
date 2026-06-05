@@ -29,7 +29,7 @@
 
 {literal}
     Sentry.init({
-        dsn: '{/literal}{$frsentryApikey|escape:'javascript'}{literal}',
+        dsn: '{/literal}{$frsentryApikey|escape:'javascript':'UTF-8'}{literal}',
         ignoreErrors: [
             // Facebook in-app browser (FBAN/FBIOS) injects JS that calls
             // window.webkit.messageHandlers — not present in all WKWebView contexts.
@@ -63,7 +63,7 @@
                 // Frames with '<anonymous>', 'eval', or no filename are left through —
                 // those originate from inline scripts or manual captures, not third parties.
                 if (firstFrame && firstFrame.filename && /^https?:\/\//.test(firstFrame.filename)) {
-                    var internalUrl = /^https?:\/\/((cdn|www)\.)?{/literal}{$shopUrl|escape:'javascript'}{literal}/;
+                    var internalUrl = /^https?:\/\/((cdn|www)\.)?{/literal}{$shopUrl|escape:'javascript':'UTF-8'}{literal}/;
                     if (!internalUrl.test(firstFrame.filename)) {
                         return null;
                     }
@@ -80,12 +80,12 @@
             /facebook\.net/i,
             /connect\.facebook\.net/i,
             /doubleclick\.net/i
-        ].concat({/literal}{$denyUrlsJson}{literal})
+        ].concat({/literal}{$denyUrlsJson|nofilter}{literal})
     });
 {/literal}
 
 {if $trackUser}
-{literal}Sentry.setUser({ ip_address: '{/literal}{$ipAddress|escape:'javascript'}{literal}', id_user: '{/literal}{$userId|intval}{literal}' });{/literal}
+{literal}Sentry.setUser({ ip_address: '{/literal}{$ipAddress|escape:'javascript':'UTF-8'}{literal}', id_user: '{/literal}{$userId|intval}{literal}' });{/literal}
 {else}
-{literal}Sentry.setUser({ ip_address: '{/literal}{$ipAddress|escape:'javascript'}{literal}' });{/literal}
+{literal}Sentry.setUser({ ip_address: '{/literal}{$ipAddress|escape:'javascript':'UTF-8'}{literal}' });{/literal}
 {/if}
